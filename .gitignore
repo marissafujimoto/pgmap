@@ -2,3 +2,13 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
+.secrets/*
+.httr-oauth
+docs
+inst/extdata/cached-secrets/*
+.Rprofile
+.Rapp.history
+testthat-problems.rds
+.Renviron
+inst/doc
