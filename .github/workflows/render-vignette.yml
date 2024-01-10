@@ -1,10 +1,12 @@
 
 # Candace Savonen Jan 2024
 
-name: Render vignette after merge
+name: Render vignette with Docker image
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [ main, staging ]
   push:
     branches: [ main, staging ]
     paths:
