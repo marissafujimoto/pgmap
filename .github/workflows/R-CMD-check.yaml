@@ -74,6 +74,9 @@ jobs:
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), check_dir = "check")
         shell: Rscript {0}
 
+      - name: Run vignette
+        run: Rscript -e "rmarkdown::render('vignettes/getting-started.Rmd')"
+
       - name: Check testthat
         if: runner.os != 'Windows'
         id: check_check
