@@ -14,10 +14,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-# gimap
+# gimap tutorial
 
 ```{r}
-data <- gimap::example_data()
+library(gimap)
+```
+
+```{r}
+data <- example_data()
 ```
 
 
