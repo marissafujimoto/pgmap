@@ -21,6 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Login as jhudsl-robot
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git config --global user.email "itcrtrainingnetwork@gmail.com"
+          git config --global user.name "jhudsl-robot"
+          
       - name: Run styler
         run: Rscript -e "styler::style_file(list.files(pattern = 'Rmd$', recursive = TRUE, full.names = TRUE));warnings()"
 
