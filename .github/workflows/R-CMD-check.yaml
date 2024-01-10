@@ -69,12 +69,6 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
-          METRICMINER_CALENDLY: ${{ secrets.METRICMINER_CALENDLY }}
-          METRICMINER_GITHUB_PAT: ${{ secrets.METRICMINER_GITHUB_PAT }}
-          METRICMINER_GOOGLE_ACCESS: ${{ secrets.METRICMINER_GOOGLE_ACCESS }}
-          METRICMINER_GOOGLE_REFRESH: ${{ secrets.METRICMINER_GOOGLE_REFRESH }}
         run: |
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), check_dir = "check")
