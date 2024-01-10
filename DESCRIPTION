@@ -15,8 +15,9 @@ License: GPL-3
 URL: https://github.com/FredHutch/gimap
 BugReports: https://github.com/FredHutch/gimap/issues
 Imports:
-    Targets
+    targets
 Suggests: 
+    tidyverse,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
