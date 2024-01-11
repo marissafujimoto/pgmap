@@ -22,6 +22,24 @@ library(gimap)
 
 ```{r}
 data <- example_data()
+
+# Let's examine this example metadata
+data
+```
+```{r}
+colnames(data)
+```
+
+## Setting up data
+
+We are setting up counts data, but have to remove columns that are not counts. 
+
+```{r}
+data <- example_data() %>%
+  dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
+  as.matrix()
+  
+counts_data <- setup_data(data)
 ```
 
 
