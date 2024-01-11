@@ -1,18 +1,17 @@
-# Hello, world!
-#
-# This is an example function named 'hello' 
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Install Package:           'Cmd + Shift + B'
-#   Check Package:             'Cmd + Shift + E'
-#   Test Package:              'Cmd + Shift + T'
-
-hello <- function() {
-  print("Hello, world!")
+#' This is a title for a function
+#' @description This is a function here's where we describe what it does
+#' @param parameter Here's a parameter let's describe it here
+#' @export
+#' @examples \dontrun{
+#'
+#' pg_data <- example_data()
+#' }
+example_data <- function() {
+  file <- list.files(
+    pattern = "PP_pgPEN_HeLa_counts.txt",
+    recursive = TRUE,
+    system.file("extdata", package = "gimap"),
+    full.names = TRUE
+  )
+  readr::read_tsv(file)
 }

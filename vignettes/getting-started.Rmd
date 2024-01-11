@@ -1,0 +1,30 @@
+---
+title: "getting-started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# gimap tutorial
+
+```{r}
+library(gimap)
+```
+
+```{r}
+data <- example_data()
+```
+
+
+```{r}
+sessionInfo()
+```
