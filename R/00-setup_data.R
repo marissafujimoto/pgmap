@@ -17,6 +17,7 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
   new_data <- gimap_data <- list(
     raw_counts =  NULL,
     counts_per_sample = NULL,
+    coverage = NULL,
     transformed_data = list(
       long_form = NULL,
       count_norm = NULL,
@@ -37,6 +38,9 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
 
   # Calculate the counts per sample
   new_data$counts_per_sample <- apply(counts, 2, sum)
+
+  # Calculate the coverage per pgRNA
+  new_data$coverage <- new_data$counts_per_sample/nrow(counts)
 
   # Transform the data
   new_data$transformed_data$count_norm <- -log10((counts + 1)/sum(counts))
