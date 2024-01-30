@@ -33,6 +33,19 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
   if (is.null(counts)) stop("counts cannot be NULL")
   if (!is.matrix(counts)) stop("counts can only be in the form of a matrix")
 
+  # If they don't give sample metadata, then we will make up a row id
+  if (is.null(sample_metadata)) sample_metadata <- 1:nrow(counts)
+  if (!is.data.frame(sample_metadata)) stop("metadata can only be in the form of a data.frame")
+  if (nrow(sample_metadata) != ncol(counts)) stop("the number of rows in the sample metadata is not equal to the number of columns in the counts" )
+
+  new_data$metadata$sample_metadata <- sample_metadata
+
+  if (!is.null(pg_metadata)) {
+    if (!is.data.frame(pg_metadata)) stop("metadata can only be in the form of a data.frame")
+    if (nrow(pg_metadata) != nrow(counts)) stop("the number of rows in the pg_info is not equal to the number of rows in the counts" )
+
+    new_data$metadata$pg_metadata <- pg_metadata
+  }
   # Store the raw counts
   new_data$raw_counts <- counts
 
@@ -47,39 +60,6 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
   new_data$transformed_data$cpm <- apply(counts, 2, function(x) (x/new_data$counts_per_sample)*1e6)
   new_data$transformed_data$log2_cpm <- log2(new_data$cpm +1)
 
-  # If they don't give sample metadata, then we will make up a row id
-  if (is.null(sample_metadata)) sample_metadata <- 1:nrow(counts)
-  if (!is.data.frame(sample_metadata)) stop("metadata can only be in the form of a data.frame")
-  if (nrow(sample_metadata) != ncol(counts)) stop("the number of rows in the sample metadata is not equal to the number of columns in the counts" )
-
-  new_data$metadata$sample_metadata <- sample_metadata
-
-
-  if (!is.null(pg_metadata)) {
-    if (!is.data.frame(pg_metadata)) stop("metadata can only be in the form of a data.frame")
-    if (nrow(pg_metadata) != nrow(counts)) stop("the number of rows in the pg_info is not equal to the number of rows in the counts" )
-
-    new_data$metadata$pg_metadata <- pg_metadata
-  }
   return(new_data)
 }
-
-
-## This is an idea but not sure we are going to use R6 yet
-## gimap special object
-gimap_data <- R6::R6Class(
-  classname = "gimap_data",
-  public = list(
-    metadata = list(),
-    counts =  list(),
-    counts_per_sample = vector(),
-    add_metadata = function(metadata) {
-      self$metadata <- metadata
-    },
-    add_counts = function(counts) {
-      self$counts <- counts
-      self$counts_per_sample <- apply(counts, 2, sum)
-    }
-  ),
-  class = TRUE)
 

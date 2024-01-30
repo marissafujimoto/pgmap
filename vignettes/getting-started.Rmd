@@ -73,7 +73,9 @@ You'll notice that this set up gives us a list of formatted data. This contains 
 str(gimap_dataset)
 ```
 
-
+```{r}
+run_qc(gimap_dataset)
+```
 
 ```{r}
 sessionInfo()

@@ -4,7 +4,7 @@
 #' @param parameter Here's a parameter let's describe it here
 #' @export
 #' @importFrom tidyr pivot_longer
-#' @import ggplot
+#' @import ggplot2
 #' @examples \dontrun{
 #'
 #' }
@@ -21,9 +21,9 @@ run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_
     tidyr::pivot_longer(data.frame(gimap_dataset$transformed_data$count_norm),
                         everything(),
                         names_to = "sample",
-                        values_to = "count normalized")
+                        values_to = "count_normalized")
 
-  counts_cdf <- ggplot(long_form, aes(x = count, color = sample)) +
+  counts_cdf <- ggplot(long_form, aes(x = count_normalized, color = sample)) +
     stat_ecdf() +
     labs(x = "-log10(count/total_count)", # bquote(~-log[10]~"(count/total_count)")
          y = "Expected_pgRNAs",
