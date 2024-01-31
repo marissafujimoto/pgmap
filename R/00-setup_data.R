@@ -61,7 +61,7 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
   new_data$coverage <- new_data$counts_per_sample/nrow(counts)
 
   # Transform the data
-  new_data$transformed_data$count_norm <- -log10((counts + 1)/sum(counts))
+  new_data$transformed_data$count_norm <- apply(counts, 2, function(x) -log10((x+1)/sum(x)))
   new_data$transformed_data$cpm <- apply(counts, 2, function(x) (x/new_data$counts_per_sample)*1e6)
   new_data$transformed_data$log2_cpm <- log2(new_data$cpm +1)
 
