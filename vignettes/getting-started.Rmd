@@ -17,13 +17,62 @@ knitr::opts_chunk$set(
 # gimap tutorial
 
 ```{r}
+library(magrittr)
 library(gimap)
 ```
 
 ```{r}
-data <- example_data()
+example_data <- example_data()
+
+# Let's examine this example metadata
+example_data
 ```
 
+```{r}
+colnames(example_data)
+```
+
+## Setting up data
+
+We're going to set up three datasets. The first is required, its the counts that the genetic interaction analysis will be used for. 
+
+```{r}
+example_counts <- example_data %>%
+  dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
+  as.matrix()
+```
+
+The next two datasets are metadata that describe the dimensions of the count data. 
+- These both need to be data frames. 
+- The sizes of these metadata must correspond to the dimensions of the counts data. 
+- The first column of the pg_metadata must be a unique id
+
+```{r}
+# pg metadata is the information that describes the paired guide RNA targets
+example_pg_metadata <- example_data %>%
+  dplyr::select(c("id", "seq_1", "seq_2"))
+
+# sample metadata is the information that describes 
+example_sample_metadata <- data.frame(
+  id = 1:5,
+  day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")), 
+  rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
+)
+```
+
+Now let's setup our data using `setup_data()`. Optionally we can provide the metadata in this function as well so that it is stored with the data. 
+
+```{r}
+gimap_dataset <- setup_data(counts = example_counts, 
+                            pg_metadata = example_pg_metadata,
+                            sample_metadata = example_sample_metadata)
+```
+
+You'll notice that this set up gives us a list of formatted data. This contains the original counts we gave `setup_data()` function but also normalized counts, and the total counts per sample. 
+
+```{r}
+str(gimap_dataset)
+```
 
 ```{r}
 sessionInfo()
