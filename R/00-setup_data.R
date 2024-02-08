@@ -57,9 +57,6 @@ setup_data <- function(counts = NULL, pg_metadata = NULL, sample_metadata = NULL
   # Calculate the counts per sample
   new_data$counts_per_sample <- apply(counts, 2, sum)
 
-  # Calculate the coverage per pgRNA
-  new_data$coverage <- new_data$counts_per_sample/nrow(counts)
-
   # Transform the data
   new_data$transformed_data$count_norm <- apply(counts, 2, function(x) -log10((x+1)/sum(x)))
   new_data$transformed_data$cpm <- apply(counts, 2, function(x) (x/new_data$counts_per_sample)*1e6)
