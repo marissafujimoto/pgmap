@@ -33,7 +33,7 @@ run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_
     theme(aspect.ratio = wide_ar)
 
   counts_cdf
-  save_plot(counts_cdf)
+  save_plot(counts_cdf, out_dir = plots_dir)
 
 
 }

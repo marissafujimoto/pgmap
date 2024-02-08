@@ -54,6 +54,7 @@ example_pg_metadata <- example_data %>%
 
 # sample metadata is the information that describes 
 example_sample_metadata <- data.frame(
+  id = 1:5,
   day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")), 
   rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
 )
@@ -71,10 +72,6 @@ You'll notice that this set up gives us a list of formatted data. This contains 
 
 ```{r}
 str(gimap_dataset)
-```
-
-```{r}
-run_qc(gimap_dataset)
 ```
 
 ```{r}

@@ -38,7 +38,7 @@ print_kbl <- function(tbl) {
                   bootstrap_options = c("striped", "hover", "responsive"))
 }
 
-save_tbl <- function(tbl){
+save_tbl <- function(tbl, out_dir = NULL, params = NULL){
   tbl_str <- deparse(substitute(tbl))
   tbl_name <- str_split(tbl_str, pattern = "\\.")[[1]][2]
   write_tsv(tbl, file.path(out_dir, "tables", "tsv", paste0(params$cell_line, "_", tbl_name, ".txt")))
@@ -46,7 +46,7 @@ save_tbl <- function(tbl){
 }
 
 
-save_plot <- function(plt){
+save_plot <- function(plt, out_dir = NULL){
   plt_str <- deparse(substitute(plt))
   ggsave(plot = plt,
          filename = file.path(out_dir, "plots", "pdf", paste0(params$cell_line, "_", plt_str, ".pdf")))
