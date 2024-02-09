@@ -10,13 +10,13 @@
 #' }
 
 
-run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) {
+run_qc <- function(gimap_dataset, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) {
   
   if (!dir.exists(plots_dir)){
     dir.create(plots_dir, showWarnings = TRUE)
   }
   
-  if (!("gimap_dataset" %>% class(gimap_data))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
+  if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
   
   long_form <- 
     tidyr::pivot_longer(data.frame(gimap_dataset$transformed_data$count_norm),
@@ -48,7 +48,7 @@ run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_
     plot_theme() +
     theme(aspect.ratio = wide_ar,
           legend.position = "none") +
-    facet_wrap(~sample, scales = "free_y", ncol = ceiling(ncol(gimap_data$raw_counts)/2))
+    facet_wrap(~sample, scales = "free_y", ncol = ceiling(ncol(gimap_dataset$raw_counts)/2))
   
   sample_cpm_histogram
   save_plot(sample_cpm_histogram)
