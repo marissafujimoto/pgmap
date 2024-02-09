@@ -13,3 +13,5 @@ testthat-problems.rds
 .Renviron
 inst/doc
 git_token.txt
+/doc/
+/Meta/

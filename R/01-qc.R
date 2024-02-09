@@ -1,3 +1,4 @@
+
 #' This is a title for a function
 #' @description This is a function here's where we describe what it does
 #' @param parameter Here's a parameter let's describe it here
@@ -8,8 +9,9 @@
 #'
 #' }
 
-run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) { 
 
+run_qc <- function(gimap_data, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) {
+  
   if (!dir.exists(plots_dir)){
     dir.create(plots_dir, showWarnings = TRUE)
   }
