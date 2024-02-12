@@ -25,6 +25,9 @@ library(gimap)
 example_data <- example_data()
 
 # Let's examine this example metadata
+
+# TODO: ## this may or may not be the right place to do it, but perhaps a more descriptive comment of what we're looking at would help. e.g. "Let's examine this example pgPEN counts table, with column IDs representing time points at which gDNA was extracted and the experimental (biological/technical?) replicate number" 
+
 example_data
 ```
 
@@ -34,9 +37,11 @@ colnames(example_data)
 
 ## Setting up data
 
-We're going to set up three datasets. The first is required, its the counts that the genetic interaction analysis will be used for. 
+We're going to set up three datasets. The first is required, it's the counts that the genetic interaction analysis will be used for. 
 
 ```{r}
+# TODO: ## perhaps here we can clarify the flexibility of the workflow / what can be set up. e.g. does this function allow exploration / comparison of specific days and reps? or is that not really needed for the purposes of the vignette?
+
 example_counts <- example_data %>%
   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
   as.matrix()
@@ -49,10 +54,15 @@ The next two datasets are metadata that describe the dimensions of the count dat
 
 ```{r}
 # pg metadata is the information that describes the paired guide RNA targets
+
+# TODO: ## this is really minor but I think a more accurate description would be closer to: "pg metadata contains a table of paired guide RNAs targeting a paralog pair and their corresponding nucleotide sequences". What's being targeted is a 20bp region of genomic DNA, which is complementary to the gRNA sequence listed
+
 example_pg_metadata <- example_data %>%
   dplyr::select(c("id", "seq_1", "seq_2"))
 
 # sample metadata is the information that describes 
+# TODO: ## not sure if the comment above was cut off or not, but more description could help here
+
 example_sample_metadata <- data.frame(
   id = 1:5,
   day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")), 
