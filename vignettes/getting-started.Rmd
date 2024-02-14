@@ -24,9 +24,11 @@ library(gimap)
 ```{r}
 example_data <- example_data()
 
-# Let's examine this example metadata
-
-# TODO: ## this may or may not be the right place to do it, but perhaps a more descriptive comment of what we're looking at would help. e.g. "Let's examine this example pgPEN counts table, with column IDs representing time points at which gDNA was extracted and the experimental (biological/technical?) replicate number" 
+# Let's examine this example pgPEN counts table. It's divided into columns containing: 
+# - an ID corresponding to the names of paired guides
+# - gRNA sequence 1, targeting "paralog A"
+# - gRNA sequence 2, targeting "paralog B"
+# - The sample, day, and replicate number for which gRNAs were sequenced
 
 example_data
 ```
