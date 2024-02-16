@@ -9,13 +9,24 @@ library(ggplot2)
 #' pg_data <- example_data()
 #' }
 example_data <- function() {
+  ex_data <- list()
   file <- list.files(
     pattern = "PP_pgPEN_HeLa_counts.txt",
     recursive = TRUE,
     system.file("extdata", package = "gimap"),
     full.names = TRUE
   )
-  readr::read_tsv(file)
+  ex_data$countdata <- readr::read_tsv(file)
+  
+  file <- list.files(
+    pattern = "pgRNA_ID_pgPEN_library_comp.csv",
+    recursive = TRUE,
+    system.file("extdata", package = "gimap"),
+    full.names = TRUE
+  )
+  
+  ex_data$idmapping <- readr::read_csv(skip=1)
+  return(ex_data)
 }
 
 

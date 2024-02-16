@@ -29,28 +29,44 @@ example_data
 ```
 
 ```{r}
-colnames(example_data)
+names(example_data)
 ```
+
+`example_data` is a named list storing count data and ID mapping data....
+
+```{r}
+colnames(example_data$countdata)
+```
+
+This count data has ...
+
+```{r}
+colnames(example_data$idmapping)
+```
+
+And the ID mapping data has ...
 
 ## Setting up data
 
-We're going to set up three datasets. The first is required, its the counts that the genetic interaction analysis will be used for. 
+We're going to set up three datasets. Two are required; the first is the counts that the genetic interaction analysis will be used for. 
 
 ```{r}
-example_counts <- example_data %>%
+example_counts <- example_data$countdata %>%
   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
   as.matrix()
 ```
 
-The next two datasets are metadata that describe the dimensions of the count data. 
+The next datasets are metadata that describe the dimensions of the count data. 
 - These both need to be data frames. 
 - The sizes of these metadata must correspond to the dimensions of the counts data. 
 - The first column of the pg_metadata must be a unique id
 
+One of these (`example_pg_metadata`) is required because it is necessary to know the IDs and be able to map them to pgRNA constructs. 
+
 ```{r}
 # pg metadata is the information that describes the paired guide RNA targets
-example_pg_metadata <- example_data %>%
-  dplyr::select(c("id", "seq_1", "seq_2"))
+example_pg_metadata <- example_data$countdata %>%
+  dplyr::select(c("id"))
 
 # sample metadata is the information that describes 
 example_sample_metadata <- data.frame(
@@ -59,6 +75,8 @@ example_sample_metadata <- data.frame(
   rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
 )
 ```
+
+We'll need to provide `example_counts`, `pg_metadata` and `example_data$idmapping` to `setup_data()`. We can provide `sample_metadata`, but it is not required. (but should it be???)
 
 Now let's setup our data using `setup_data()`. Optionally we can provide the metadata in this function as well so that it is stored with the data. 
 

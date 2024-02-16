@@ -4,7 +4,7 @@
 #' @param parameter Here's a parameter let's describe it here
 #' @export
 #' @importFrom tidyr pivot_longer
-#' @import ggplot2
+#' @import ggplot2 pheatmap
 #' @examples \dontrun{
 #'
 #' }
@@ -53,5 +53,29 @@ run_qc <- function(gimap_dataset, plots_dir = "./qc_plots", wide_ar = 0.75, squa
   sample_cpm_histogram
   save_plot(sample_cpm_histogram)
   
+  cpm_cor <- gimap_dataset$transformed_data$cpm %>%
+    cor() %>%
+    round(2) %>%
+    data.frame()
+  
+  sample_cor_heatmap_unfiltered <-
+    pheatmap(cpm_cor,
+             border_color = "white",
+             cellwidth = 20, cellheight = 20,
+             treeheight_row = 20, treeheight_col = 20)
+  
+  sample_cor_heatmap_unfiltered
+  
+  ## flag pgRNAs with count = 0 at any time point
+  counts_cpm_filter <- unlist(lapply(1:nrow(gimap_dataset$raw_counts), function(x) 0 %in% gimap_dataset$raw_counts[x,]))
+  
+  ## how many pgRNAs have a raw count of 0 at any time point/sample
+  d.summ <- data.frame("RawCount0" = c(FALSE, TRUE), n = c(sum(!counts_cpm_filter), sum(counts_cpm_filter))) %>%
+    mutate(percent = round(((n/sum(n))*100),2))
+  
+  d.summ
+  
+  ## flag pgRNAs with low plasmid read counts
+    
   
 }
