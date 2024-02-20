@@ -25,7 +25,7 @@ example_data <- function() {
     full.names = TRUE
   )
   
-  ex_data$idmapping <- readr::read_csv(skip=1)
+  ex_data$idmapping <- readr::read_csv(file, skip=1)
   return(ex_data)
 }
 
