@@ -4,6 +4,7 @@
 #' @param parameter Here's a parameter let's describe it here
 #' @export
 #' @importFrom tidyr pivot_longer
+#' @importFrom magrittr %>%
 #' @import ggplot2 pheatmap
 #' @examples \dontrun{
 #'
@@ -57,4 +58,16 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, plots_dir = "./qc_plots
   plasmid_filter_list$plasmid_filter_report #put it in the report
   
   plasmid_filter <- plasmid_filter_list$plasmid_filter
+  
+  ## combine the filters (zerocount and plasmid)
+  ## how many pgRNAs are removed by both filters?
+  
+  combined_filter <- cbind(data.frame(counts_filter), data.frame(plasmid_filter)) %>%
+    mutate(combined = (counts_filter == TRUE | plasmid_filter == TRUE))
+  
+  combined_filter_df <- data.frame("Filtered" = c("Yes", "No"), 
+                                   n=c(sum(combined_filter$combined), sum(!combined_filter$combined))) %>%
+    mutate(percent = round(((n/sum(n))*100),2))
+  
+  ##make function for combined filter and pick up at reporting # affected by each filter
 }
