@@ -22,7 +22,7 @@ qc_combine_filters <- function(filter_zerocount, filter_plasmid, use_combined = 
     mutate(percent = round(((n/sum(n)) *100),2))
   
   if (use_combined){
-    combined_filter %<>% select(combined) %>% mutate(combined = as.logical(abs(combined -1))) %>% `colnames<-`(c("keep_pgRNA"))
+    combined_filter %<>% select(combined) %>% mutate(combined = as.logical(abs(combined -1))) %>% `colnames<-`(c("keep_pgRNA")) #invert the bits so boolean reports which ones you keep, not which ones you remove.
   } else { combined_filter$keep_pgRNA <- NA }
   
   return(list(combined_filter = combined_filter, 
