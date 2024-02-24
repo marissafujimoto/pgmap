@@ -11,7 +11,7 @@
 #' }
 
 
-run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) {
+run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, use_combined = TRUE, plots_dir = "./qc_plots", wide_ar = 0.75, square_ar = 1) {
   
   if (!dir.exists(plots_dir)){
     dir.create(plots_dir, showWarnings = TRUE)
@@ -39,7 +39,7 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, plots_dir = "./qc_plots
   ## how many pgRNAs have a raw count of 0 at any time point/sample
   counts_filter_list <- qc_filter_zerocounts(gimap_dataset)
   
-  counts_filter <- counts_filter_list$filter
+  counts_filter <- counts_filter_list$filter #TRUE means the filter applies
   
   zerocount_df <- counts_filter_list$reportdf
   
@@ -57,17 +57,21 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, plots_dir = "./qc_plots
   
   plasmid_filter_list$plasmid_filter_report #put it in the report
   
-  plasmid_filter <- plasmid_filter_list$plasmid_filter
+  plasmid_filter <- plasmid_filter_list$plasmid_filter #TRUE means the filter applies
   
   ## combine the filters (zerocount and plasmid)
   ## how many pgRNAs are removed by both filters?
   
-  combined_filter <- cbind(data.frame(counts_filter), data.frame(plasmid_filter)) %>%
-    mutate(combined = (counts_filter == TRUE | plasmid_filter == TRUE))
+  combined_filter_list <- qc_combine_filters(counts_filter, plasmid_filter, use_combined = use_combined)
   
-  combined_filter_df <- data.frame("Filtered" = c("Yes", "No"), 
-                                   n=c(sum(combined_filter$combined), sum(!combined_filter$combined))) %>%
-    mutate(percent = round(((n/sum(n))*100),2))
+  combined_filter_df <- combined_filter_list$num_filtered_report #put it in the report
   
-  ##make function for combined filter and pick up at reporting # affected by each filter
+  which_filter_df <- combined_filter_list$num_which_filter_report #put it in the report
+  
+  if (use_combined){
+    #filter gimap_dataset and metadata to only keep pgRNA passing both filters
+  } else {
+    #print out a message asking which filter to use?
+  }
+  
 }
