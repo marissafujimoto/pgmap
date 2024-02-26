@@ -2,7 +2,7 @@
 #' @description This function uses the cor function to find correlations between the sample CPM's and then plots a heatmap of these
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @importFrom magrittr %>%
-#' @import pheatmap
+#' @importFrom pheatmap pheatmap
 #' @return sample_cor_heatmap a pheatmap
 #' @examples \dontrun{
 #' 

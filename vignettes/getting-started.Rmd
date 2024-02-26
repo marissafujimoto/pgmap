@@ -65,7 +65,7 @@ One of these (`example_pg_metadata`) is required because it is necessary to know
 
 ```{r}
 # pg metadata is the information that describes the paired guide RNA targets
-example_pg_metadata <- example_data$countdata %>%
+example_pg_id <- example_data$countdata %>%
   dplyr::select("id")
 
 # sample metadata is the information that describes 
@@ -82,7 +82,7 @@ Now let's setup our data using `setup_data()`. Optionally we can provide the met
 
 ```{r}
 gimap_dataset <- setup_data(counts = example_counts, 
-                            pg_metadata = example_pg_metadata,
+                            pg_ids = example_pg_id,
                             sample_metadata = example_sample_metadata)
 ```
 
@@ -91,6 +91,18 @@ You'll notice that this set up gives us a list of formatted data. This contains 
 ```{r}
 str(gimap_dataset)
 ```
+
+```{r}
+gimap_dataset <- run_qc(gimap_dataset)
+```
+
+The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
+
+```{r}
+gimap_dataset$transformed_data$qc_filter
+```
+
+Future work will also produce an HTML report for all of the plots and tables made while running the QC process.
 
 ```{r}
 sessionInfo()

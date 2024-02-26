@@ -22,17 +22,17 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, use_combined = TRUE, pl
   counts_cdf <- qc_cdf(gimap_dataset, wide_ar = wide_ar)
   
   counts_cdf #put it in the report
-  save_plot(counts_cdf)
+  #save_plot(counts_cdf)
   
   sample_cpm_histogram <- qc_sample_hist(gimap_dataset, wide_ar = wide_ar)
   
   sample_cpm_histogram #put it in the report
-  save_plot(sample_cpm_histogram)
+  #save_plot(sample_cpm_histogram)
   
   sample_cor_heatmap_unfiltered <- qc_cor_heatmap(gimap_dataset)
   
   sample_cor_heatmap_unfiltered #put it in the report
-  save_plot(sample_cor_heatmap_unfiltered)
+  #save_plot(sample_cor_heatmap_unfiltered)
   
   
   ## flag pgRNAs with count = 0 at any time point
@@ -68,10 +68,14 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, use_combined = TRUE, pl
   
   which_filter_df <- combined_filter_list$num_which_filter_report #put it in the report
   
-  if (use_combined){
-    #filter gimap_dataset and metadata to only keep pgRNA passing both filters
-  } else {
-    #print out a message asking which filter to use?
-  }
+  gimap_dataset$transformed_data$qc_filter <- combined_filter_list$combined_filter
   
+  #if (use_combined){
+    #filter gimap_dataset and metadata to only keep pgRNA passing both filters
+    #gimap_dataset$transformed_data$qc_filter <- combined_filter_list$keep_pgRNA
+  #} else {
+    #print out a message asking which filter to use?
+  #}
+  
+  return(gimap_dataset)
 }

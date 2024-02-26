@@ -4,6 +4,8 @@
 #'
 #'
 #' @importFrom magrittr %>% %<>%
+#' @import dplyr
+#' @return a named list
 #'
 
 qc_combine_filters <- function(filter_zerocount, filter_plasmid, use_combined = TRUE){
@@ -25,7 +27,7 @@ qc_combine_filters <- function(filter_zerocount, filter_plasmid, use_combined = 
     combined_filter %<>% select(combined) %>% mutate(combined = as.logical(abs(combined -1))) %>% `colnames<-`(c("keep_pgRNA")) #invert the bits so boolean reports which ones you keep, not which ones you remove.
   } else { combined_filter$keep_pgRNA <- NA }
   
-  return(list(combined_filter = combined_filter, 
+  return(list(combined_filter = combined_filter$keep_pgRNA, 
               num_filtered_report = combined_filter_df,
               num_which_filter_report = which_filter_df))
   
