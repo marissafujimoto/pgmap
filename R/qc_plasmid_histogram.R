@@ -7,6 +7,7 @@
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom magrittr %>%
 #' @import ggplot2
+#' @return a named list
 #' Assumes the first column of the dataset is the day0 data; do I need a better
 #' method to tell, especially if there are reps?
 
