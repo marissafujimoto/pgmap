@@ -31,7 +31,7 @@ qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, wide_ar = 0.75){
     )
     cutoff <- plasmid_cpm_stats[which(plasmid_cpm_stats$stat == "lower_outlier"),"log2_cpm_value"]
   } else{ plasmid_cpm_stats <- NULL }
-  
+
   #plot with the cutoff
   plasmid_cpm_hist_wcutoff <- plasmid_cpm_histogram +
     geom_vline(xintercept = cutoff,
@@ -44,7 +44,7 @@ qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, wide_ar = 0.75){
     mutate(percent = round(((n/sum(n))*100),2))
   
   return(list(plasmid_hist_nocutoff= plasmid_cpm_histogram, 
-              plasmid_stats <- plasmid_cpm_stats,
+              plasmid_stats=plasmid_cpm_stats,
               used_log2_cpm_cutoff = cutoff,
               plasmid_hist_cutoff=plasmid_cpm_hist_wcutoff,
               plasmid_filter = plasmid_cpm_filter,

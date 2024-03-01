@@ -1,8 +1,8 @@
-library(ggplot2)
-
 #' This is a title for a function
 #' @description This is a function here's where we describe what it does
 #' @param parameter Here's a parameter let's describe it here
+#' @import ggplot2
+#' @import kableExtra
 #' @export
 #' @examples \dontrun{
 #'
@@ -57,10 +57,16 @@ save_tbl <- function(tbl, out_dir = NULL, params = NULL){
 }
 
 
-save_plot <- function(plt, out_dir = NULL){
+save_plot <- function(plt, out_dir = NULL, params = list(cell_line = NULL)){
   plt_str <- deparse(substitute(plt))
+  if (!dir.exists(file.path(out_dir, "plots", "pdf"))){
+    dir.create(file.path(out_dir, "plots", "pdf"), recursive = TRUE)
+  }
   ggsave(plot = plt,
          filename = file.path(out_dir, "plots", "pdf", paste0(params$cell_line, "_", plt_str, ".pdf")))
+  if (!dir.exists(file.path(out_dir, "plots", "png"))){
+    dir.create(file.path(out_dir, "plots", "png"), recursive = TRUE)
+  }
   ggsave(plot = plt,
          filename = file.path(out_dir, "plots", "png", paste0(params$cell_line, "_", plt_str, ".png")))
 }

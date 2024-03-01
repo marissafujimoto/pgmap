@@ -1,0 +1,103 @@
+---
+title: "QC Report"
+date: "`r Sys.Date()`"
+author: "`r paste0('gimap (v', utils::packageVersion('gimap'), ')')`"
+output: 
+  html_document:
+    theme: spacelab
+    toc: true
+    toc_float: TRUE
+    df_print: kable
+    code_folding: show
+  pdf_document:
+    toc: true
+  always_allow_html: yes
+  editor_options:
+    chunk_output_type:console
+---
+
+<style>
+  tbody tr:nth-child(odd){
+    background-color: #D6E0F5;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(progress = TRUE, verbose = FALSE)
+```
+
+
+# Unfiltered/raw data
+
+## Counts CDF
+
+```{r}
+list_of_qc_things$counts_cdf
+```
+
+## Histogram of cpm values by sample
+
+```{r}
+list_of_qc_things$sample_cpm_histogram
+```
+
+## Sample Correlation heatmap (unfiltered data)
+
+```{r}
+list_of_qc_things$sample_cor_heatmap_unfiltered
+```
+
+# Looking at filters for the data
+
+## Zero count filter
+
+This first filter looks at which pgRNA constructs have a raw count of zero for any of the samples
+
+```{r}
+#print_kbl(list_of_qc_things$zerocount_df)
+list_of_qc_things$zerocount_df
+```
+
+## Low plasmid cpm filter
+
+This second filter considers the plasmid (the first sample or 0 time point) and the CPM at that time point. If a cutoff isn't provided by a user, the cutoff is determined by using the quantiles of the available plasmid CPMs.
+
+
+The distribution of those plasmid CPMs are shown in the histogram below.
+
+```{r}
+list_of_qc_things$plasmid_hist_nocutoff
+```
+
+The stats used to find the cutoff are in this table
+
+```{r}
+#print_kbl(list_of_qc_things$plasmid_stats)
+list_of_qc_things$plasmid_stats
+```
+
+The distribution of those plasmid CPMs are shown in the histogram below, but this time, the suggested cutoff is a vertical dashed line.
+
+```{r}
+list_of_qc_things$plasmid_hist_cutoff
+```
+
+```{r}
+#print_kbl(list_of_qc_things$plasmid_filter_report)
+list_of_qc_things$plasmid_filter_report
+```
+
+## Combining the two filters
+
+When combining the filters, by default, if either of the filters raises a flag for a pgRNA construct, then the pgRNA is flagged to be filtered out.
+
+```{r}
+#print_kbl(list_of_qc_things$combined_filter_df)
+list_of_qc_things$combined_filter_df
+```
+
+```{r}
+#print_kbl(list_of_qc_things$which_filter_df)
+list_of_qc_things$which_filter_df
+```
