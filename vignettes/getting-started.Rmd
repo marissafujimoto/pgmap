@@ -36,7 +36,7 @@ Let's examine this example pgPEN counts table. It's divided into columns contain
 
 ```{r}
 example_data <- gimap::example_data()
-
+The metadata you have may vary slightly from this but you'll want to make sure you have the essential variables and information regarding how you collected your data. 
 example_data
 ```
 
