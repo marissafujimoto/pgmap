@@ -93,7 +93,7 @@ str(gimap_dataset)
 ```
 
 ```{r}
-gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"), overwrite = TRUE)
+gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"))
 ```
 
 The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
