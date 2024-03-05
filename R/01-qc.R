@@ -1,11 +1,18 @@
 
 #' A function to run QC
 #' @description This is a function here's where we describe what it does
-#' @param parameter Here's a parameter let's describe it here
+#' @param plasmid_cutoff default it NULL; `qc_plasmid_histogram` will calculate and set a default one unless a value is specified here 
+#' @param use_combined default it TRUE; if TRUE, both zero count and low plasmid CPM filters are applied and if either is TRUE, a pgRNA construct will be filtered out. If FALSE, need to allow to specify which should be used
+#' @param params default is `list(cell_line = NULL)`; used to pass info when saving plots
+#' @param plots_dir default is `./qc_plots`; directory to save plots created with this function, if it doesn't exist already it will be created
+#' @param overwrite default is FALSE; whether to overwrite the QC Report file
+#' @param output_format default is NULL; the output format that the QC Rmd will be knitted to/produced
+#' @param output_file default is `QC_Report`; name of the output QC report file
+#' @param output_dir default is `./`; where the qc report will be stored
+#' @param wide_ar default is 0.75; aspect ratio
 #' @export
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
-#' @import ggplot2 pheatmap
 #' @examples \dontrun{
 #'
 #' }
@@ -13,7 +20,7 @@
 
 run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, use_combined = TRUE,
                    params = list(cell_line = NULL), plots_dir = "./qc_plots", overwrite = FALSE, output_format = NULL, output_file = "QC_Report", output_dir = "./",
-                   wide_ar = 0.75, square_ar = 1) {
+                   wide_ar = 0.75) {
   
   if (!dir.exists(plots_dir)){
     dir.create(plots_dir, showWarnings = TRUE)
@@ -87,11 +94,11 @@ run_qc <- function(gimap_dataset, plasmid_cutoff = NULL, use_combined = TRUE,
   
   list_of_qc_things$which_filter_df <- which_filter_df <- combined_filter_list$num_which_filter_report #put it in the report
   
-  gimap_dataset$transformed_data$qc_filter <- combined_filter_list$combined_filter
+  gimap_dataset$qc$qc_filter <- combined_filter_list$combined_filter
   
   #if (use_combined){
     #filter gimap_dataset and metadata to only keep pgRNA passing both filters
-    #gimap_dataset$transformed_data$qc_filter <- combined_filter_list$keep_pgRNA
+    #gimap_dataset$qc$qc_filter <- combined_filter_list$keep_pgRNA
   #} else {
     #print out a message asking which filter to use?
   #}

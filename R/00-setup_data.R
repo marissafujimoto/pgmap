@@ -18,17 +18,18 @@ setup_data <- function(counts = NULL, pg_ids = NULL, pg_metadata = NULL, sample_
   new_data <- gimap_data <- list(
     raw_counts =  NULL,
     counts_per_sample = NULL,
-    #coverage = NULL,
     transformed_data = list(
       long_form = NULL,
       count_norm = NULL,
       count_norm = NULL,
       cpm = NULL,
-      log2_cpm = NULL,
-      qc_filter = NULL),
+      log2_cpm = NULL)
     metadata = list(pg_ids = NULL,
                     pg_metadata = NULL,
-                    sample_metadata = NULL)
+                    sample_metadata = NULL),
+    qc = list(
+      qc_filter = NULL
+    )
   )
 
   class(new_data) <- c("list", "gimap_dataset")

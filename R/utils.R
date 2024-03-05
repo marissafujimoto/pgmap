@@ -1,34 +1,41 @@
-#' This is a title for a function
-#' @description This is a function here's where we describe what it does
-#' @param parameter Here's a parameter let's describe it here
-#' @import ggplot2
-#' @import kableExtra
-#' @export
+#' Returns example data for package
+#' @description This function loads and returns example data for the packagae. Which dataset is returned must be specified
+#' @param which_data options are "count" or "meta"; specifies which example dataset should be returned
+#' #' @export
 #' @examples \dontrun{
 #'
 #' pg_data <- example_data()
 #' }
-example_data <- function() {
-  ex_data <- list()
-  file <- list.files(
-    pattern = "PP_pgPEN_HeLa_counts.txt",
-    recursive = TRUE,
-    system.file("extdata", package = "gimap"),
-    full.names = TRUE
-  )
-  ex_data$countdata <- readr::read_tsv(file)
+example_data <- function(which_data) {
   
-  file <- list.files(
-    pattern = "pgRNA_ID_pgPEN_library_comp.csv",
-    recursive = TRUE,
-    system.file("extdata", package = "gimap"),
-    full.names = TRUE
-  )
+  if (which_data == "count"){
+    
+    file <- list.files(
+      pattern = "PP_pgPEN_HeLa_counts.txt",
+      recursive = TRUE,
+      system.file("extdata", package = "gimap"),
+      full.names = TRUE
+    )
+  return(readr::read_tsv(file))
+    
+  } else if (which_data == "meta"){
+    
+    file <- list.files(
+      pattern = "pgRNA_ID_pgPEN_library_comp.csv",
+      recursive = TRUE,
+      system.file("extdata", package = "gimap"),
+      full.names = TRUE
+    )
+    return(readr::read_csv(file, skip=1))
+    
+  } else {
+    
+    stop("Specification for `which_data` not understood; Need to use 'count' or 'meta'")
   
-  ex_data$idmapping <- readr::read_csv(file, skip=1)
-  return(ex_data)
+  }
 }
 
+#' @import ggplot2
 
 ## ggplot themes
 ## see: https://www.rdocumentation.org/packages/ggplot2/versions/2.1.0/topics/theme_update
@@ -38,10 +45,12 @@ plot_theme <- function() {
         axis.ticks = element_line(color="black"))
 }
 
+#' @import ggplot2
 plot_options <- function() {
   list(theme_bw(base_size = 12))
 }
 
+#' @import kableExtra
 print_kbl <- function(tbl) {
   kbl(tbl) %>%
     kable_styling(full_width = FALSE,
@@ -56,7 +65,7 @@ save_tbl <- function(tbl, out_dir = NULL, params = NULL){
   write_rds(tbl, file.path(out_dir, "tables", "rds", paste0("d.", params$cell_line, "_", tbl_name)))
 }
 
-
+#' @import ggplot2
 save_plot <- function(plt, out_dir = NULL, params = list(cell_line = NULL)){
   plt_str <- deparse(substitute(plt))
   if (!dir.exists(file.path(out_dir, "plots", "pdf"))){

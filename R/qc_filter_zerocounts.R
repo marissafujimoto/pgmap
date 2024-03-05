@@ -2,7 +2,7 @@
 #' @description This function flags and reports which and how many pgRNAs have a raw count of 0 for any sample/time point
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @importFrom magrittr %>%
-#' @importFrom dpylr mutate
+#' @importFrom dplyr mutate
 #' @return a named list with the filter `filter` specifying which pgRNA have a count zero for at least one sample/time point and a report df `reportdf` for the number and percent of pgRNA which have a count zero for at least one sample/time point 
 #' @examples \dontrun{
 #' 

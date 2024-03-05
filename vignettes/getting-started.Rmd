@@ -21,37 +21,40 @@ library(magrittr)
 library(gimap)
 ```
 
-```{r}
-example_data <- example_data()
+The `example_data()` function stores two sets of data. One is raw count data (which also contains IDs for the samples and pgRNA constructs); the second is metadata that provides more information about each pgRNA construct based off its ID. To specify which dataset `example_data()` returns, you should specify the `which_data` parameter. The acceptable options are "count" or "meta" with "count" returning the raw count data matrix and "meta" returning the pgRNA construct metadata. If you run `example_data()` without specifying this parameter, or using any other string, it will fail.
 
-# Let's examine this example metadata
-example_data
+```{r}
+examplecountdata <- example_data(which_data = "count")
+
+# Let's examine this example count data
+examplecountdata
 ```
 
-```{r}
-names(example_data)
-```
-
-`example_data` is a named list storing count data and ID mapping data....
 
 ```{r}
-colnames(example_data$countdata)
+colnames(examplecountdata)
 ```
 
 This count data has ...
 
+We also want the construct metadata
+
 ```{r}
-colnames(example_data$idmapping)
+examplemetadata <- example_data(which_data = "meta")
 ```
 
-And the ID mapping data has ...
+```{r}
+colnames(examplemetadata)
+```
+
+And the meta data has ...
 
 ## Setting up data
 
 We're going to set up three datasets. Two are required; the first is the counts that the genetic interaction analysis will be used for. 
 
 ```{r}
-example_counts <- example_data$countdata %>%
+example_counts <- examplecountdata %>%
   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
   as.matrix()
 ```
@@ -64,11 +67,13 @@ The next datasets are metadata that describe the dimensions of the count data.
 One of these (`example_pg_metadata`) is required because it is necessary to know the IDs and be able to map them to pgRNA constructs. 
 
 ```{r}
-# pg metadata is the information that describes the paired guide RNA targets
-example_pg_id <- example_data$countdata %>%
+# pg metadata is the information that describes the paired guide RNA targets and will be loaded/explained later
+
+#pg id are just the unique IDs listed in the same order/sorted the same way as the count data and can be used for mapping between the count data and the metadata
+example_pg_id <- examplcountdata %>%
   dplyr::select("id")
 
-# sample metadata is the information that describes 
+# sample metadata is the information that describes the samples and is sorted the same way as the columns in the count data
 example_sample_metadata <- data.frame(
   id = 1:5,
   day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")), 
@@ -76,13 +81,19 @@ example_sample_metadata <- data.frame(
 )
 ```
 
-We'll need to provide `example_counts`, `pg_metadata` and `example_data$idmapping` to `setup_data()`. We can provide `sample_metadata`, but it is not required. (but should it be???)
+We'll need to provide `example_counts`, `example_pg_id` and `examplemetadata` to `setup_data()`. We can provide `sample_metadata`, but it is not required at the moment. (but it likely will be???)
+
+The current assumptions/requirements of datasets using this package are that
+
+* the first count/numerical data column corresponds to day 0 of the screen, or where the plasmid data is
+* there is a unique ID/row for each pgRNA construct
 
 Now let's setup our data using `setup_data()`. Optionally we can provide the metadata in this function as well so that it is stored with the data. 
 
 ```{r}
 gimap_dataset <- setup_data(counts = example_counts, 
                             pg_ids = example_pg_id,
+                            pg_metadata = examplemetadata,
                             sample_metadata = example_sample_metadata)
 ```
 
@@ -92,6 +103,10 @@ You'll notice that this set up gives us a list of formatted data. This contains 
 str(gimap_dataset)
 ```
 
+explain how to run qc and what the parameter `params` is doing here. 
+
+Later explain other parameters and how they can be used
+
 ```{r}
 gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"))
 ```
@@ -99,10 +114,10 @@ gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"))
 The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
 
 ```{r}
-gimap_dataset$transformed_data$qc_filter
+gimap_dataset$qc$qc_filter
 ```
 
-Future work will also produce an HTML report for all of the plots and tables made while running the QC process.
+The qc function also produces an HTML report for all of the plots and tables made while running the QC process.
 
 ```{r}
 sessionInfo()
