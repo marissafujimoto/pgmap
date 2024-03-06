@@ -70,7 +70,7 @@ One of these (`example_pg_metadata`) is required because it is necessary to know
 # pg metadata is the information that describes the paired guide RNA targets and will be loaded/explained later
 
 #pg id are just the unique IDs listed in the same order/sorted the same way as the count data and can be used for mapping between the count data and the metadata
-example_pg_id <- examplcountdata %>%
+example_pg_id <- examplecountdata %>%
   dplyr::select("id")
 
 # sample metadata is the information that describes the samples and is sorted the same way as the columns in the count data
@@ -108,13 +108,13 @@ explain how to run qc and what the parameter `params` is doing here.
 Later explain other parameters and how they can be used
 
 ```{r}
-gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"))
+gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"), overwrite = TRUE)
 ```
 
 The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
 
 ```{r}
-gimap_dataset$qc$qc_filter
+head(gimap_dataset$qc$qc_filter)
 ```
 
 The qc function also produces an HTML report for all of the plots and tables made while running the QC process.

@@ -23,7 +23,7 @@ setup_data <- function(counts = NULL, pg_ids = NULL, pg_metadata = NULL, sample_
       count_norm = NULL,
       count_norm = NULL,
       cpm = NULL,
-      log2_cpm = NULL)
+      log2_cpm = NULL),
     metadata = list(pg_ids = NULL,
                     pg_metadata = NULL,
                     sample_metadata = NULL),
