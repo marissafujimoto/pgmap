@@ -24,15 +24,15 @@ library(gimap)
 The `example_data()` function stores two sets of data. One is raw count data (which also contains IDs for the samples and pgRNA constructs); the second is metadata that provides more information about each pgRNA construct based off its ID. To specify which dataset `example_data()` returns, you should specify the `which_data` parameter. The acceptable options are "count" or "meta" with "count" returning the raw count data matrix and "meta" returning the pgRNA construct metadata. If you run `example_data()` without specifying this parameter, or using any other string, it will fail.
 
 ```{r}
-examplecountdata <- example_data(which_data = "count")
+example_countdata <- example_data("count")
 
 # Let's examine this example count data
-examplecountdata
+example_countdata
 ```
 
 
 ```{r}
-colnames(examplecountdata)
+colnames(example_countdata)
 ```
 
 This count data has ...
@@ -40,11 +40,11 @@ This count data has ...
 We also want the construct metadata
 
 ```{r}
-examplemetadata <- example_data(which_data = "meta")
+example_metadata <- example_data("meta")
 ```
 
 ```{r}
-colnames(examplemetadata)
+colnames(example_metadata)
 ```
 
 And the meta data has ...
@@ -54,7 +54,7 @@ And the meta data has ...
 We're going to set up three datasets. Two are required; the first is the counts that the genetic interaction analysis will be used for. 
 
 ```{r}
-example_counts <- examplecountdata %>%
+example_counts <- example_countdata %>%
   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
   as.matrix()
 ```
@@ -108,7 +108,7 @@ explain how to run qc and what the parameter `params` is doing here.
 Later explain other parameters and how they can be used
 
 ```{r}
-gimap_dataset <- run_qc(gimap_dataset, params = list(cell_line = "pgPEN_HeLa"))
+gimap_dataset <- run_qc(gimap_dataset, data_name = "pgPEN_HeLa")
 ```
 
 The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
