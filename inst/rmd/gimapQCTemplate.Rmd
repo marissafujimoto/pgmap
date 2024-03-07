@@ -58,7 +58,7 @@ qc_cor_heatmap(gimap_dataset)
 This first filter looks at which pgRNA constructs have a raw count of zero for any of the samples
 
 ```{r}
-qc_filter_zerocounts(gimap_dataset)
+zero_counts <- qc_filter_zerocounts(gimap_dataset)
 ```
 
 ## Low plasmid cpm filter
@@ -69,23 +69,23 @@ This second filter considers the plasmid (the first sample or 0 time point) and 
 The distribution of those plasmid CPMs are shown in the histogram below.
 
 ```{r}
-qc_plasmid_histogram(gimap_dataset)
+histograms <- qc_plasmid_histogram(gimap_dataset)
 ```
 
 ```{r}
-list_of_qc_things$plasmid_hist_nocutoff
+histograms$plasmid_hist_nocutoff
 ```
 
 The stats used to find the cutoff are in this table
 
 ```{r}
-list_of_qc_things$plasmid_stats
+histograms$plasmid_stats
 ```
 
 The distribution of those plasmid CPMs are shown in the histogram below, but this time, the suggested cutoff is a vertical dashed line.
 
 ```{r}
-list_of_qc_things$plasmid_hist_cutoff
+histograms$plasmid_hist_cutoff
 ```
 
 ## Combining the two filters
@@ -93,11 +93,11 @@ list_of_qc_things$plasmid_hist_cutoff
 When combining the filters, by default, if either of the filters raises a flag for a pgRNA construct, then the pgRNA is flagged to be filtered out.
 
 ```{r}
-qc_combine_filters(counts_filter,
-                   plasmid_filter,
-                   use_combined = use_combined)
+qc_combine_filters(zero_counts$filter,
+                   histograms$plasmid_filter,
+                   use_combined = TRUE)
 ```
 
 ```{r}
-list_of_qc_things$which_filter_df
+sessionInfo()
 ```
