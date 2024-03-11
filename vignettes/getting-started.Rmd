@@ -86,7 +86,6 @@ gimap_dataset <-  gimap::setup_data(counts = example_counts,
 
 You'll notice that this set up gives us a list of formatted data. This contains the original counts we gave `setup_data()` function but also normalized counts, and the total counts per sample. 
 
-TODO
 
 ```{r}
 str(gimap_dataset)
