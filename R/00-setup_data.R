@@ -18,8 +18,6 @@ setup_data <- function(counts = NULL, pg_ids = NULL, pg_metadata = NULL, sample_
     raw_counts = NULL,
     counts_per_sample = NULL,
     transformed_data = list(
-      long_form = NULL,
-      count_norm = NULL,
       count_norm = NULL,
       cpm = NULL,
       log2_cpm = NULL
