@@ -30,7 +30,10 @@ Let's examine this example pgPEN counts table. It's divided into columns contain
 - `id`: an ID corresponding to the names of paired guides
 - `seq_1`: gRNA sequence 1, targeting "paralog A"
 - `seq_2`: gRNA sequence 2, targeting "paralog B"
-- The sample, day, and replicate number for which gRNAs were sequenced (TODO)
+- `Day00_RepA`: Gene Counts from Day 00 for Replicate A 
+- `Day05_RepA`: Gene Counts from Day 05 for Replicate A 
+- `Day22_RepA`: Gene Counts from Day 22 for Replicate A 
+- `Day22_RepB`: Gene Counts from Day 22 for Replicate B 
 
 ```{r}
 example_data <- gimap::example_data()
@@ -85,6 +88,14 @@ gimap_dataset <-  gimap::setup_data(counts = example_counts,
 ```
 
 You'll notice that this set up gives us a list of formatted data. This contains the original counts we gave `setup_data()` function but also normalized counts, and the total counts per sample. 
+
+- Raw counts: Original data
+- Counts per Sample: Add up all the counts for each sample
+- Transformed data: Contains normalized counts, counts per million (cpm)
+- Log2 CPM: log-2 transformed CPM
+- pg_metadata: paired guide metadata
+- sample_metadata: Metadata of dataset where columns are different samples and rows are different paired guide.
+
 
 
 ```{r}
