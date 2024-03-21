@@ -89,12 +89,14 @@ gimap_dataset <-  gimap::setup_data(counts = example_counts,
 
 You'll notice that this set up gives us a list of formatted data. This contains the original counts we gave `setup_data()` function but also normalized counts, and the total counts per sample. 
 
-- Raw counts: Original data
-- Counts per Sample: Add up all the counts for each sample
-- Transformed data: Contains normalized counts, counts per million (cpm)
-- Log2 CPM: log-2 transformed CPM
-- pg_metadata: paired guide metadata
-- sample_metadata: Metadata of dataset where columns are different samples and rows are different paired guide.
+- `raw_counts`: The original counts data that illustrates the number of cells alive in the sample. This data has samples as the columns and the paired guide constructs as rows. 
+- `counts_per_sample`: Add up all the counts for each sample over all of the paired guide designs. 
+- Transformed data: This section contains the various types of normalized and adjusted data made from the raw counts data. 
+- `count_norm` - For each sample, the data is normalized `-log10(( counts +1) /  total counts for the sample over all the pg designs ))`
+- `cpm` - For each sample this is calculated by taking the `counts / total counts for the sample over all the pg designs)*1e6`
+- `log2cpm`: log-2 transformed counts per million this is calculated by `log2(cpms + 1)`
+- pg_metadata: paired guide metadata - information that describes the paired-guided RNA designs. This may include the sequences used in the CRISPR design as well as what genes are targeted. 
+- `sample_metadata`: Metadata that describes the samples. This likely includes the time point information, replicates, sample IDs, and any other additional information that is needed regarding the experimental setup. 
 
 
 
