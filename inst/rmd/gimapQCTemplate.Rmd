@@ -2,6 +2,9 @@
 title: "QC Report"
 date: "`r Sys.Date()`"
 author: "`r paste0('gimap (v', utils::packageVersion('gimap'), ')')`"
+params:
+  dataset: NULL
+  plots_dir: ./plots
 output: 
   html_document:
     theme: spacelab
@@ -27,53 +30,26 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(progress = TRUE, verbose = FALSE)
 ```
 
-
 # Unfiltered/raw data
 
 ## Counts CDF
 
 ```{r}
-list_of_qc_things$counts_cdf
+qc_cdf(gimap_dataset)
 ```
-
-<details><summary> Saved plot locations: </summary>
-
-This plot is saved as 
-  
-  * a `.png` in ``r list_of_qc_things$counts_cdf_file_loc$png``
-  * a `.pdf` in ``r list_of_qc_things$counts_cdf_file_loc$pdf``
-
-</details>
 
 ## Histogram of cpm values by sample
 
 ```{r}
-list_of_qc_things$sample_cpm_histogram
+qc_sample_hist(gimap_dataset)
 ```
 
-<details><summary> Saved plot locations: </summary>
-
-This plot is saved as 
-
-  * a `.png` in ``r list_of_qc_things$sample_cpm_histogram_file_loc$png``
-  * a `.pdf` in ``r list_of_qc_things$sample_cpm_histogram_file_loc$pdf``
-
-</details>
 
 ## Sample Correlation heatmap (unfiltered data)
 
 ```{r}
-list_of_qc_things$sample_cor_heatmap_unfiltered
+qc_cor_heatmap(gimap_dataset)
 ```
-
-<details><summary> Saved plot locations: </summary>
-
-This plot is saved as 
-
-  * a `.png` in ``r list_of_qc_things$sample_cor_heatmap_unfiltered_file_loc$png``
-  * a `.pdf` in ``r list_of_qc_things$sample_cor_heatmap_unfiltered_file_loc$pdf``
-
-</details>
 
 # Looking at filters for the data
 
@@ -82,7 +58,7 @@ This plot is saved as
 This first filter looks at which pgRNA constructs have a raw count of zero for any of the samples
 
 ```{r}
-list_of_qc_things$zerocount_df
+zero_counts <- qc_filter_zerocounts(gimap_dataset)
 ```
 
 ## Low plasmid cpm filter
@@ -93,41 +69,23 @@ This second filter considers the plasmid (the first sample or 0 time point) and 
 The distribution of those plasmid CPMs are shown in the histogram below.
 
 ```{r}
-list_of_qc_things$plasmid_hist_nocutoff
+histograms <- qc_plasmid_histogram(gimap_dataset)
 ```
 
-<details><summary> Saved plot locations: </summary>
-
-This plot is saved as 
-
-  * a `.png` in ``r list_of_qc_things$plasmid_hist_nocutoff_file_loc$png``
-  * a `.pdf` in ``r list_of_qc_things$plasmid_hist_nocutoff_file_loc$pdf``
-
-</details>
+```{r}
+histograms$plasmid_hist_nocutoff
+```
 
 The stats used to find the cutoff are in this table
 
 ```{r}
-list_of_qc_things$plasmid_stats
+histograms$plasmid_stats
 ```
 
 The distribution of those plasmid CPMs are shown in the histogram below, but this time, the suggested cutoff is a vertical dashed line.
 
 ```{r}
-list_of_qc_things$plasmid_hist_cutoff
-```
-
-<details><summary> Saved plot locations: </summary>
-
-This plot is saved as 
-
-  * a `.png` in ``r list_of_qc_things$plasmid_hist_cutoff_file_loc$png``
-  * a `.pdf` in ``r list_of_qc_things$plasmid_hist_cutoff_file_loc$pdf``
-
-</details>
-
-```{r}
-list_of_qc_things$plasmid_filter_report
+histograms$plasmid_hist_cutoff
 ```
 
 ## Combining the two filters
@@ -135,9 +93,11 @@ list_of_qc_things$plasmid_filter_report
 When combining the filters, by default, if either of the filters raises a flag for a pgRNA construct, then the pgRNA is flagged to be filtered out.
 
 ```{r}
-list_of_qc_things$num_filtered_report
+qc_combine_filters(zero_counts$filter,
+                   histograms$plasmid_filter,
+                   use_combined = TRUE)
 ```
 
 ```{r}
-list_of_qc_things$which_filter_df
+sessionInfo()
 ```

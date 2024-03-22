@@ -5,7 +5,6 @@
 #' @examples \dontrun{
 #'
 #' }
-
 calc_fc <- function() {
 
 }
