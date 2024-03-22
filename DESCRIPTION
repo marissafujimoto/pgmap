@@ -22,8 +22,12 @@ Imports:
     rmarkdown,
     rcmdcheck,
     ggplot2,
+    magrittr, 
+    kableExtra, 
+    pheatmap,
 Suggests:
     testthat (>= 3.0.0),
+    roxygen2,
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.2.3

@@ -5,7 +5,6 @@
 #' @examples \dontrun{
 #'
 #' }
-
-annotate <- function() { 
+annotate <- function() {
 
 }

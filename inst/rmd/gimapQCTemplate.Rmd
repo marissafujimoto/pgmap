@@ -1,0 +1,59 @@
+---
+title: "QC Report"
+date: "`r Sys.Date()`"
+author: "`r paste0('gimap (v', utils::packageVersion('gimap'), ')')`"
+params:
+  dataset: NULL
+  plots_dir: ./plots
+output: 
+  html_document:
+    theme: spacelab
+    toc: true
+    toc_float: TRUE
+    df_print: kable
+    code_folding: show
+  pdf_document:
+    toc: true
+  always_allow_html: yes
+  editor_options:
+    chunk_output_type:console
+---
+
+<style>
+  tbody tr:nth-child(odd){
+    background-color: #D6E0F5;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(progress = TRUE, verbose = FALSE)
+library(gimap)
+library(ggplot2)
+```
+
+# Unfiltered/raw data
+
+## Counts CDF
+
+```{r}
+qc_cdf(gimap_dataset)
+```
+
+## Histogram of cpm values by sample
+
+```{r}
+qc_sample_hist(gimap_dataset)
+```
+
+
+## Sample Correlation heatmap (unfiltered data)
+
+```{r}
+qc_cor_heatmap(gimap_dataset)
+```
+
+
+```{r}
+sessionInfo()
+```

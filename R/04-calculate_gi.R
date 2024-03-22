@@ -5,7 +5,6 @@
 #' @examples \dontrun{
 #'
 #' }
-
-calculate_gi <- function() { 
+calculate_gi <- function() {
 
 }
