@@ -4,7 +4,7 @@
 #' @param qc_obj The object that has the qc stuff stored
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom tidyr pivot_longer
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot labs
 #' @return counts_cdf a ggplot
 #' @examples \dontrun{
 #'
