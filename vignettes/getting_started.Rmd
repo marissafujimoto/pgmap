@@ -86,7 +86,9 @@ example_pg_metadata <- example_data %>%
   select(c("id", "seq_1", "seq_2"))
 ```
 
-# sample metadata is the information that describes the samples and is sorted the same way as the columns in the count data
+Sample metadata is the information that describes the samples and is sorted the same way as the columns in the count data.
+
+```{r}
 example_sample_metadata <- data.frame(
   id = 1:5,
   day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")),
@@ -94,12 +96,7 @@ example_sample_metadata <- data.frame(
 )
 ```
 
-We'll need to provide `example_counts`, `example_pg_id` and `example_pg_metadata` to `setup_data()`. We can provide `sample_metadata`, but it is not required at the moment. (but it likely will be???)
-
-The current assumptions/requirements of datasets using this package are that
-
-* the first count/numerical data column corresponds to day 0 of the screen, or where the plasmid data is
-* there is a unique ID/row for each pgRNA construct
+We'll need to provide `example_counts`, `pg_ids` and `pg_metadata` to `setup_data()`. We can provide `sample_metadata`, but it is not required at the moment.
 
 Now let's setup our data using `setup_data()`. Optionally we can provide the metadata in this function as well so that it is stored with the data.
 
@@ -122,14 +119,13 @@ You'll notice that this set up gives us a list of formatted data. This contains 
 - `sample_metadata`: Metadata that describes the samples. This likely includes the time point information, replicates, sample IDs, and any other additional information that is needed regarding the experimental setup.
 
 
-
 ```{r}
 str(gimap_dataset)
 ```
 
-explain how to run qc and what the parameter `params` is doing here.
+## Quality Checks
 
-Later explain other parameters and how they can be used
+The first step is running some quality checks on our data. The `run_qc()` function will create a report we can look at to assess this.
 
 ```{r}
 run_qc(gimap_dataset,
@@ -137,15 +133,6 @@ run_qc(gimap_dataset,
        overwrite = TRUE,
        quiet = TRUE)
 ```
-
-
-The addition to this is that now a QC filter has been added to the `gimap_dataset` object, specifically found in `gimap_dataset$transformed_data$qc_filter`. It's a list of TRUE and FALSE. With TRUE meaning that it passes the filters and should be kept, and FALSE meaning that it didn't pass (right now the combined filter) and should not be kept for the analysis. Future work should let you select if you're using one, both, or neither of the filters.
-
-```{r}
-#head(gimap_dataset$qc$qc_filter)
-```
-
-The qc function also produces an HTML report for all of the plots and tables made while running the QC process.
 
 ```{r}
 sessionInfo()
