@@ -22,7 +22,9 @@ Imports:
     rmarkdown,
     rcmdcheck,
     ggplot2,
-    magrittr
+    magrittr, 
+    kableExtra, 
+    pheatmap,
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
