@@ -33,11 +33,9 @@ Let's examine this example pgPEN counts table. It's divided into columns contain
 - The sample, day, and replicate number for which gRNAs were sequenced
 
 ```{r}
-example_data <- example_data("count")
+example_data <- get_example_data("count")
 ```
 The metadata you have may vary slightly from this but you'll want to make sure you have the essential variables and information regarding how you collected your data.
-example_data
-
 
 ```{r}
 colnames(example_data)
@@ -48,7 +46,7 @@ This count data has ...
 We also want the construct metadata
 
 ```{r}
-example_pg_metadata <- example_data("meta")
+example_pg_metadata <- get_example_data("meta")
 ```
 
 ```{r}

@@ -4,7 +4,7 @@
 #' @param plots_dir default is `./qc_plots`; directory to save plots created with this function, if it doesn't exist already it will be created
 #' @param overwrite default is FALSE; whether to overwrite the QC Report file
 #' @param output_file_path default is `QC_Report`; name of the output QC report file
-#' @param ...
+#' @param ... additional parameters are sent to rmarkdown::render
 #' @export
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
@@ -55,10 +55,10 @@ run_qc <- function(gimap_dataset,
                                   ...)
 
   # Tell where the output is
-  results_file <- gsub(".Rmd$", ".html", output_file)
+  results_file <- gsub("\\.Rmd$", "\\.html", output_file)
   message("Results in: ", results_file)
 
   results_file <- normalizePath(list.files(pattern = results_file, full.names = TRUE))
-  # Now open the output
-  browseURL(results_file)
+
+  if (results_file != "") browseURL(results_file)
 }

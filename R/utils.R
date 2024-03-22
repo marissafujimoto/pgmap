@@ -1,12 +1,12 @@
 #' Returns example data for package
 #' @description This function loads and returns example data for the packagae. Which dataset is returned must be specified
 #' @param which_data options are "count" or "meta"; specifies which example dataset should be returned
-#' #' @export
+#' @export
 #' @examples \dontrun{
 #'
-#' pg_data <- example_data()
+#' pg_data <- get_example_data()
 #' }
-example_data <- function(which_data) {
+get_example_data <- function(which_data) {
   if (which_data == "count") {
     file <- list.files(
       pattern = "PP_pgPEN_HeLa_counts.txt",
