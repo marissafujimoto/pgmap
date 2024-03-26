@@ -9,13 +9,13 @@
 #'
 #' gimap_dataset <- get_example_data("gimap")
 #'
+#' # Highly recommended but not required
 #' run_qc(gimap_dataset)
 #'
-#' gimap_dataset <- gimap_filter(gimap_dataset)
-#'
-#' gimap_dataset <- gimap_annotate(gimap_dataset)
-#'
-#' gimap_dataset <- calc_lfc(gimap_dataset)
+#' gimap_dataset <- gimap_dataset %>%
+#'   gimap_filter() %>%
+#'   gimap_annotate() %>%
+#'   calc_lfc()
 #'
 #' # To see results
 #' gimap_dataset$log_fc

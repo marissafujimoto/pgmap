@@ -13,6 +13,10 @@
 #'   as.matrix()
 #'
 #' gimap_dataset <- setup_data(counts_data)
+#'
+#' # You can see what an example dataset looks like by pulling the example gimap_dataset:
+#' gimap_dataset <- get_example_data("gimap")
+#'
 #' }
 setup_data <- function(counts = NULL,
                        pg_ids = NULL,
@@ -31,7 +35,7 @@ setup_data <- function(counts = NULL,
       pg_metadata = NULL,
       sample_metadata = NULL
     ),
-    filtered = NULL,
+    filtered_data = NULL,
     annotation = NULL,
     log_fc = NULL,
     results = NULL
