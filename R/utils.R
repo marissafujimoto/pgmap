@@ -32,7 +32,7 @@ get_example_data <- function(which_data) {
     )
     return(readr::read_rds(file))
   } else {
-    stop("Specification for `which_data` not understood; Need to use 'count' or 'meta'")
+    stop("Specification for `which_data` not understood; Need to use 'gimap', count', or 'meta'")
   }
 }
 
