@@ -1,5 +1,5 @@
 #' Annotate gimap data
-#' @description This is a function here's where we describe what it does
+#' @description In this function, a `gimap_dataset` is annotated as far as which genes should be used as controls.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param annotation_file A special file that contains the list that says which genes should be considered controls or not #TODO: Figure specifics of how this file should be formatted
