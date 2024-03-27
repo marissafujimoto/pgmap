@@ -36,7 +36,7 @@ calc_lfc <- function(.data = NULL,
     }
   }
 
-  # TODO: we need to think about what happens if there are or are not replicates
+  # TODO: we need to think about what happens if there are or are not timepoints
   if (!is.null(timepoints)) {
     if (!(timepoints %in% colnames(gimap_dataset$metadata$sample_metadata))) {
       stop("The column name specified for 'timepoints' does not exist in gimap_dataset$metadata$sample_metadata")
@@ -52,6 +52,9 @@ calc_lfc <- function(.data = NULL,
 
   # TODO:  Here's where the log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
+
+  # lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm,
+  # lfc_early_vs_late = log2_cpm - early_log2_cpm
 
   gimap_dataset$log_fc <- NULL # TODO: the log fold changes calculated can be returned here
 
