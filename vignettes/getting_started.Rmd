@@ -137,8 +137,8 @@ The report includes several visualizations:
 
 - distribution of `count_norm` values for each sample, [TODO: description of the goals of this, check that reads are relatively uniformly represented between samples?]
 - histogram of `log2cpm` values for each individual sample: this helps users identify samples that do not have a normal distribution of reads and inform the upcoming filtering steps.
-- Sample correlation heatmap using [TODO: add what exactly is being used to quantify this relationship] to determine the relationship between sample datasets: this allows users to see how closely correlated replicates for a particular sample are, [TODO: I'm sure there's another piece I'm missing here with the utility, maybe shows that there is enough difference between samples that we trust they are independent of each other?]
-[TODO: double-check this] 4) log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR threshold will be filtered [TODO: or is this being used as an argument in the code?]
+- sample correlation heatmap: generates a heatmap using cpm values for each replicate/sample. this allows users to determine how closely correlated or independent replicates are relative to each other [TODO: clarify if needed]
+- log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR threshold will be filtered [TODO: Candace/Kate/Howard or is this being used as an argument in the code?]
 
 ```{r}
 run_qc(gimap_dataset,
