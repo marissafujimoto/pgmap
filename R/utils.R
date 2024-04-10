@@ -31,8 +31,24 @@ get_example_data <- function(which_data) {
       full.names = TRUE
     )
     return(readr::read_rds(file))
-  } else {
-    stop("Specification for `which_data` not understood; Need to use 'gimap', count', or 'meta'")
+  } else if (which_data == "annotation") {
+    file <- list.files(
+      pattern = "pgPEN_annotations.txt",
+      recursive = TRUE,
+      system.file("extdata", package = "gimap"),
+      full.names = TRUE
+    )
+    return(readr::read_tsv(file, show_col_types = FALSE))
+    } else if (which_data == "crtl_genes") {
+      file <- list.files(
+        pattern = "Achilles_common_essentials.csv",
+        recursive = TRUE,
+        system.file("extdata", package = "gimap"),
+        full.names = TRUE
+      )
+      return(readr::read_tsv(file, show_col_types = FALSE))
+    } else {
+    stop("Specification for `which_data` not understood; Need to use 'gimap', count', 'annotation', 'crtl_genes', or 'meta'")
   }
 }
 
