@@ -1,8 +1,8 @@
-#' A function to run QC
+#' A function to run filtering
 #' @description This is a function here's where we describe what it does
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `both`.
+#' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters. 
 #' You should decide on the appropriate filter based on the results of your QC report.
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
 #' @export
