@@ -23,7 +23,11 @@
 #' }
 gimap_annotate <- function(.data = NULL,
                            gimap_dataset,
+                           cell_line = "HELA",
+                           control_genes = NULL,
+                           cn_annotate = TRUE,
                            annotation_file = NULL) {
+
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
@@ -43,7 +47,7 @@ gimap_annotate <- function(.data = NULL,
     # Essential gene labeling is from inst/extdata/Achilles_common_essentials.csv
     control_genes <- readr::read_tsv("https://figshare.com/ndownloader/files/40448429", show_col_types = FALSE)
     control_genes <- control_genes %>%
-      tidyr::separate(col = gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
+      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
   }
 
   ## get TPM and CN information (w/ option for user to upload their own info)
@@ -51,18 +55,19 @@ gimap_annotate <- function(.data = NULL,
 
   ## Get TPM data
   my_depmap_id <- depmap_metadata %>%
-    filter(stripped_cell_line_name == cell_line) %>%
-    pull(DepMap_ID)
+    dplyr::filter(stripped_cell_line_name == cell_line) %>%
+    dplyr::pull(DepMap_ID)
 
   tpm_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_expression.csv")
+
   if (!file.exists(tpm_file)) tpm_setup()
 
   depmap_tpm <- readr::read_csv(tpm_file,
     show_col_types = FALSE,
     col_select = c("genes", my_depmap_id)
   ) %>%
-    rename(log2_tpm = my_depmap_id) %>%
-    mutate(expressed_flag = case_when(
+    dplyr::rename(log2_tpm = my_depmap_id) %>%
+    dplyr::mutate(expressed_flag = dplyr::case_when(
       log2_tpm < 1 ~ FALSE,
       log2_tpm >= 1 ~ TRUE,
       is.na(log2_tpm) ~ NA
@@ -76,19 +81,19 @@ gimap_annotate <- function(.data = NULL,
       show_col_types = FALSE,
       col_select = c("genes", my_depmap_id)
     ) %>%
-      rename(log2_cn = my_depmap_id)
+      dplyr::rename(log2_cn = my_depmap_id)
 
     annotation_df <- annotation_df %>%
       dplyr::left_join(depmap_cn, by = c("gene1_symbol" = "genes")) %>%
-      dplyr::left_join(depmap_cn, by = c("gene2_symbol" = "genes"))
+      dplyr::left_join(depmap_cn, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2"))
   }
 
   annotation_df <- annotation_df %>%
     dplyr::left_join(depmap_tpm, by = c("gene1_symbol" = "genes")) %>%
     dplyr::rename(gene1_essential_flag = expressed_flag) %>%
-    dplyr::left_join(depmap_tpm, by = c("gene2_symbol" = "genes")) %>%
+    dplyr::left_join(depmap_tpm, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2")) %>%
     dplyr::rename(gene2_essential_flag = expressed_flag) %>%
-    mutate(norm_ctrl_flag = case_when(
+    dplyr::mutate(norm_ctrl_flag = dplyr::case_when(
       target_type == "gene_gene" ~ "double_targeting",
       target_type == "gene_ctrl" & gene1_essential_flag == TRUE ~ "positive_control",
       target_type == "ctrl_gene" & gene2_essential_flag == TRUE ~ "positive_control",
@@ -96,7 +101,7 @@ gimap_annotate <- function(.data = NULL,
       target_type == "ctrl_gene" & gene2_essential_flag != TRUE ~ "single_targeting",
       target_type == "ctrl_ctrl" ~ "negative_control"
     )) %>%
-    mutate(norm_ctrl_flag = factor(norm_ctrl_flag, levels = c(
+    dplyr::mutate(norm_ctrl_flag = factor(norm_ctrl_flag, levels = c(
       "negative_control",
       "positive_control",
       "single_targeting",
