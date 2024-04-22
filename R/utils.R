@@ -140,9 +140,9 @@ save_example_data <- function() {
     select(c("id", "seq_1", "seq_2"))
 
   example_sample_metadata <- data.frame(
-    id = 1:5,
-    day = as.factor(c("Day00", "Day05", "Day22", "Day22", "Day22")),
-    rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
+    col_names = c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC"),
+    timepoints = as.numeric(c("0", "5", "22", "22", "22")),
+    replicates = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
   )
 
   gimap_dataset <- setup_data(
