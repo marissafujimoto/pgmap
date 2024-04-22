@@ -110,7 +110,7 @@ example_data_folder <- function() {
   file <- list.files(
     pattern = "example_data.md",
     recursive = TRUE,
-    system.file("extdata", package = "metricminer"),
+    system.file("extdata", package = "gimap"),
     full.names = TRUE
   )
   dirname(file)
