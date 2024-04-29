@@ -4,7 +4,7 @@
 #' @export
 #' @examples \dontrun{
 #'
-#' pg_data <- get_example_data()
+#' pg_data <- get_example_data("count")
 #' }
 get_example_data <- function(which_data) {
   if (which_data == "count") {

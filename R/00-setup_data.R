@@ -7,14 +7,14 @@
 #' @return A special gimap_dataset to be used with the other functions in this package.
 #' @export
 #' @examples \dontrun{
-#' data <- example_data() %>%
+#' data <- get_example_data("count") %>%
 #'   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
 #'   as.matrix()
 #'
 #' counts_data <- setup_data(data)
 #' }
 setup_data <- function(counts = NULL, pg_ids = NULL, pg_metadata = NULL, sample_metadata = NULL) {
-  new_data <- gimap_data <- list(
+  new_data <- list(
     raw_counts = NULL,
     counts_per_sample = NULL,
     transformed_data = list(
