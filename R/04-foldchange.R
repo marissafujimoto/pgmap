@@ -65,11 +65,7 @@ calc_lfc <- function(.data = NULL,
     dplyr::group_by(replicates, timepoints, pg_ids) %>%
     dplyr::summarize(rep_avg = mean(value, na.rm = TRUE)) %>%
     tidyr::pivot_wider(values_from = rep_avg,
-                       names_from = timepoints) %>%
-    dplyr::
-
-
-
+                       names_from = timepoints)
 
 
   # lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm,
