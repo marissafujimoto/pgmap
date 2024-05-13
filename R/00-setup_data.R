@@ -57,7 +57,7 @@ setup_data <- function(counts = NULL,
   new_data$metadata$sample_metadata <- sample_metadata
 
   # If they don't give paired guide ids, then we will make up a row id
-  if (is.null(pg_ids)) pg_ids <- data.frame(id = 1:ncol(counts))
+  if (is.null(pg_ids)) pg_ids <- data.frame(id = 1:nrow(counts))
   if (!is.data.frame(pg_ids)) stop("pgRNA IDs can only be in the form of a data.frame")
   if (nrow(pg_ids) != nrow(counts)) stop("the number of rows in the pg_info is not equal to the number of rows in the counts")
 
