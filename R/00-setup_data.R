@@ -48,7 +48,7 @@ setup_data <- function(counts = NULL,
   if (!is.matrix(counts)) stop("counts can only be in the form of a matrix")
 
   # If they don't give sample metadata, then we will make up a row id
-  if (is.null(sample_metadata)) sample_metadata <- data.frame(id = 1:nrow(counts))
+  if (is.null(sample_metadata)) sample_metadata <- data.frame(id = 1:ncol(counts))
   if (!is.data.frame(sample_metadata)) stop("metadata can only be in the form of a data.frame")
   if (nrow(sample_metadata) != ncol(counts)) stop("the number of rows in the sample metadata is not equal to the number of columns in the counts")
 
