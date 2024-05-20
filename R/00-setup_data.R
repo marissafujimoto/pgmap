@@ -62,7 +62,7 @@ setup_data <- function(counts = NULL,
   if (nrow(pg_ids) != nrow(counts)) stop("the number of rows in the pg_info is not equal to the number of rows in the counts")
 
   # we need the first column to be a unique id
-  if (!(nrow(unique(pg_ids[, 1])) == nrow(pg_ids[, 1]))) stop("The paired guide IDs must be a unique ID")
+  if (!(length(unique(pg_ids[, 1])) == length(pg_ids[, 1]))) stop("The paired guide IDs must be a unique ID")
   new_data$metadata$pg_ids <- pg_ids
 
   # Store the raw counts
