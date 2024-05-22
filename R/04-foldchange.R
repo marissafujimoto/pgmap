@@ -85,24 +85,52 @@ calc_lfc <- function(.data = NULL,
     dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id"))
 
   ### Calculate medians
-  neg_control_median <- lfc_df$lfc_plasmid_vs_late[lfc_df$norm_ctrl_flag == "negative_control"]
+  neg_control_median <- median(lfc_df$lfc_plasmid_vs_late[lfc_df$norm_ctrl_flag == "negative_control"])
 
+  # First and second adjustments to LFC
   lfc_df <- lfc_df %>%
     dplyr::mutate(
       # Take LFC, then subtract median of negative controls.
       # This will result in the median of the nontargeting being set to 0.
-      lfc_adj1 = lfc_plasmid_vs_late - neg_control_median,
+      lfc_adj = lfc_plasmid_vs_late - neg_control_median,
       # Then, divide by the median of negative controls (double non-targeting) minus
       # median of positive controls (targeting 1 essential gene).
       # This will effectively set the median of the positive controls (essential genes) to -1.
-      lfc_adj2 = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"]) - median(lfc_adj1[norm_ctrl_flag == "positive_control"])),
+      lfc_adj = lfc_adj / (median(lfc_adj[norm_ctrl_flag == "negative_control"]) - median(lfc_adj[norm_ctrl_flag == "positive_control"]))
+    )
+
+  # Calculate medians based on single, double targeting as well as if they are unexpressed control genes
+  medians_df <- lfc_df %>%
+    dplyr::group_by(target_type, unexpressed_ctrl_flag) %>%
+    dplyr::summarize(median = median(lfc_adj)) %>%
+    dplyr::filter(unexpressed_ctrl_flag)
+
+  # Third adjustment
+  lfc_df <- lfc_df %>%
+    dplyr::left_join(medians_df, by = "target_type") %>%
+    dplyr::mutate(
       # Since the pgPEN library uses non-targeting controls, we adjusted for the
       # fact that single-targeting pgRNAs generate only two double-strand breaks
       # (1 per allele), whereas the double-targeting pgRNAs generate four DSBs.
       # To do this, we set the median (adjusted) LFC for unexpressed genes of each group to zero.
-      lfc_adj3 = lfc_adj2 - median(lfc_adj2[unexpressed_ctrl_flag == TRUE]),
+      crispr_score = dplyr::case_when(
+        target_type == "single_targeting" ~ lfc_adj - median,
+        target_type == "double_targeting" ~ lfc_adj - median,
+        TRUE ~ lfc_adj
+      ),
+      n_genes_expressed = dplyr::case_when(
+        gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ "0",
+        gene1_expressed_flag == TRUE & gene2_expressed_flag == FALSE ~ "1",
+        gene1_expressed_flag == FALSE & gene2_expressed_flag == TRUE ~ "1",
+        gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
+    ) %>%
+    dplyr::select(pg_ids, early, late, plasmid, lfc_plasmid_vs_late, lfc_early_vs_late, lfc_adj, crispr_score)
 
-      gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ TRUE)
+  lfc_df %>%
+    group_by(rep, pgRNA_target) %>%
+    mutate(target_mean_CS = mean(CRISPR_score),
+           target_median_CS = median(CRISPR_score)) %>%
+    distinct(pgRNA_target, .keep_all = TRUE)
 
   gimap_dataset$log_fc <- lfc_df
 
