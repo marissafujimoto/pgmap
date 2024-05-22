@@ -303,6 +303,26 @@ experimental setup.</li>
 <p>The first step is running some quality checks on our data. The
 <code><a href="../reference/run_qc.html">run_qc()</a></code> function will create a report we can look at to
 assess this.</p>
+<p>The report includes several visualizations:</p>
+<ul>
+<li>distribution of <code>count_norm</code> values for each sample. The
+goal of determining this distribution is to identify pgRNA counts that
+are low at the start of the screen - before any type of phenotypic or
+growth selection is occurring, either in the T0 or plasmid sample. These
+low abundance pgRNAs should be removed from the analysis.</li>
+<li>histogram of <code>log2cpm</code> values for each individual sample:
+this helps users identify samples that do not have a normal distribution
+of reads and inform the upcoming filtering steps.</li>
+<li>sample correlation heatmap: generates a heatmap using cpm values for
+each replicate/sample. This heatmap gives an overview on how similar
+samples are. Replicates should correlate well, and cluster together,
+while each timepoint sample should be different from the T0. This
+analysis will also allow users to identify potential sample swaps, if
+correlation scores between replicates is poor.</li>
+<li>log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR
+threshold will be filtered [TODO: Candace/Kate/Howard or is this being
+used as an argument in the code?]</li>
+</ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_qc.html">run_qc</a></span><span class="op">(</span><span class="va">gimap_dataset</span>,</span>
 <span>       output_file <span class="op">=</span> <span class="st">"example_qc_report.Rmd"</span>,</span>
