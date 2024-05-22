@@ -24,9 +24,6 @@ calc_lfc <- function(.data = NULL,
                      timepoints = NULL,
                      replicates = NULL) {
 
-  replicates <- "rep"
-  timepoints <- "day"
-
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
@@ -60,6 +57,8 @@ calc_lfc <- function(.data = NULL,
       "Please run gimap_annotate() function on your gimap_dataset and then retry this function."
     )
   }
+
+  message("Calculating Log Fold Change")
 
   # Based on log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
@@ -140,10 +139,9 @@ calc_lfc <- function(.data = NULL,
   # Summarize to target level and save that
   crispr_df <- lfc_df %>%
     dplyr::group_by(pgRNA_target) %>%
-    dplyr::mutate(target_mean_cs = mean(crispr_score),
+    dplyr::summarize(target_mean_cs = mean(crispr_score),
            target_median_cs = median(crispr_score)) %>%
     # TODO: This is suspicious step its going to drop a lot of data
-    dplyr::distinct(pgRNA_target, .keep_all = TRUE) %>%
     dplyr::select(-pg_ids)
 
   # Save at the target level

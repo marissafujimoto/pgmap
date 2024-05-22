@@ -40,6 +40,8 @@ gimap_annotate <- function(.data = NULL,
     annotation_df <- get_example_data("annotation")
   }
 
+  message("Annotating Data")
+
   ############################ CONTROL GENE ANNOTATION #########################
   # If control genes aren't provided then we get some from DepMap
   if (!is.null(control_genes)) {
