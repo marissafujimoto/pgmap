@@ -50,7 +50,8 @@ gimap_annotate <- function(.data = NULL,
     # Essential gene labeling is from inst/extdata/Achilles_common_essentials.csv
     control_genes <- readr::read_tsv("https://figshare.com/ndownloader/files/40448429", show_col_types = FALSE)
     control_genes <- control_genes %>%
-      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
+      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop") %>%
+      dplyr::pull(gene_symbol)
   }
 
   ############################ Get TPM data ####################################
@@ -68,7 +69,7 @@ gimap_annotate <- function(.data = NULL,
 
   depmap_tpm <- readr::read_csv(tpm_file,
     show_col_types = FALSE,
-    col_select = c("genes", my_depmap_id)
+    col_select = c("genes", dplyr::all_of(my_depmap_id))
   ) %>%
     dplyr::rename(log2_tpm = my_depmap_id) %>%
     dplyr::mutate(expressed_flag = dplyr::case_when(
@@ -99,10 +100,13 @@ gimap_annotate <- function(.data = NULL,
   # This set up is more or less the same as the original
   # https://github.com/FredHutch/GI_mapping/blob/41ac7d5ed7025252343e2c823fba22f8a363e25c/workflow/scripts/02-get_pgRNA_annotations.Rmd#L435
   annotation_df <- annotation_df %>%
+    dplyr::mutate(
+      gene1_essential_flag = gene1_symbol %in% control_genes,
+      gene2_essential_flag = gene2_symbol %in% control_genes) %>%
     dplyr::left_join(depmap_tpm, by = c("gene1_symbol" = "genes")) %>%
-    dplyr::rename(gene1_essential_flag = expressed_flag) %>%
+    dplyr::rename(gene1_expressed_flag = expressed_flag) %>%
     dplyr::left_join(depmap_tpm, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2")) %>%
-    dplyr::rename(gene2_essential_flag = expressed_flag) %>%
+    dplyr::rename(gene2_expressed_flag = expressed_flag) %>%
     dplyr::mutate(norm_ctrl_flag = dplyr::case_when(
       target_type == "gene_gene" ~ "double_targeting",
       target_type == "gene_ctrl" & gene1_essential_flag == TRUE ~ "positive_control",

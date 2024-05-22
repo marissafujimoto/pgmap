@@ -2,13 +2,11 @@
 #' @description This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param replicates Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the replicates.
-#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints.
+#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.
 #' @export
 #' @examples \dontrun{
 #'
-#' gimap_dataset <- get_example_data("gimap") %>%
-#' gimap_annotate()
+#' gimap_dataset <- get_example_data("gimap")
 #'
 #' # Highly recommended but not required
 #' run_qc(gimap_dataset)
@@ -23,25 +21,37 @@
 #' }
 calc_lfc <- function(.data = NULL,
                      gimap_dataset,
-                     replicates = NULL,
-                     timepoints = NULL) {
+                     timepoints = NULL,
+                     replicates = NULL) {
+
+  replicates <- "rep"
+  timepoints <- "day"
 
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
 
-  # TODO: we need to think about what happens if there are or are not replicates
   if (!is.null(replicates)) {
     if (!(replicates %in% colnames(gimap_dataset$metadata$sample_metadata))) {
       stop("The column name specified for 'replicates' does not exist in gimap_dataset$metadata$sample_metadata")
     }
+    # Rename and recode the timepoints variable
+    gimap_dataset$metadata$sample_metadata <- gimap_dataset$metadata$sample_metadata %>%
+      dplyr::rename(replicates = all_of(replicates))
   }
 
-  # TODO: we need to think about what happens if there are or are not timepoints
   if (!is.null(timepoints)) {
     if (!(timepoints %in% colnames(gimap_dataset$metadata$sample_metadata))) {
       stop("The column name specified for 'timepoints' does not exist in gimap_dataset$metadata$sample_metadata")
     }
+
+    # Rename and recode the timepoints variable
+    gimap_dataset$metadata$sample_metadata <- gimap_dataset$metadata$sample_metadata %>%
+      dplyr::rename(timepoints = all_of(timepoints)) %>%
+      dplyr::mutate(timepoints = dplyr::case_when(
+        timepoints == min(timepoints) ~ "plasmid",
+        timepoints == max(timepoints) ~ "late",
+        TRUE ~ "early"))
   }
 
   if (is.null(gimap_dataset$annotation)) {
@@ -51,27 +61,50 @@ calc_lfc <- function(.data = NULL,
     )
   }
 
-  # TODO:  Here's where the log fold change calculations and other handling will go based on the code in:
+  # Based on log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
-  gimap_dataset$metadata$sample_metadata %>%
-    dplyr::
-
-  tmp <- gimap_dataset$transformed_data$log2_cpm %>%
+  # Doing some reshaping to get one handy data frame
+  lfc_df <- gimap_dataset$transformed_data$log2_cpm %>%
     as.data.frame() %>%
     dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
     tidyr::pivot_longer(-pg_ids) %>%
     dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%
-    dplyr::group_by(replicates, timepoints, pg_ids) %>%
-    dplyr::summarize(rep_avg = mean(value, na.rm = TRUE)) %>%
-    tidyr::pivot_wider(values_from = rep_avg,
+    dplyr::group_by(timepoints, pg_ids) %>%
+    dplyr::summarize(timepoint_avg = mean(value)) %>%
+    tidyr::pivot_wider(values_from = timepoint_avg,
                        names_from = timepoints)
 
+  # Do the actual calculations
+  lfc_df$lfc_plasmid_vs_late <- lfc_df$late - lfc_df$plasmid
+  lfc_df$lfc_early_vs_late <- lfc_df$late - lfc_df$early
 
-  # lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm,
-  # lfc_early_vs_late = log2_cpm - early_log2_cpm
+  ########################### Perform adjustments #############################
 
-  gimap_dataset$log_fc <- NULL # TODO: the log fold changes calculated can be returned here
+  lfc_df <- lfc_df %>%
+    dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id"))
+
+  ### Calculate medians
+  neg_control_median <- lfc_df$lfc_plasmid_vs_late[lfc_df$norm_ctrl_flag == "negative_control"]
+
+  lfc_df <- lfc_df %>%
+    dplyr::mutate(
+      # Take LFC, then subtract median of negative controls.
+      # This will result in the median of the nontargeting being set to 0.
+      lfc_adj1 = lfc_plasmid_vs_late - neg_control_median,
+      # Then, divide by the median of negative controls (double non-targeting) minus
+      # median of positive controls (targeting 1 essential gene).
+      # This will effectively set the median of the positive controls (essential genes) to -1.
+      lfc_adj2 = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"]) - median(lfc_adj1[norm_ctrl_flag == "positive_control"])),
+      # Since the pgPEN library uses non-targeting controls, we adjusted for the
+      # fact that single-targeting pgRNAs generate only two double-strand breaks
+      # (1 per allele), whereas the double-targeting pgRNAs generate four DSBs.
+      # To do this, we set the median (adjusted) LFC for unexpressed genes of each group to zero.
+      lfc_adj3 = lfc_adj2 - median(lfc_adj2[unexpressed_ctrl_flag == TRUE]),
+
+      gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ TRUE)
+
+  gimap_dataset$log_fc <- lfc_df
 
   return(gimap_dataset)
 }
