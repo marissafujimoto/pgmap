@@ -1,9 +1,9 @@
 #' Annotate gimap data
 #' @description In this function, a `gimap_dataset` is annotated as far as which genes should be used as controls.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param cell_line which cell line are you using?
 #' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap
-#' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param annotation_file If no file is given, will attempt to use the design file from https://media.addgene.org/cms/filer_public/a9/9a/a99a9328-324b-42ff-8ccc-30c544b899e4/pgrna_library.xlsx
 #' @param control_genes A list of genes that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/
 #' @export
@@ -19,7 +19,7 @@
 #'   gimap_annotate()
 #'
 #' # To see anotations
-#' gimap_dataset$annotations
+#' gimap_dataset$annotation
 #' }
 gimap_annotate <- function(.data = NULL,
                            gimap_dataset,
