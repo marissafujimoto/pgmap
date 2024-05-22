@@ -123,3 +123,88 @@ gimap_annotate <- function(.data = NULL,
 
   return(gimap_dataset)
 }
+
+
+# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function
+tpm_setup <- function() {
+  tpm_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "CCLE_expression.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989919",
+                destfile = tpm_file,
+                method = "wget"
+  )
+
+  data_df <- readr::read_csv(tpm_file,
+                             show_col_types = FALSE,
+                             name_repair = make.names
+  )
+
+  cell_line_ids <- data_df$X
+
+  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
+
+  colnames(data_df) <- c("cell_line_ids", genes)
+
+  data_df <- as.data.frame(t(data_df[, -1]))
+  colnames(data_df) <- cell_line_ids
+  data_df$genes <- genes
+
+  data_df %>%
+    dplyr::select(genes, dplyr::everything()) %>%
+    readr::write_csv(tpm_file)
+
+  return(tpm_file)
+}
+
+# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
+cn_setup <- function() {
+  cn_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "CCLE_gene_cn.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989937",
+                destfile = cn_file,
+                method = "wget"
+  )
+
+  data_df <- readr::read_csv(cn_file,
+                             show_col_types = FALSE,
+                             name_repair = make.names
+  )
+
+  cell_line_ids <- data_df$X
+
+  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
+
+  colnames(data_df) <- c("cell_line_ids", genes)
+
+  data_df <- as.data.frame(t(data_df[, -1]))
+  colnames(data_df) <- cell_line_ids
+  data_df$genes <- genes
+
+  data_df %>%
+    dplyr::select(genes, dplyr::everything()) %>%
+    readr::write_csv(cn_file)
+
+  return(cn_file)
+}
+
+# This function sets up the control genes file from DepMap is called by the `gimap_annotate()`
+crtl_genes <- function() {
+  crtl_genes_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "Achilles_common_essentials.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989871",
+                destfile = crtl_genes_file,
+                method = "wget"
+  )
+
+  return(crtl_genes_file)
+}
+

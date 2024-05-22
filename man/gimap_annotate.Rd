@@ -18,11 +18,11 @@ gimap_annotate(
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{cell_line}{which cell line are you using?}
+\item{cell_line}{which cell line are you using? Default is "HELA"}
 
-\item{control_genes}{A list of genes that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/}
+\item{control_genes}{A vector of gene symbols (e.g. AAMP) that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/}
 
-\item{cn_annotate}{TRUE or FALSE you'd also like to have Copy number annotation from DepMap}
+\item{cn_annotate}{TRUE or FALSE you'd also like to have Copy number annotation from DepMap. These data are optional}
 
 \item{annotation_file}{If no file is given, will attempt to use the design file from https://media.addgene.org/cms/filer_public/a9/9a/a99a9328-324b-42ff-8ccc-30c544b899e4/pgrna_library.xlsx}
 }
