@@ -126,7 +126,7 @@ gimap_annotate <- function(.data = NULL,
       norm_ctrl_flag == "single_targeting" & (gene1_expressed_flag == FALSE | gene2_expressed_flag == FALSE) ~ TRUE,
       TRUE ~ FALSE
     ),
-    pgRNA_target = case_when(
+    pgRNA_target = dplyr::case_when(
       target_type == "gene_gene" ~ paste(gene1_symbol, gene2_symbol, sep = "_"),
       target_type == "gene_ctrl" ~ paste(gene1_symbol, "ctrl", sep = "_"),
       target_type == "ctrl_gene" ~ paste("ctrl", gene2_symbol, sep = "_"),

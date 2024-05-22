@@ -124,15 +124,30 @@ calc_lfc <- function(.data = NULL,
         gene1_expressed_flag == FALSE & gene2_expressed_flag == TRUE ~ "1",
         gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
     ) %>%
-    dplyr::select(pg_ids, early, late, plasmid, lfc_plasmid_vs_late, lfc_early_vs_late, lfc_adj, crispr_score)
+    dplyr::select(pgRNA_target,
+                  pg_ids,
+                  early,
+                  late,
+                  plasmid,
+                  lfc_plasmid_vs_late,
+                  lfc_early_vs_late,
+                  lfc_adj,
+                  crispr_score)
 
-  lfc_df %>%
-    group_by(rep, pgRNA_target) %>%
-    mutate(target_mean_CS = mean(CRISPR_score),
-           target_median_CS = median(CRISPR_score)) %>%
-    distinct(pgRNA_target, .keep_all = TRUE)
-
+  # Save this at the construct level
   gimap_dataset$log_fc <- lfc_df
+
+  # Summarize to target level and save that
+  crispr_df <- lfc_df %>%
+    dplyr::group_by(pgRNA_target) %>%
+    dplyr::mutate(target_mean_cs = mean(crispr_score),
+           target_median_cs = median(crispr_score)) %>%
+    # TODO: This is suspicious step its going to drop a lot of data
+    dplyr::distinct(pgRNA_target, .keep_all = TRUE) %>%
+    dplyr::select(-pg_ids)
+
+  # Save at the target level
+  gimap_dataset$crispr <- crispr_df
 
   return(gimap_dataset)
 }
