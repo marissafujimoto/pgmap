@@ -118,12 +118,13 @@ example_data_folder <- function() {
   file <- list.files(
     pattern = "example_data.md",
     recursive = TRUE,
-    system.file("extdata", package = "metricminer"),
+    system.file("extdata", package = "gimap"),
     full.names = TRUE
   )
   dirname(file)
 }
 
+# This function sets up the example count data
 save_example_data <- function() {
   example_data <- get_example_data("count")
 
@@ -160,87 +161,4 @@ save_example_data <- function() {
   )
 
   saveRDS(gimap_dataset, file.path(dirname(example_folder), "gimap_dataset.RDS"))
-}
-
-
-
-tpm_setup <- function() {
-  tpm_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "CCLE_expression.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989919",
-    destfile = tpm_file,
-    method = "wget"
-  )
-
-  data_df <- readr::read_csv(tpm_file,
-    show_col_types = FALSE,
-    name_repair = make.names
-  )
-
-  cell_line_ids <- data_df$X
-
-  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
-
-  colnames(data_df) <- c("cell_line_ids", genes)
-
-  data_df <- as.data.frame(t(data_df[, -1]))
-  colnames(data_df) <- cell_line_ids
-  data_df$genes <- genes
-
-  data_df %>%
-    dplyr::select(genes, dplyr::everything()) %>%
-    readr::write_csv(tpm_file)
-
-  return(tpm_file)
-}
-
-cn_setup <- function() {
-  cn_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "CCLE_gene_cn.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989937",
-    destfile = cn_file,
-    method = "wget"
-  )
-
-  data_df <- readr::read_csv(cn_file,
-    show_col_types = FALSE,
-    name_repair = make.names
-  )
-
-  cell_line_ids <- data_df$X
-
-  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
-
-  colnames(data_df) <- c("cell_line_ids", genes)
-
-  data_df <- as.data.frame(t(data_df[, -1]))
-  colnames(data_df) <- cell_line_ids
-  data_df$genes <- genes
-
-  data_df %>%
-    dplyr::select(genes, dplyr::everything()) %>%
-    readr::write_csv(cn_file)
-
-  return(cn_file)
-}
-
-
-crtl_genes <- function() {
-  crtl_genes_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "Achilles_common_essentials.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989871",
-    destfile = crtl_genes_file,
-    method = "wget"
-  )
-
-  return(crtl_genes_file)
 }

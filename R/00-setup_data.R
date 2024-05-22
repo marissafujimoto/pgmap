@@ -47,7 +47,7 @@ setup_data <- function(counts = NULL,
   if (!is.matrix(counts)) stop("counts can only be in the form of a matrix")
 
   # If they don't give sample metadata, then we will make up a row id
-  if (is.null(sample_metadata)) sample_metadata <- data.frame(id = 1:nrow(counts))
+  if (is.null(sample_metadata)) sample_metadata <- data.frame(id = 1:ncol(counts))
   if (!is.data.frame(sample_metadata)) stop("metadata can only be in the form of a data.frame")
   if (nrow(sample_metadata) != ncol(counts)) stop("the number of rows in the sample metadata is not equal to the number of columns in the counts")
 
@@ -56,12 +56,12 @@ setup_data <- function(counts = NULL,
   new_data$metadata$sample_metadata <- sample_metadata
 
   # If they don't give paired guide ids, then we will make up a row id
-  if (is.null(pg_ids)) pg_ids <- data.frame(id = 1:ncol(counts))
+  if (is.null(pg_ids)) pg_ids <- data.frame(id = 1:nrow(counts))
   if (!is.data.frame(pg_ids)) stop("pgRNA IDs can only be in the form of a data.frame")
   if (nrow(pg_ids) != nrow(counts)) stop("the number of rows in the pg_info is not equal to the number of rows in the counts")
 
   # we need the first column to be a unique id
-  if (!(nrow(unique(pg_ids[, 1])) == nrow(pg_ids[, 1]))) stop("The paired guide IDs must be a unique ID")
+  if (!(length(unique(pg_ids[, 1])) == length(pg_ids[, 1]))) stop("The paired guide IDs must be a unique ID")
   new_data$metadata$pg_ids <- pg_ids
 
   # Store the raw counts

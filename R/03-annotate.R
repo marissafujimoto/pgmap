@@ -1,11 +1,11 @@
 #' Annotate gimap data
 #' @description In this function, a `gimap_dataset` is annotated as far as which genes should be used as controls.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
-#' @param cell_line which cell line are you using?
-#' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
+#' @param cell_line which cell line are you using? Default is "HELA"
+#' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap. These data are optional
 #' @param annotation_file If no file is given, will attempt to use the design file from https://media.addgene.org/cms/filer_public/a9/9a/a99a9328-324b-42ff-8ccc-30c544b899e4/pgrna_library.xlsx
-#' @param control_genes A list of genes that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/
+#' @param control_genes A vector of gene symbols (e.g. AAMP) that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/
 #' @export
 #' @examples \dontrun{
 #'
@@ -19,7 +19,7 @@
 #'   gimap_annotate()
 #'
 #' # To see anotations
-#' gimap_dataset$annotations
+#' gimap_dataset$annotation
 #' }
 gimap_annotate <- function(.data = NULL,
                            gimap_dataset,
@@ -32,6 +32,7 @@ gimap_annotate <- function(.data = NULL,
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
 
+  # Get the annotation data based on the pg construct design
   if (!is.null(annotation_file)) {
     if (!file.exists(annotation_file)) stop("The annotation_file specified cannot be found. Please double check the file path")
     annotation_df <- read_table(annotation_file)
@@ -39,6 +40,8 @@ gimap_annotate <- function(.data = NULL,
     annotation_df <- get_example_data("annotation")
   }
 
+  ############################ CONTROL GENE ANNOTATION #########################
+  # If control genes aren't provided then we get some from DepMap
   if (!is.null(control_genes)) {
     if (!file.exists(control_genes)) stop("The annotation_file specified cannot be found. Please double check the file path")
     control_genes <- read_table(control_genes)[, 1]
@@ -50,10 +53,11 @@ gimap_annotate <- function(.data = NULL,
       tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
   }
 
+  ############################ Get TPM data ####################################
+  # This is not optional because its used to flag things
   ## get TPM and CN information (w/ option for user to upload their own info)
   depmap_metadata <- readr::read_csv("https://figshare.com/ndownloader/files/35020903", show_col_types = FALSE)
 
-  ## Get TPM data
   my_depmap_id <- depmap_metadata %>%
     dplyr::filter(stripped_cell_line_name == cell_line) %>%
     dplyr::pull(DepMap_ID)
@@ -73,10 +77,13 @@ gimap_annotate <- function(.data = NULL,
       is.na(log2_tpm) ~ NA
     ))
 
+  ############################ COPY NUMBER ANNOTATION ##########################
   if (cn_annotate) {
+
     cn_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_gene_cn.csv")
     if (!file.exists(cn_file)) cn_setup()
 
+    # Read in the CN data
     depmap_cn <- readr::read_csv(cn_file,
       show_col_types = FALSE,
       col_select = c("genes", my_depmap_id)
@@ -88,6 +95,9 @@ gimap_annotate <- function(.data = NULL,
       dplyr::left_join(depmap_cn, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2"))
   }
 
+  ############################ ANNOTATION COMBINING ############################
+  # This set up is more or less the same as the original
+  # https://github.com/FredHutch/GI_mapping/blob/41ac7d5ed7025252343e2c823fba22f8a363e25c/workflow/scripts/02-get_pgRNA_annotations.Rmd#L435
   annotation_df <- annotation_df %>%
     dplyr::left_join(depmap_tpm, by = c("gene1_symbol" = "genes")) %>%
     dplyr::rename(gene1_essential_flag = expressed_flag) %>%
@@ -108,7 +118,93 @@ gimap_annotate <- function(.data = NULL,
       "double_targeting"
     )))
 
-  gimap_dataset$annotation <- annotation_df # TODO: Final step is annotations that line up to the same order as the pg gene data should be stored here.
+  ################################ STORE IT ####################################
+  gimap_dataset$annotation <- annotation_df
 
   return(gimap_dataset)
 }
+
+
+# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function
+tpm_setup <- function() {
+  tpm_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "CCLE_expression.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989919",
+                destfile = tpm_file,
+                method = "wget"
+  )
+
+  data_df <- readr::read_csv(tpm_file,
+                             show_col_types = FALSE,
+                             name_repair = make.names
+  )
+
+  cell_line_ids <- data_df$X
+
+  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
+
+  colnames(data_df) <- c("cell_line_ids", genes)
+
+  data_df <- as.data.frame(t(data_df[, -1]))
+  colnames(data_df) <- cell_line_ids
+  data_df$genes <- genes
+
+  data_df %>%
+    dplyr::select(genes, dplyr::everything()) %>%
+    readr::write_csv(tpm_file)
+
+  return(tpm_file)
+}
+
+# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
+cn_setup <- function() {
+  cn_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "CCLE_gene_cn.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989937",
+                destfile = cn_file,
+                method = "wget"
+  )
+
+  data_df <- readr::read_csv(cn_file,
+                             show_col_types = FALSE,
+                             name_repair = make.names
+  )
+
+  cell_line_ids <- data_df$X
+
+  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
+
+  colnames(data_df) <- c("cell_line_ids", genes)
+
+  data_df <- as.data.frame(t(data_df[, -1]))
+  colnames(data_df) <- cell_line_ids
+  data_df$genes <- genes
+
+  data_df %>%
+    dplyr::select(genes, dplyr::everything()) %>%
+    readr::write_csv(cn_file)
+
+  return(cn_file)
+}
+
+# This function sets up the control genes file from DepMap is called by the `gimap_annotate()`
+crtl_genes <- function() {
+  crtl_genes_file <- file.path(
+    system.file("extdata", package = "gimap"),
+    "Achilles_common_essentials.csv"
+  )
+
+  download.file("https://figshare.com/ndownloader/files/34989871",
+                destfile = crtl_genes_file,
+                method = "wget"
+  )
+
+  return(crtl_genes_file)
+}
+
