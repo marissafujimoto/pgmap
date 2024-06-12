@@ -59,12 +59,34 @@ qc_cor_heatmap(gimap_dataset)
 qc_variance_hist(gimap_dataset)
 ```
 
+## Plasmid expression (log 2 cpm values for Day 0 sample/time point)
+
+```{r}
+qc_plasmid_histogram(gimap_dataset)
+```
+
 # Applying potential filters
 
-## Replicates with a pgRNA count of 0 
+## Filter pgRNAs where there is a count of 0 for any sample/time point
+
+### Replicates with a pgRNA count of 0 
 
 ```{r}
 qc_constructs_countzero_bar(gimap_dataset)
+```
+
+If this filter is applied, this is the number of pgRNAs that would be filtered out
+
+```{r}
+qc_filter_zerocounts(gimap_dataset)$reportdf
+```
+
+### Filter pgRNAs where there is a low log2 CPM value for the plasmid sample/time point
+
+If this filter is applied, this is the number of pgRNAs that would be filtered out
+
+```{r}
+qc_filter_plasmid(gimap_dataset)$plasmid_filter_report
 ```
 
 # Session Info
