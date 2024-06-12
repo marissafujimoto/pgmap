@@ -133,12 +133,20 @@ str(gimap_dataset)
 
 The first step is running some quality checks on our data. The `run_qc()` function will create a report we can look at to assess this.
 
-The report includes several visualizations:
+The report includes several visualizations of raw/unfiltered data:
 
-- distribution of `count_norm` values for each sample. The goal of determining this distribution is to identify pgRNA counts that are low at the start of the screen - before any type of phenotypic or growth selection is occurring, either in the T0 or plasmid sample. These low abundance pgRNAs should be removed from the analysis.
+- distribution of normalized counts for each sample. The goal of determining this distribution is to identify pgRNA counts that are low at the start of the screen - before any type of phenotypic or growth selection is occurring, either in the T0 or plasmid sample. These low abundance pgRNAs should be removed from the analysis. [the goal section here doesn't fit my expectations/understanding of this plot.]
 - histogram of `log2cpm` values for each individual sample: this helps users identify samples that do not have a normal distribution of reads and inform the upcoming filtering steps.
 - sample correlation heatmap: generates a heatmap using cpm values for each replicate/sample. This heatmap gives an overview on how similar samples are. Replicates should correlate well, and cluster together, while each timepoint sample should be different from the T0. This analysis will also allow users to identify potential sample swaps, if correlation scores between replicates is poor.
-- log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR threshold will be filtered [TODO: Candace/Kate/Howard or is this being used as an argument in the code?]
+- A histogram that shows the variance within replicates for each pgRNA construct. For each pgRNA construct, the variance among the 3 replicates is found and a distribution is constructed by looking at these variances together.
+
+This report also includes several visualizations after filters are applied:
+
+There is a filter that flags pgRNA constructs where any of the time points have a count of zero.
+  - We include a bar plot that shows the number of pgRNA constructs which have counts of zero in either 0, 1, 2, or 3 replicates. 
+  
+There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point. 
+  - We include a histogram of the log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR threshold will be filtered [TODO: Candace/Kate/Howard or is this being used as an argument in the code?; note this graph isn't currently in the report]
 
 ```{r}
 run_qc(gimap_dataset,
