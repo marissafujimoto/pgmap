@@ -73,7 +73,8 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #' @import ggplot2
 #' @return a ggplot histogram
 #' @examples \dontrun{
-#'
+#' gimap_dataset <- get_example_data("gimap")
+#' qc_variance_hist(gimap_dataset)
 #' }
 #'
 
