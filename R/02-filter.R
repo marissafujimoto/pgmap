@@ -20,6 +20,8 @@
 #' gimap_dataset$filtered_data
 #'
 #' }
+#' 
+
 gimap_filter <- function(.data = NULL,
                          gimap_dataset,
                          filter_type = "both") {
@@ -55,6 +57,7 @@ qc_filter_zerocounts <- function(gimap_dataset){
   
   return(list(filter = counts_filter, reportdf = zerocount_df))
   
+
 }
 
 #' Create a filter for pgRNAs which have a low log2 CPM value for the plasmid/Day 0 sample/time point
@@ -89,4 +92,5 @@ qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL){
     plasmid_filter = plasmid_cpm_filter,
     plasmid_filter_report = plasmid_filter_df
   ))
+
 }
