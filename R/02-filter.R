@@ -86,7 +86,7 @@ qc_filter_zerocounts <- function(gimap_dataset){
 #' }
 #'
 
-qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col){
+qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL){
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
   

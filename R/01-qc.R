@@ -4,6 +4,9 @@
 #' @param plots_dir default is `./qc_plots`; directory to save plots created with this function, if it doesn't exist already it will be created
 #' @param overwrite default is FALSE; whether to overwrite the QC Report file
 #' @param output_file default is `QC_Report`; name of the output QC report file
+#' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
+#' @param filter_plasmid_target_col default is NULL; Which sample columns(s) should be used to look at log2 CPM expression for plasmid pgRNA constructs? If NULL and not specified, downstream analysis will select the first sample column only
+#' @param filter_replicates_target_col default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used
 #' @param ... additional parameters are sent to `rmarkdown::render()`
 #' @returns a QC report saved locally
 #' @export
