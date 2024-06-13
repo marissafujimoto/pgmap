@@ -19,6 +19,9 @@ run_qc <- function(gimap_dataset,
                    output_file = "./gimap_QC_Report.Rmd",
                    plots_dir = "./qc_plots",
                    overwrite = FALSE,
+                   filter_zerocount_target_col = NULL,
+                   filter_plasmid_target_col = NULL,
+                   filter_replicates_target_col = NULL,
                    ...) {
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
 
@@ -56,7 +59,10 @@ run_qc <- function(gimap_dataset,
   rmarkdown::render(output_file,
     params = list(
       dataset = gimap_dataset,
-      plots_dir = plots_dir
+      plots_dir = plots_dir,
+      filter_zerocount_target_col = filter_zerocount_target_col,
+      filter_plasmid_target_col = filter_zerocount_target_col,
+      filter_replicates_target_col = filter_zerocount_target_col,
     ),
     ...
   )
