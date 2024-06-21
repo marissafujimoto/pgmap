@@ -139,6 +139,13 @@ str(gimap_dataset)
 
 The first step is running some quality checks on our data. The `run_qc()` function will create a report we can look at to assess this.
 
+The report includes several visualizations:
+
+- distribution of `count_norm` values for each sample. The goal of determining this distribution is to identify pgRNA counts that are low at the start of the screen - before any type of phenotypic or growth selection is occurring, either in the T0 or plasmid sample. These low abundance pgRNAs should be removed from the analysis.
+- histogram of `log2cpm` values for each individual sample: this helps users identify samples that do not have a normal distribution of reads and inform the upcoming filtering steps.
+- sample correlation heatmap: generates a heatmap using cpm values for each replicate/sample. This heatmap gives an overview on how similar samples are. Replicates should correlate well, and cluster together, while each timepoint sample should be different from the T0. This analysis will also allow users to identify potential sample swaps, if correlation scores between replicates is poor.
+- log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR threshold will be filtered [TODO: Candace/Kate/Howard or is this being used as an argument in the code?]
+
 ```{r}
 run_qc(gimap_dataset,
        output_file = "example_qc_report.Rmd",

@@ -86,8 +86,8 @@ gimap_annotate <- function(.data = NULL,
 
     # Read in the CN data
     depmap_cn <- readr::read_csv(cn_file,
-      show_col_types = FALSE,
-      col_select = c("genes", my_depmap_id)
+                                 show_col_types = FALSE,
+                                 col_select = c("genes", my_depmap_id)
     ) %>%
       dplyr::rename(log2_cn = my_depmap_id)
 
