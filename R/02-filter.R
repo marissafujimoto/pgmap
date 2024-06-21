@@ -50,7 +50,7 @@ gimap_filter <- function(.data = NULL,
 
 qc_filter_zerocounts <- function(gimap_dataset){
   
-  counts_filter <- unlist(lapply(1:nrow(gimap_dataset$raw_counts), function(x) 0 %in% gimap_dataset$raw_counts[x,]))
+  counts_filter <- data.frame(gimap_dataset$raw_counts) %>% map(~.x %in% c(0)) %>% reduce(`|`)
   
   zerocount_df <- data.frame("RawCount0" = c(FALSE, TRUE), n = c(sum(!counts_filter), sum(counts_filter))) %>%
     mutate(percent = round(((n/sum(n))*100),2))
