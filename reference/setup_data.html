@@ -60,7 +60,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setup_data</span><span class="op">(</span>counts <span class="op">=</span> <span class="cn">NULL</span>, pg_metadata <span class="op">=</span> <span class="cn">NULL</span>, sample_metadata <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setup_data</span><span class="op">(</span></span>
+<span>  counts <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pg_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pg_metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sample_metadata <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -69,23 +74,39 @@
 <dd><p>a matrix of data that contains the counts where rows are each paired_guide target and columns are each sample</p></dd>
 
 
+<dt>pg_ids</dt>
+<dd><p>the pgRNA IDs: metadata associated with the pgRNA constructs that correspond to the rows of the counts data</p></dd>
+
+
 <dt>pg_metadata</dt>
-<dd><p>metadata associated with the pgRNA constructs that correspond to the rows of the counts data</p></dd>
+<dd><p>construct metadata</p></dd>
 
 
 <dt>sample_metadata</dt>
-<dd><p>metadata associated with the samples of the dataset that correspond to the columns of the counts data</p></dd>
+<dd><p>metadata associated with the samples of the dataset that correspond to the columns of the counts data.
+Should include a column that has replicate information as well as a column that contains timepoint information respectively (this will be used for log fold calculations). These columns should be factors.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    
+
+<p>A special gimap_dataset to be used with the other functions in this package.</p>
+    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="example_data.html">example_data</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">example_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_data.html">get_example_data</a></span><span class="op">(</span><span class="st">"count"</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Day00_RepA"</span>, <span class="st">"Day05_RepA"</span>, <span class="st">"Day22_RepA"</span>, <span class="st">"Day22_RepB"</span>, <span class="st">"Day22_RepC"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">counts_data</span> <span class="op">&lt;-</span> <span class="fu">setup_data</span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gimap_dataset</span> <span class="op">&lt;-</span> <span class="fu">setup_data</span><span class="op">(</span>counts <span class="op">=</span> <span class="va">example_counts_data</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can see what an example dataset looks like by pulling the example gimap_dataset:</span></span></span>
+<span class="r-in"><span><span class="va">gimap_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_example_data.html">get_example_data</a></span><span class="op">(</span><span class="st">"gimap"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

@@ -19,22 +19,40 @@
     <loc>/index.html</loc>
   </url>
   <url>
-    <loc>/reference/annotate.html</loc>
+    <loc>/reference/calc_gi.html</loc>
   </url>
   <url>
-    <loc>/reference/calc_fc.html</loc>
+    <loc>/reference/calc_lfc.html</loc>
   </url>
   <url>
-    <loc>/reference/calculate_gi.html</loc>
+    <loc>/reference/example_data_folder.html</loc>
   </url>
   <url>
-    <loc>/reference/example_data.html</loc>
+    <loc>/reference/get_example_data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/gimap_annotate.html</loc>
+  </url>
+  <url>
+    <loc>/reference/gimap_filter.html</loc>
   </url>
   <url>
     <loc>/reference/hello.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_cdf.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_cor_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_plasmid_histogram.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_sample_hist.html</loc>
   </url>
   <url>
     <loc>/reference/run_qc.html</loc>
