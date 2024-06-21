@@ -24,9 +24,6 @@ calc_lfc <- function(.data = NULL,
                      timepoints = NULL,
                      replicates = NULL) {
 
-  replicates <- "rep"
-  timepoints <- "day"
-
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")

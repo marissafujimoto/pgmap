@@ -153,6 +153,29 @@ run_qc(gimap_dataset,
        quiet = TRUE)
 ```
 
+## Run the main workflow
+
+First let's filter this and check out how many rows of data we have left. 
+
+```{r}
+gimap_dataset <- gimap_dataset %>%
+  gimap_filter() 
+```
+
+`filtered_data` item in your gimap_dataset contains the filtered version of the data. 
+
+```{r}
+nrow(gimap_dataset$filtered_data)
+```
+
+```{r}
+gimap_dataset <- gimap_dataset %>%
+  gimap_annotate() %>%
+  calc_lfc() %>%
+  calc_gi()
+```
+
+
 ```{r}
 sessionInfo()
 ```
