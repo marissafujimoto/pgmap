@@ -5,17 +5,14 @@ date: "`r Sys.Date()`"
 ---
 
 ```{r}
-
-library(gimap)
 library(tidyverse)
-
 ```
 
 ## Load in the GI Mapping annotation table
 
 ```{r}
-annot <- readRDS("~/Downloads/results/pgRNA_annotations/tables/rds/d.HeLa_annot")
-
+old_annot_df <- readRDS("../extdata/original_d.HeLa_annot")
+devtools::load_all()
 ```
 
 ## Get the gimap annotation results
@@ -23,282 +20,82 @@ annot <- readRDS("~/Downloads/results/pgRNA_annotations/tables/rds/d.HeLa_annot"
 ### Get the gimap data setup
 
 ```{r}
-example_data <- get_example_data("count")
-
-example_counts <- example_data %>%
-  select(c("Day00_RepA", "Day05_RepA", "Day22_RepA",
-           "Day22_RepB", "Day22_RepC")) %>%
-  as.matrix()
-
-example_pg_id <- example_data %>%
-  dplyr::select("id")
-  example_pg_metadata <- example_data %>%
-  select(c("id", "seq_1", "seq_2"))
-
-example_sample_metadata <- data.frame(
-  id = 1:5,
-  day = as.factor(c("Day00", "Day05", "Day22", "Day22",
-                    "Day22")),
-  rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
-  )
-
-example_pg_metadata <- get_example_data("meta")
-
-gimap_dataset <- setup_data(counts = example_counts,
-                            pg_ids = example_pg_id,
-                            pg_metadata = example_pg_metadata,
-                            sample_metadata =
-                              example_sample_metadata)
-
+gimap_dataset <- get_example_data("gimap")
 ```
 
 ### Define the annotation function from the code
 
-Copy/pasted from `03-annotate.R` from the `cansavvy/annotation-schema` branch
-
 ```{r}
-gimap_annotate <- function(.data = NULL,
-                           gimap_dataset,
-                           cell_line = "HELA",
-                           control_genes = NULL,
-                           cn_annotate = TRUE,
-                           annotation_file = NULL) {
+gimap_dataset <- gimap_dataset %>% 
+  gimap_annotate()
 
-  if (!is.null(.data)) gimap_dataset <- .data
-
-  if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
-
-  # Get the annotation data based on the pg construct design
-  if (!is.null(annotation_file)) {
-    if (!file.exists(annotation_file)) stop("The annotation_file specified cannot be found. Please double check the file path")
-    annotation_df <- read_table(annotation_file)
-  } else {
-    annotation_df <- get_example_data("annotation")
-  }
-
-  ############################ CONTROL GENE ANNOTATION #########################
-  # If control genes aren't provided then we get some from DepMap
-  if (!is.null(control_genes)) {
-    if (!file.exists(control_genes)) stop("The annotation_file specified cannot be found. Please double check the file path")
-    control_genes <- read_table(control_genes)[, 1]
-  } else {
-    # This file is from https://depmap.org/portal/download/all/ and from DepMap Public 19Q3 All Files
-    # Essential gene labeling is from inst/extdata/Achilles_common_essentials.csv
-    control_genes <- readr::read_tsv("https://figshare.com/ndownloader/files/40448429", show_col_types = FALSE)
-    control_genes <- control_genes %>%
-      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop") %>%
-      dplyr::pull(gene_symbol)
-  }
-
-  ############################ Get TPM data ####################################
-  # This is not optional because its used to flag things
-  ## get TPM and CN information (w/ option for user to upload their own info)
-  depmap_metadata <- readr::read_csv("https://figshare.com/ndownloader/files/35020903", show_col_types = FALSE)
-
-  my_depmap_id <- depmap_metadata %>%
-    dplyr::filter(stripped_cell_line_name == cell_line) %>%
-    dplyr::pull(DepMap_ID)
-
-  tpm_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_expression.csv")
-
-  if (!file.exists(tpm_file)) tpm_setup()
-
-  depmap_tpm <- readr::read_csv(tpm_file,
-                                show_col_types = FALSE,
-                                col_select = c("genes", dplyr::all_of(my_depmap_id))
-  ) %>%
-    dplyr::rename(log2_tpm = my_depmap_id) %>%
-    dplyr::mutate(expressed_flag = dplyr::case_when(
-      log2_tpm < 1 ~ FALSE,
-      log2_tpm >= 1 ~ TRUE,
-      is.na(log2_tpm) ~ NA
-    ))
-
-  ############################ COPY NUMBER ANNOTATION ##########################
-  if (cn_annotate) {
-
-    cn_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_gene_cn.csv")
-    if (!file.exists(cn_file)) cn_setup()
-
-    # Read in the CN data
-    depmap_cn <- readr::read_csv(cn_file,
-                                 show_col_types = FALSE,
-                                 col_select = c("genes", my_depmap_id)
-    ) %>%
-      dplyr::rename(log2_cn = my_depmap_id)
-
-    annotation_df <- annotation_df %>%
-      dplyr::left_join(depmap_cn, by = c("gene1_symbol" = "genes")) %>%
-      dplyr::left_join(depmap_cn, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2"))
-  }
-
-  ############################ ANNOTATION COMBINING ############################
-  # This set up is more or less the same as the original
-  # https://github.com/FredHutch/GI_mapping/blob/41ac7d5ed7025252343e2c823fba22f8a363e25c/workflow/scripts/02-get_pgRNA_annotations.Rmd#L435
-  annotation_df <- annotation_df %>%
-    dplyr::mutate(
-      gene1_essential_flag = gene1_symbol %in% control_genes,
-      gene2_essential_flag = gene2_symbol %in% control_genes) %>%
-    dplyr::left_join(depmap_tpm, by = c("gene1_symbol" = "genes")) %>%
-    dplyr::rename(gene1_expressed_flag = expressed_flag) %>%
-    dplyr::left_join(depmap_tpm, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2")) %>%
-    dplyr::rename(gene2_expressed_flag = expressed_flag) %>%
-    dplyr::mutate(norm_ctrl_flag = dplyr::case_when(
-      target_type == "gene_gene" ~ "double_targeting",
-      target_type == "gene_ctrl" & gene1_essential_flag == TRUE ~ "positive_control",
-      target_type == "ctrl_gene" & gene2_essential_flag == TRUE ~ "positive_control",
-      target_type == "gene_ctrl" & gene1_essential_flag != TRUE ~ "single_targeting",
-      target_type == "ctrl_gene" & gene2_essential_flag != TRUE ~ "single_targeting",
-      target_type == "ctrl_ctrl" ~ "negative_control"
-    )) %>%
-    dplyr::mutate(norm_ctrl_flag = factor(norm_ctrl_flag, levels = c(
-      "negative_control",
-      "positive_control",
-      "single_targeting",
-      "double_targeting"
-    )))
-
-  ################################ STORE IT ####################################
-  gimap_dataset$annotation <- annotation_df
-
-  return(gimap_dataset)
-}
-
-
-# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function
-tpm_setup <- function() {
-  tpm_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "CCLE_expression.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989919",
-                destfile = tpm_file,
-                method = "wget"
-  )
-
-  data_df <- readr::read_csv(tpm_file,
-                             show_col_types = FALSE,
-                             name_repair = make.names
-  )
-
-  cell_line_ids <- data_df$X
-
-  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
-
-  colnames(data_df) <- c("cell_line_ids", genes)
-
-  data_df <- as.data.frame(t(data_df[, -1]))
-  colnames(data_df) <- cell_line_ids
-  data_df$genes <- genes
-
-  data_df %>%
-    dplyr::select(genes, dplyr::everything()) %>%
-    readr::write_csv(tpm_file)
-
-  return(tpm_file)
-}
-
-# This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
-cn_setup <- function() {
-  cn_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "CCLE_gene_cn.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989937",
-                destfile = cn_file,
-                method = "wget"
-  )
-
-  data_df <- readr::read_csv(cn_file,
-                             show_col_types = FALSE,
-                             name_repair = make.names
-  )
-
-  cell_line_ids <- data_df$X
-
-  genes <- stringr::word(colnames(data_df)[-1], sep = "\\.\\.", 1)
-
-  colnames(data_df) <- c("cell_line_ids", genes)
-
-  data_df <- as.data.frame(t(data_df[, -1]))
-  colnames(data_df) <- cell_line_ids
-  data_df$genes <- genes
-
-  data_df %>%
-    dplyr::select(genes, dplyr::everything()) %>%
-    readr::write_csv(cn_file)
-
-  return(cn_file)
-}
-
-# This function sets up the control genes file from DepMap is called by the `gimap_annotate()`
-crtl_genes <- function() {
-  crtl_genes_file <- file.path(
-    system.file("extdata", package = "gimap"),
-    "Achilles_common_essentials.csv"
-  )
-
-  download.file("https://figshare.com/ndownloader/files/34989871",
-                destfile = crtl_genes_file,
-                method = "wget"
-  )
-
-  return(crtl_genes_file)
-}
-```
-
-```{r}
-gimap_dataset <- gimap_dataset %>% gimap_annotate(annotation_file = "~/tool_repos/gimap/inst/extdata/pgPEN_annotations.txt")
-
-annotation_df <- gimap_dataset$annotation
+new_annot_df <- gimap_dataset$annotation
 ```
 
 ## Compare them
 
 ```{r}
-nrow(annotation_df)
-nrow(annot)
+nrow(old_annot_df)
+nrow(new_annot_df)
 ```
 
 ```{r}
-
-joindf <- full_join(annotation_df, annot, by = "pgRNA_id")
-
+joindf <- dplyr::full_join(old_annot_df, new_annot_df, 
+                           by = "pgRNA_id", 
+                           suffix = c("_old", "_new"))
 ```
 
 ```{r}
-ggplot(joindf, aes(x=log2_cn_gene1, y=gene1_log2_cn)) + geom_point() + ylab("GI_Mapping Output Annotation File: gene1_log2_cn") + xlab("gimap annotation log2_cn_gene1") + theme_classic() + geom_abline(intercept = 0, slope = 1)
-
-```
-
-```{r}
-ggplot(joindf, aes(x=log2_cn_gene2, y=gene2_log2_cn)) + geom_point() + ylab("GI_Mapping Output Annotation File: gene2_log2_cn") + xlab("gimap annotation log2_cn_gene2") + theme_classic() + geom_abline(intercept = 0, slope = 1)
-
-```
-
-```{r}
-ggplot(joindf, aes(x=log2_tpm_gene2, y=gene2_log2_tpm)) + geom_point() + ylab("GI_Mapping Output Annotation File: gene2_log2_tpm") + xlab("gimap annotation log2_tpm_gene2") + theme_classic() + geom_abline(intercept = 0, slope = 1)
+ggplot(joindf, aes(x = log2_cn_gene1, y = gene1_log2_cn)) + 
+  geom_point() + 
+  ylab("GI_Mapping Output Annotation File: gene1_log2_cn") + 
+  xlab("gimap annotation log2_cn_gene1") + 
+  theme_classic() + 
+  geom_abline(intercept = 0, slope = 1)
 
 ```
 
 ```{r}
-ggplot(joindf, aes(x=log2_tpm_gene1, y=gene1_log2_tpm)) + geom_point() + ylab("GI_Mapping Output Annotation File: gene1_log2_tpm") + xlab("gimap annotation log2_tpm_gene1") + theme_classic() + geom_abline(intercept = 0, slope = 1)
+ggplot(joindf, aes(x=log2_cn_gene2, y=gene2_log2_cn)) + 
+  geom_point() + 
+  ylab("GI_Mapping Output Annotation File: gene2_log2_cn") + 
+  xlab("gimap annotation log2_cn_gene2") + 
+  theme_classic() + 
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+```{r}
+ggplot(joindf, aes(x=log2_tpm_gene2, y=gene2_log2_tpm)) + 
+  geom_point() + 
+  ylab("GI_Mapping Output Annotation File: gene2_log2_tpm") + 
+  xlab("gimap annotation log2_tpm_gene2") + 
+  theme_classic() + 
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+```{r}
+ggplot(joindf, aes(x=log2_tpm_gene1, y=gene1_log2_tpm)) + 
+  geom_point() + 
+  ylab("GI_Mapping Output Annotation File: gene1_log2_tpm") + 
+  xlab("gimap annotation log2_tpm_gene1") + 
+  theme_classic() + 
+  geom_abline(intercept = 0, slope = 1)
 
 ```
 
 |Which comparison | gimap # NA	| GI Mapping # NA	| # overlap  based on pgRNA ID (using intersect) |
 |:--------------:|:------------:|:---------------:|:---------:|
-|Gene1 log2 tpm  | `r sum(is.na(annotation_df$log2_tpm_gene1))
-` | `r sum(is.na(annot$gene1_log2_tpm))` | `r length(intersect(annotation_df$pgRNA_id[which(is.na(annotation_df$log2_tpm_gene1))]
-, annot$pgRNA_id[which(is.na(annot$gene1_log2_tpm))]))` |
-|Gene 2 log2 tpm | `r sum(is.na(annotation_df$log2_tpm_gene2))
-` | `r sum(is.na(annot$gene2_log2_tpm))` | `r length(intersect(annotation_df$pgRNA_id[which(is.na(annotation_df$log2_tpm_gene2))]
-, annot$pgRNA_id[which(is.na(annot$gene2_log2_tpm))]))` |
-|Gene 1 log2 CN	 | `r sum(is.na(annotation_df$log2_cn_gene1))
-` | `r sum(is.na(annot$gene1_log2_cn))` | `r length(intersect(annotation_df$pgRNA_id[which(is.na(annotation_df$log2_cn_gene1))]
-, annot$pgRNA_id[which(is.na(annot$gene1_log2_cn))]))` |
-|Gene 2 log2 CN	 | `r sum(is.na(annotation_df$log2_cn_gene2))
-` | `r sum(is.na(annot$gene2_log2_cn))` | `r length(intersect(annotation_df$pgRNA_id[which(is.na(annotation_df$log2_cn_gene2))]
-, annot$pgRNA_id[which(is.na(annot$gene2_log2_cn))]))` |
+|Gene1 log2 tpm  | `r sum(is.na(new_annot_df$log2_tpm_gene1))
+` | `r sum(is.na(old_annot_df$gene1_log2_tpm))` | `r length(intersect(new_annot_df$pgRNA_id[which(is.na(new_annot_df$log2_tpm_gene1))]
+, old_annot_df$pgRNA_id[which(is.na(old_annot_df$gene1_log2_tpm))]))` |
+|Gene 2 log2 tpm | `r sum(is.na(new_annot_df$log2_tpm_gene2))
+` | `r sum(is.na(old_annot_df$gene2_log2_tpm))` | `r length(intersect(new_annot_df$pgRNA_id[which(is.na(new_annot_df$log2_tpm_gene2))]
+, old_annot_df$pgRNA_id[which(is.na(old_annot_df$gene2_log2_tpm))]))` |
+|Gene 1 log2 CN	 | `r sum(is.na(new_annot_df$log2_cn_gene1))
+` | `r sum(is.na(old_annot_df$gene1_log2_cn))` | `r length(intersect(new_annot_df$pgRNA_id[which(is.na(new_annot_df$log2_cn_gene1))]
+, old_annot_df$pgRNA_id[which(is.na(old_annot_df$gene1_log2_cn))]))` |
+|Gene 2 log2 CN	 | `r sum(is.na(new_annot_df$log2_cn_gene2))
+` | `r sum(is.na(old_annot_df$gene2_log2_cn))` | `r length(intersect(new_annot_df$pgRNA_id[which(is.na(new_annot_df$log2_cn_gene2))]
+, old_annot_df$pgRNA_id[which(is.na(old_annot_df$gene2_log2_cn))]))` |
