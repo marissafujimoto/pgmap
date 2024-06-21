@@ -70,8 +70,8 @@ gimap_annotate <- function(.data = NULL,
   if (!file.exists(tpm_file)) tpm_setup()
 
   depmap_tpm <- readr::read_csv(tpm_file,
-    show_col_types = FALSE,
-    col_select = c("genes", dplyr::all_of(my_depmap_id))
+                                show_col_types = FALSE,
+                                col_select = c("genes", dplyr::all_of(my_depmap_id))
   ) %>%
     dplyr::rename(log2_tpm = my_depmap_id) %>%
     dplyr::mutate(expressed_flag = dplyr::case_when(
@@ -88,8 +88,8 @@ gimap_annotate <- function(.data = NULL,
 
     # Read in the CN data
     depmap_cn <- readr::read_csv(cn_file,
-      show_col_types = FALSE,
-      col_select = c("genes", my_depmap_id)
+                                 show_col_types = FALSE,
+                                 col_select = c("genes", my_depmap_id)
     ) %>%
       dplyr::rename(log2_cn = my_depmap_id)
 
