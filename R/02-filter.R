@@ -40,6 +40,7 @@ gimap_filter <- function(.data = NULL,
 #' Create a filter for pgRNAs which have a raw count of 0 for any sample/time point
 #' @description This function flags and reports which and how many pgRNAs have a raw count of 0 for any sample/time point
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the raw count data
+#' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom purrr reduce map
@@ -50,9 +51,13 @@ gimap_filter <- function(.data = NULL,
 #' }
 #'
 
-qc_filter_zerocounts <- function(gimap_dataset){
+qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NULL){
 
-  counts_filter <- data.frame(gimap_dataset$raw_counts) %>% map(~.x %in% c(0)) %>% reduce(`|`)
+  if (is.null(filter_zerocount_target_col)) {filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
+
+  #@Howard please help: should set up a check that if filter_zerocount_target_col is not null, it's an R vector (? -- the c() thing) of integers greater than or equal to 1 and less than or equal to number of possible columns in data
+  
+  counts_filter <- data.frame(gimap_dataset$raw_counts[,filter_zerocount_target_col]) %>% map(~.x %in% c(0)) %>% reduce(`|`)
 
   zerocount_df <- data.frame("RawCount0" = c(FALSE, TRUE), n = c(sum(!counts_filter), sum(counts_filter))) %>%
     mutate(percent = round(((n/sum(n))*100),2))
@@ -91,6 +96,8 @@ qc_filter_zerocounts <- function(gimap_dataset){
 qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL){
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
+  
+  #@Howard please help: should set up a check that if filter_plasmid_target_col is not null, it's an R vector (? -- the c() thing) of integers greater than or equal to 1 and less than or equal to number of possible columns in data
   
   plasmid_data <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
   
