@@ -5,14 +5,16 @@ Version: 0.1.0
 Authors@R: c(
     person("Candace", "Savonen", ,
     c("cansav09@gmail.com","csavonen@fredhutch.org"),
-    role = c("aut", "cre")),
+    role = c("aut", "cre")
+    ),
     person("Howard", "Baek", ,
     c("howardbaek@fredhutch.org","howardbaek.fh@gmail.com"),
-    role = c("aut"))
+    role = c("aut")
     ), 
     person("Kate", "Isaac", ,
     c("kisaac@fredhutch.org"),
-    role = c("aut"))
+    role = c("aut")
+    )
     )
 Description: This package allows a pipeline to be built for analyzing genetic interactions of paired guide CRISPR screens. It is based off of original research from the Alice Berger lab at Fred Hutchinson Cancer Center
 License: GPL-3
