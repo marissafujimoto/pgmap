@@ -181,6 +181,7 @@ qc_cor_heatmap <- function(gimap_dataset) {
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom magrittr %>%
+#' @importFrom janitor clean_names
 #' @import ggplot2
 #' @return a ggplot histogram
 #' @examples \dontrun{
