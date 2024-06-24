@@ -67,7 +67,8 @@ qc_filter_zerocounts <- function(gimap_dataset){
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the log2 CPM transformed data
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate across if_any
+#' @importFrom tidyr pivot_wider pivot_longer 
 #' @importFrom janitor clean_names
 #' @return a named list with the filter `plasmid_filter` specifying which pgRNAs have low plasmid log2 CPM (column of interest is `plasmid_cpm_filter`) and a report df `plasmid_filter_report` for the number and percent of pgRNA which have a low plasmid log2 CPM
 #' @examples \dontrun{
