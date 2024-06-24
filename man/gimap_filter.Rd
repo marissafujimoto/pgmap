@@ -11,7 +11,7 @@ gimap_filter(.data = NULL, gimap_dataset, filter_type = "both")
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{filter_type}{Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters. 
+\item{filter_type}{Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
 You should decide on the appropriate filter based on the results of your QC report.}
 }
 \value{
@@ -35,4 +35,5 @@ gimap_dataset <- gimap_filter(gimap_dataset)
 gimap_dataset$filtered_data
 
 }
+
 }
