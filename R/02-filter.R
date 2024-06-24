@@ -42,6 +42,7 @@ gimap_filter <- function(.data = NULL,
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
+#' @importFrom purrr reduce
 #' @return a named list with the filter `filter` specifying which pgRNA have a count zero for at least one sample/time point and a report df `reportdf` for the number and percent of pgRNA which have a count zero for at least one sample/time point 
 #' @examples \dontrun{
 #' 
