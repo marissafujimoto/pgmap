@@ -31,8 +31,16 @@ get_example_data <- function(which_data) {
       full.names = TRUE
     )
     return(readr::read_rds(file))
+  } else if (which_data == "annotation") {
+    file <- list.files(
+      pattern = "pgPEN_annotations.txt",
+      recursive = TRUE,
+      system.file("extdata", package = "gimap"),
+      full.names = TRUE
+    )
+    return(readr::read_tsv(file, show_col_types = FALSE))
   } else {
-    stop("Specification for `which_data` not understood; Need to use 'gimap', count', or 'meta'")
+    stop("Specification for `which_data` not understood; Need to use 'gimap', count', 'meta', or 'annotation' ")
   }
 }
 
@@ -116,6 +124,7 @@ example_data_folder <- function() {
   dirname(file)
 }
 
+# This function sets up the example count data
 save_example_data <- function() {
   example_data <- get_example_data("count")
 

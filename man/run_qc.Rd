@@ -2,18 +2,38 @@
 % Please edit documentation in R/01-qc.R
 \name{run_qc}
 \alias{run_qc}
-\title{This is a title for a function}
+\title{Run Quality Control Checks}
 \usage{
-run_qc()
+run_qc(
+  gimap_dataset,
+  output_file = "./gimap_QC_Report.Rmd",
+  plots_dir = "./qc_plots",
+  overwrite = FALSE,
+  ...
+)
 }
 \arguments{
-\item{parameter}{Here's a parameter let's describe it here}
+\item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
+
+\item{output_file}{default is `QC_Report`; name of the output QC report file}
+
+\item{plots_dir}{default is `./qc_plots`; directory to save plots created with this function, if it doesn't exist already it will be created}
+
+\item{overwrite}{default is FALSE; whether to overwrite the QC Report file}
+
+\item{...}{additional parameters are sent to `rmarkdown::render()`}
+}
+\value{
+a QC report saved locally
 }
 \description{
-This is a function here's where we describe what it does
+This function takes a `gimap_dataset` and creates a QC report
 }
 \examples{
 \dontrun{
 
+gimap_dataset <- get_example_data("gimap")
+
+run_qc(gimap_dataset)
 }
 }
