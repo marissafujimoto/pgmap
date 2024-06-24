@@ -2,7 +2,7 @@
 #' @description This is a function here's where we describe what it does
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters. 
+#' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
 #' You should decide on the appropriate filter based on the results of your QC report.
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
 #' @export
@@ -20,7 +20,7 @@
 #' gimap_dataset$filtered_data
 #'
 #' }
-#' 
+#'
 
 gimap_filter <- function(.data = NULL,
                          gimap_dataset,
@@ -42,7 +42,8 @@ gimap_filter <- function(.data = NULL,
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the raw count data
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
-#' @return a named list with the filter `filter` specifying which pgRNA have a count zero for at least one sample/time point and a report df `reportdf` for the number and percent of pgRNA which have a count zero for at least one sample/time point 
+#' @importFrom purrr reduce map
+#' @return a named list with the filter `filter` specifying which pgRNA have a count zero for at least one sample/time point and a report df `reportdf` for the number and percent of pgRNA which have a count zero for at least one sample/time point
 #' @examples \dontrun{
 #'   gimap_dataset <- get_example_data("gimap")
 #'   qc_filter_zerocounts(gimap_dataset)
@@ -50,14 +51,13 @@ gimap_filter <- function(.data = NULL,
 #'
 
 qc_filter_zerocounts <- function(gimap_dataset){
-  
-  counts_filter <- unlist(lapply(1:nrow(gimap_dataset$raw_counts), function(x) 0 %in% gimap_dataset$raw_counts[x,]))
-  
+
+  counts_filter <- data.frame(gimap_dataset$raw_counts) %>% map(~.x %in% c(0)) %>% reduce(`|`)
+
   zerocount_df <- data.frame("RawCount0" = c(FALSE, TRUE), n = c(sum(!counts_filter), sum(counts_filter))) %>%
     mutate(percent = round(((n/sum(n))*100),2))
-  
+
   return(list(filter = counts_filter, reportdf = zerocount_df))
-  
 
 }
 
@@ -134,3 +134,4 @@ qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_targe
   ))
 
 }
+

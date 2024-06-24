@@ -83,7 +83,7 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #'
 
 qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
-  
+
   return(
     gimap_dataset$transformed_data$log2_cpm[,3:5] %>%
       as.data.frame() %>%
@@ -98,28 +98,28 @@ qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
             aspect.ratio = wide_ar) +
       xlab("variance") +
       ylab("pgRNA construct count")
-  )  
-  
+  )
+
 }
 
 #' Create a bar graph that shows the number of replicates with a zero count for pgRNA constructs flagged by the zero count filter
 #' @description A short description...
-#' @param gimap_dataset
+#' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
-#' @import ggplot2 
+#' @import ggplot2
 #' @return a ggplot barplot
 #' @examples \dontrun{
 #' gimap_dataset <- get_example_data("gimap")
 #' qc_constructs_countzero_bar(gimap_dataset)
 #' }
-#' 
+#'
 
 qc_constructs_countzero_bar <- function(gimap_dataset, wide_ar = 0.75){
-  
+
   qc_filter_output <- qc_filter_zerocounts(gimap_dataset)
-  
+
   return(
     example_counts[qc_filter_output$filter, c(3:5)] %>%
       as.data.frame() %>%
