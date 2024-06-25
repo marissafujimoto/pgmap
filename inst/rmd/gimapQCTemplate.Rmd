@@ -81,7 +81,7 @@ qc_constructs_countzero_bar(gimap_dataset)
 If this filter is applied, this is the number of pgRNAs that would be filtered out
 
 ```{r}
-qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col)$reportdf
+qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)$reportdf
 ```
 
 ### Filter pgRNAs where there is a low log2 CPM value for the plasmid sample/time point
