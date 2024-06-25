@@ -59,7 +59,7 @@ qc_cor_heatmap(gimap_dataset)
 ## Variance within replicates
 
 ```{r}
-qc_variance_hist(gimap_dataset)
+qc_variance_hist(gimap_dataset, filter_replicates_target_col = filter_replicates_target_col)
 ```
 
 ## Plasmid expression (log 2 cpm values for Day 0 sample/time point)
@@ -75,7 +75,7 @@ qc_plasmid_histogram(gimap_dataset)
 ### Replicates with a pgRNA count of 0 
 
 ```{r}
-qc_constructs_countzero_bar(gimap_dataset)
+qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col= filter_zerocount_target_col, filter_replicates_target_col = filter_replicates_target_col)
 ```
 
 If this filter is applied, this is the number of pgRNAs that would be filtered out

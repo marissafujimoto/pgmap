@@ -71,6 +71,7 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #' Create a histogram for the variance within replicates for each pgRNA
 #' @description This function uses pivot_longer to rearrange the data for plotting, finds the variance for each pgRNA construct (using row number as a proxy) and then plots a histogram of these variances
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
+#' @param filter_replicates_target_col default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
@@ -82,10 +83,12 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #' }
 #'
 
-qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
+qc_variance_hist <- function(gimap_dataset, filter_replicates_target_col = NULL, wide_ar = 0.75){
 
+  if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
+  
   return(
-    gimap_dataset$transformed_data$log2_cpm[,3:5] %>%
+    gimap_dataset$transformed_data$log2_cpm[,filter_replicates_target_col] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
       tidyr::pivot_longer(-row) %>%
@@ -103,8 +106,12 @@ qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
 }
 
 #' Create a bar graph that shows the number of replicates with a zero count for pgRNA constructs flagged by the zero count filter
-#' @description A short description...
+#' @description This bar graph first uses the specified `filter_zerocount_target_col` columns to flag pgRNA constructs that have a raw count of 0 in any one of those columns/samples of interest.
+#' Then, it looks at the specified columns for the final day/sample replicates (`filter_replicates_target_col`) to see for pgRNAs that were flagged by the filter, how many of those replicate samples had raw counts of zeros. And it produces a bar plot reporting on this.
+#' Note, if you select samples/columns to check with the filter that don't have the replicate samples, this graph won't be informative. So you want there to be overlap between the columns for the two target_col parameters to have an informative graph
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
+#' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
+#' @param filter_replicates_target_col default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
@@ -113,18 +120,32 @@ qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
 #' @examples \dontrun{
 #' gimap_dataset <- get_example_data("gimap")
 #' qc_constructs_countzero_bar(gimap_dataset)
+#' 
+#' #or if you want to select a specific column(s) for looking at where/which samples zero counts are present for
+#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = c(3:5))
+#' 
+#' #or if you want to select a specific column(s) for the final day/sample replicates
+#' qc_constructs_countzero_bar(gimap_dataset, filter_replicates_target_col = c(3:5))
+#' 
+#' #or some combination of those
+#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = c(3:5), filter_replicates_target_col = c(3:5))
 #' }
 #'
 
-qc_constructs_countzero_bar <- function(gimap_dataset, wide_ar = 0.75){
+qc_constructs_countzero_bar <- function(gimap_dataset, filter_zerocount_target_col = NULL, filter_replicates_target_col = NULL, wide_ar = 0.75){
 
-  qc_filter_output <- qc_filter_zerocounts(gimap_dataset)
+  if(is.null(filter_zerocount_target_col)){filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
+  
+  qc_filter_output <- qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)
+  
+  if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
+  
 
   return(
-    example_counts[qc_filter_output$filter, c(3:5)] %>%
+    example_counts[qc_filter_output$filter, filter_replicates_target_col] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
-      tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[c(3:5), c("day", "rep")], "colName")$colName,
+      tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[filter_replicates_target_col, c("day", "rep")], "colName")$colName,
                   values_to = "counts") %>%
       group_by(row) %>%
       summarize(numzero = sum(counts == 0),
