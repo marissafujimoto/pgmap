@@ -4,7 +4,7 @@
 \alias{qc_cor_heatmap}
 \title{Create a correlation heatmap for the pgRNA CPMs}
 \usage{
-qc_cor_heatmap(gimap_dataset, ...)
+qc_cor_heatmap(gimap_dataset)
 }
 \arguments{
 \item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}

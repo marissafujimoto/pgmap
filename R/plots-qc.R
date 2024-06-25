@@ -3,7 +3,7 @@
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @param qc_obj The object that has the qc stuff stored
 #' @param wide_ar aspect ratio, default is 0.75
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_longer unite
 #' @importFrom ggplot2 ggplot labs
 #' @return counts_cdf a ggplot
 #' @examples \dontrun{
@@ -64,6 +64,80 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
   return(sample_cpm_histogram)
 }
 
+#' Create a histogram for the variance within replicates for each pgRNA
+#' @description This function uses pivot_longer to rearrange the data for plotting, finds the variance for each pgRNA construct (using row number as a proxy) and then plots a histogram of these variances
+#' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
+#' @param wide_ar aspect ratio, default is 0.75
+#' @importFrom tidyr pivot_longer
+#' @importFrom magrittr %>%
+#' @import ggplot2
+#' @return a ggplot histogram
+#' @examples \dontrun{
+#' gimap_dataset <- get_example_data("gimap")
+#' qc_variance_hist(gimap_dataset)
+#' }
+#'
+
+qc_variance_hist <- function(gimap_dataset, wide_ar = 0.75){
+
+  return(
+    gimap_dataset$transformed_data$log2_cpm[,3:5] %>%
+      as.data.frame() %>%
+      mutate(row = row_number()) %>%
+      tidyr::pivot_longer(-row) %>%
+      group_by(row) %>%
+      summarize(var = var(value)) %>%
+      ggplot(aes(x=var)) +
+      geom_histogram(binwidth = 0.1) +
+      theme(panel.background = element_blank(),
+            panel.grid = element_blank(),
+            aspect.ratio = wide_ar) +
+      xlab("variance") +
+      ylab("pgRNA construct count")
+  )
+
+}
+
+#' Create a bar graph that shows the number of replicates with a zero count for pgRNA constructs flagged by the zero count filter
+#' @description A short description...
+#' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
+#' @param wide_ar aspect ratio, default is 0.75
+#' @importFrom tidyr pivot_longer
+#' @importFrom magrittr %>%
+#' @import ggplot2
+#' @return a ggplot barplot
+#' @examples \dontrun{
+#' gimap_dataset <- get_example_data("gimap")
+#' qc_constructs_countzero_bar(gimap_dataset)
+#' }
+#'
+
+qc_constructs_countzero_bar <- function(gimap_dataset, wide_ar = 0.75){
+
+  qc_filter_output <- qc_filter_zerocounts(gimap_dataset)
+
+  return(
+    example_counts[qc_filter_output$filter, c(3:5)] %>%
+      as.data.frame() %>%
+      mutate(row = row_number()) %>%
+      tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[c(3:5), c("day", "rep")], "colName")$colName,
+                  values_to = "counts") %>%
+      group_by(row) %>%
+      summarize(numzero = sum(counts == 0),
+                max_diff = max(counts) - min(counts),
+                sec_diff = min(counts[counts > 0]) - min(counts)
+                ) %>%
+      group_by(numzero) %>%
+      summarize(count = n()) %>%
+      ggplot(aes(x=numzero, y = count)) +
+      geom_bar(stat = "identity") +
+      theme_classic() +
+      ylab("Number of pgRNAs") +
+      xlab("Number of replicates with a zero") +
+      geom_text(aes(label = count, group = numzero), vjust = -0.5, size=2)
+  )
+}
+
 #' Create a correlation heatmap for the pgRNA CPMs
 #' @description This function uses the `cor` function to find correlations between the sample CPM's and then plots a heatmap of these
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
@@ -75,7 +149,7 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #'
 #' }
 #'
-qc_cor_heatmap <- function(gimap_dataset, ...) {
+qc_cor_heatmap <- function(gimap_dataset) {
   cpm_cor <- gimap_dataset$transformed_data$cpm %>%
     cor() %>%
     round(2) %>%
@@ -87,8 +161,7 @@ qc_cor_heatmap <- function(gimap_dataset, ...) {
       cellwidth = 20,
       cellheight = 20,
       treeheight_row = 20,
-      treeheight_col = 20,
-      ...
+      treeheight_col = 20
     )
 
   return(sample_cor_heatmap)

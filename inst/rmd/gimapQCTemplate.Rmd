@@ -53,6 +53,21 @@ qc_sample_hist(gimap_dataset)
 qc_cor_heatmap(gimap_dataset)
 ```
 
+## Variance within replicates
+
+```{r}
+qc_variance_hist(gimap_dataset)
+```
+
+# Applying potential filters
+
+## Replicates with a pgRNA count of 0 
+
+```{r}
+qc_constructs_countzero_bar(gimap_dataset)
+```
+
+# Session Info
 
 ```{r}
 sessionInfo()
