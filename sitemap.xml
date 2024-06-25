@@ -46,13 +46,22 @@
     <loc>/reference/qc_cdf.html</loc>
   </url>
   <url>
+    <loc>/reference/qc_constructs_countzero_bar.html</loc>
+  </url>
+  <url>
     <loc>/reference/qc_cor_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_filter_zerocounts.html</loc>
   </url>
   <url>
     <loc>/reference/qc_plasmid_histogram.html</loc>
   </url>
   <url>
     <loc>/reference/qc_sample_hist.html</loc>
+  </url>
+  <url>
+    <loc>/reference/qc_variance_hist.html</loc>
   </url>
   <url>
     <loc>/reference/run_qc.html</loc>

@@ -303,13 +303,15 @@ experimental setup.</li>
 <p>The first step is running some quality checks on our data. The
 <code><a href="../reference/run_qc.html">run_qc()</a></code> function will create a report we can look at to
 assess this.</p>
-<p>The report includes several visualizations:</p>
+<p>The report includes several visualizations of raw/unfiltered
+data:</p>
 <ul>
-<li>distribution of <code>count_norm</code> values for each sample. The
-goal of determining this distribution is to identify pgRNA counts that
-are low at the start of the screen - before any type of phenotypic or
-growth selection is occurring, either in the T0 or plasmid sample. These
-low abundance pgRNAs should be removed from the analysis.</li>
+<li>distribution of normalized counts for each sample. The goal of
+determining this distribution is to identify pgRNA counts that are low
+at the start of the screen - before any type of phenotypic or growth
+selection is occurring, either in the T0 or plasmid sample. These low
+abundance pgRNAs should be removed from the analysis. [the goal section
+here doesn’t fit my expectations/understanding of this plot.]</li>
 <li>histogram of <code>log2cpm</code> values for each individual sample:
 this helps users identify samples that do not have a normal distribution
 of reads and inform the upcoming filtering steps.</li>
@@ -319,10 +321,23 @@ samples are. Replicates should correlate well, and cluster together,
 while each timepoint sample should be different from the T0. This
 analysis will also allow users to identify potential sample swaps, if
 correlation scores between replicates is poor.</li>
-<li>log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR
-threshold will be filtered [TODO: Candace/Kate/Howard or is this being
-used as an argument in the code?]</li>
+<li>A histogram that shows the variance within replicates for each pgRNA
+construct. For each pgRNA construct, the variance among the 3 replicates
+is found and a distribution is constructed by looking at these variances
+together.</li>
 </ul>
+<p>This report also includes several visualizations after filters are
+applied:</p>
+<p>There is a filter that flags pgRNA constructs where any of the time
+points have a count of zero. - We include a bar plot that shows the
+number of pgRNA constructs which have counts of zero in either 0, 1, 2,
+or 3 replicates.</p>
+<p>There is a filter that flags pgRNA constructs that have low log2 CPM
+counts for the day 0 or plasmid time point. - We include a histogram of
+the log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR
+threshold will be filtered [TODO: Candace/Kate/Howard or is this being
+used as an argument in the code?; note this graph isn’t currently in the
+report]</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_qc.html">run_qc</a></span><span class="op">(</span><span class="va">gimap_dataset</span>,</span>
 <span>       output_file <span class="op">=</span> <span class="st">"example_qc_report.Rmd"</span>,</span>
@@ -357,11 +372,11 @@ used as an argument in the code?]</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] sass_0.4.9         utf8_1.2.4         generics_0.1.3     tidyr_1.3.1       </span></span>
-<span><span class="co">#&gt;  [5] xml2_1.3.6         stringi_1.8.4      hms_1.1.3          digest_0.6.35     </span></span>
+<span><span class="co">#&gt;  [5] xml2_1.3.6         stringi_1.8.4      hms_1.1.3          digest_0.6.36     </span></span>
 <span><span class="co">#&gt;  [9] magrittr_2.0.3     evaluate_0.24.0    grid_4.4.1         RColorBrewer_1.1-3</span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0      jsonlite_1.8.8     purrr_1.0.2        fansi_1.0.6       </span></span>
 <span><span class="co">#&gt; [17] viridisLite_0.4.2  scales_1.3.0       textshaping_0.4.0  jquerylib_0.1.4   </span></span>
-<span><span class="co">#&gt; [21] cli_3.6.2          crayon_1.5.3       rlang_1.1.4        bit64_4.0.5       </span></span>
+<span><span class="co">#&gt; [21] cli_3.6.3          crayon_1.5.3       rlang_1.1.4        bit64_4.0.5       </span></span>
 <span><span class="co">#&gt; [25] munsell_0.5.1      withr_3.0.0        cachem_1.1.0       yaml_2.3.8        </span></span>
 <span><span class="co">#&gt; [29] parallel_4.4.1     tools_4.4.1        tzdb_0.4.0         memoise_2.0.1     </span></span>
 <span><span class="co">#&gt; [33] colorspace_2.1-0   kableExtra_1.4.0   vctrs_0.6.5        R6_2.5.1          </span></span>
@@ -388,7 +403,7 @@ used as an argument in the code?]</li>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Candace Savonen, Howard Baek.</p>
+<p>Developed by Candace Savonen, Howard Baek, Kate Isaac.</p>
 </div>
 
 <div class="pkgdown">
