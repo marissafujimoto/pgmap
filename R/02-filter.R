@@ -6,7 +6,9 @@
 #' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
 #' @param cutoff default is NULL, relates to the low_plasmid_cpm filter; the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
+#' @param min_n_filters default is 1; this parameter defines at least how many/the minimum number of independent filters have to flag a pgRNA construct before the construct is filtered when using a combination of filters
 #' You should decide on the appropriate filter based on the results of your QC report.
+#' @importFrom purrr reduce
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
 #' @export
 #' @examples \dontrun{
@@ -37,7 +39,8 @@ gimap_filter <- function(.data = NULL,
                          filter_type = "both",
                          cutoff = NULL,
                          filter_zerocount_target_col = NULL,
-                         filter_plasmid_target_col = NULL) {
+                         filter_plasmid_target_col = NULL,
+                         min_n_filters = 1) {
 
   if (!is.null(.data)) gimap_dataset <- .data
 
@@ -46,15 +49,30 @@ gimap_filter <- function(.data = NULL,
   #check filter type input to make sure that it is a supportable input
   if (!(filter_type %in% c("both", "zero_count_only", "low_plasmid_cpm_only"))) stop("Specification for `filter_type` not understood; Need to use 'both', 'zero_count_only', or 'low_plasmid_cpm_only'")
   
+  zc_filter <- NULL
+  p_filter <- NULL
+  #*ADD any new filters here* assigning it a NULL value
+  
+  #This section calls the appropriate filtering functions and assigns results to the filter variables assigned NULL earlier (they will stay NULL if there filter wasn't selected to be run according to the input to the function)
   if (filter_type == "both"){
     zc_filter <- qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)$filter
-    p_filter <- qc_filter_plasmid(gimap_dataset, cutoff = cutoff, filter_plasmid_target_col = filter_plasmid_target_col)
-    combined_filter <- combine_filters() #add this function
+    p_filter <- qc_filter_plasmid(gimap_dataset, cutoff = cutoff, filter_plasmid_target_col = filter_plasmid_target_col)$plasmid_filter
   } else if (filter_type == "zero_count_only"){
     zc_filter <- qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)$filter
   } else if(filter_type == "low_plasmid_cpm_only"){
-    p_filter <- qc_filter_plasmid(gimap_dataset, cutoff = cutoff, filter_plasmid_target_col = filter_plasmid_target_col)
+    p_filter <- qc_filter_plasmid(gimap_dataset, cutoff = cutoff, filter_plasmid_target_col = filter_plasmid_target_col)$plasmid_filter
   }
+  
+  
+  possible_filters <- list(zc_filter, p_filter)
+  #*ADD any new filters here* within the list of `possible_filters`
+  
+  #this first cbinds each filter enumerated in possible_filters together (no matter how many there are, and ignores the NULLs) using the reduce function
+  #then it finds the row sum (how many are filters flagged each construct e.g., number of TRUE in each row), 
+  #and finally compares the row sum to the `min_n_filters` parameter to report TRUEs and FALSEs according to whether each construct is flagged by the minimum number of required filters
+  #TRUE means it should be filtered, FALSE means it shouldn't be filtered
+  combined_filter <- rowSums(reduce(possible_filters, cbind)) >= min_n_filters 
+  
   
   gimap_dataset$filtered <- NULL #TODO: Filtered version of the data can be stored here
 
@@ -171,4 +189,3 @@ qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_targe
   ))
 
 }
-
