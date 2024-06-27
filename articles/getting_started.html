@@ -325,19 +325,25 @@ correlation scores between replicates is poor.</li>
 construct. For each pgRNA construct, the variance among the 3 replicates
 is found and a distribution is constructed by looking at these variances
 together.</li>
+<li>A histogram of the log2 CPM values of pgRNA constructs at the
+plasmid time point. This graph relates to a plasmid filter that can be
+applied to the data, but the plot displays all of the data prior to a
+filter being applied.</li>
 </ul>
 <p>This report also includes several visualizations after filters are
 applied:</p>
 <p>There is a filter that flags pgRNA constructs where any of the time
 points have a count of zero. - We include a bar plot that shows the
 number of pgRNA constructs which have counts of zero in either 0, 1, 2,
-or 3 replicates.</p>
+or 3 replicates. - We include a table that specifies how many pgRNAs
+would be filtered out by applying this filter.</p>
 <p>There is a filter that flags pgRNA constructs that have low log2 CPM
-counts for the day 0 or plasmid time point. - We include a histogram of
-the log2cpm of plasmid counts. Any reads falling outside of the 1.5*IQR
-threshold will be filtered [TODO: Candace/Kate/Howard or is this being
-used as an argument in the code?; note this graph isn’t currently in the
-report]</p>
+counts for the day 0 or plasmid time point. - The histogram of the log2
+CPM values of pgRNA constructs at the plasmid time point mentioned
+earlier does have a dashed line specifying the lower outlier (or a user
+defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than
+that value can be filtered out. - We include a table that specifies how
+many pgRNAs would be filtered out by applying this filter.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_qc.html">run_qc</a></span><span class="op">(</span><span class="va">gimap_dataset</span>,</span>
 <span>       output_file <span class="op">=</span> <span class="st">"example_qc_report.Rmd"</span>,</span>
