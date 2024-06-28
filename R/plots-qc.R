@@ -7,6 +7,9 @@
 #' @importFrom ggplot2 ggplot labs
 #' @return counts_cdf a ggplot
 #' @examples \dontrun{
+#' 
+#' gimap_dataset <- get_example_data("gimap")
+#' qc_cdf(gimap_dataset)
 #'
 #' }
 #'
@@ -40,7 +43,8 @@ qc_cdf <- function(gimap_dataset, wide_ar = 0.75) {
 #' @import ggplot2
 #' @return sample_cpm_histogram a ggplot
 #' @examples \dontrun{
-#'
+#' gimap_dataset <- get_example_data("gimap")
+#' qc_sample_hist(gimap_dataset)
 #' }
 #'
 qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
@@ -146,7 +150,8 @@ qc_constructs_countzero_bar <- function(gimap_dataset, wide_ar = 0.75){
 #' @importFrom pheatmap pheatmap
 #' @return `sample_cor_heatmap` a pheatmap
 #' @examples \dontrun{
-#'
+#'   gimap_dataset <- get_example_data("gimap")
+#'   qc_cor_heatmap(gimap_dataset)
 #' }
 #'
 qc_cor_heatmap <- function(gimap_dataset) {
@@ -173,21 +178,46 @@ qc_cor_heatmap <- function(gimap_dataset) {
 #' method to tell, especially if there are reps?
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the transformed data
 #' @param cutoff default is NULL, the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
+#' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
 #' @param wide_ar aspect ratio, default is 0.75
 #' @importFrom magrittr %>%
+#' @importFrom janitor clean_names
 #' @import ggplot2
 #' @return a ggplot histogram
+#' @examples \dontrun{
+#' 
+#' gimap_dataset <- get_example_data("gimap")
+#' 
+#' qc_plasmid_histogram(gimap_dataset)
+#' 
+#' # or to specify a "cutoff" value that will be displayed as a dashed vertical line
+#' qc_plasmid_histogram(gimap_dataset, cutoff=1.75)
+#' 
+#' # or to specify a different column (or set of columns) to select
+#' qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col=c(1,2))
+#'
+#' # or to specify a "cutoff" value that will be displayed as a dashed vertical line as well as to specify a different column (or set of columns) to select
+#' qc_plasmid_histogram(gimap_dataset, cutoff=2, filter_plasmid_target_col=c(1,2))
+#' }
+#'
 
-qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, wide_ar = 0.75) {
-  to_plot <- data.frame(gimap_dataset$transformed_data$log2_cpm[, 1]) %>% `colnames<-`(c("log2_cpm"))
+qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL, wide_ar = 0.75) {
   
-    quantile_info <- quantile(to_plot$log2_cpm)
+  if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
+  
+  to_plot <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
+  
+  if (length(filter_plasmid_target_col >1)){ #if more than one column was selected, collapse all of the columns into the same vector and store in a df to plot 
+    to_plot <- data.frame(unlist(to_plot %>% select(starts_with("plasmid_log2_cpm")), use.names = FALSE)) %>% `colnames<-`(c("plasmid_log2_cpm"))
+  }
+  
+    quantile_info <- quantile(to_plot$plasmid_log2_cpm)
     
     if (is.null(cutoff)) { cutoff <- quantile_info["25%"] - (1.5 * (quantile_info["75%"] - quantile_info["25%"]))}
       # if cutoff is null, suggest a cutoff and plot with suggested
   
   return(   
-    ggplot(to_plot, aes(x = log2_cpm)) +
+    ggplot(to_plot, aes(x = plasmid_log2_cpm)) +
       geom_histogram(binwidth = 0.2, color = "black", fill = "gray60") +
       plot_options() +
       plot_theme() +

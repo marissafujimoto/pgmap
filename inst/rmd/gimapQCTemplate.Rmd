@@ -5,6 +5,9 @@ author: "`r paste0('gimap (v', utils::packageVersion('gimap'), ')')`"
 params:
   dataset: NULL
   plots_dir: ./plots
+  filter_zerocount_target_col: NULL
+  filter_plasmid_target_col: NULL
+  filter_replicates_target_col: NULL
 output: 
   html_document:
     theme: spacelab
@@ -62,7 +65,7 @@ qc_variance_hist(gimap_dataset)
 ## Plasmid expression (log 2 cpm values for Day 0 sample/time point)
 
 ```{r}
-qc_plasmid_histogram(gimap_dataset)
+qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col = filter_plasmid_target_col)
 ```
 
 # Applying potential filters
@@ -86,7 +89,7 @@ qc_filter_zerocounts(gimap_dataset)$reportdf
 If this filter is applied, this is the number of pgRNAs that would be filtered out
 
 ```{r}
-qc_filter_plasmid(gimap_dataset)$plasmid_filter_report
+qc_filter_plasmid(gimap_dataset, filter_plasmid_target_col = filter_plasmid_target_col)$plasmid_filter_report
 ```
 
 # Session Info
