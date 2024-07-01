@@ -48,7 +48,7 @@ gimap_filter <- function(.data = NULL,
 #'   qc_filter_zerocounts(gimap_dataset)
 #'   
 #'   #or to specify a different column (or set of columns to select)
-#'   qc_filter_zerocount(gimap_dataset, filter_zerocount_target_col = c(1,2))
+#'   qc_filter_zerocount(gimap_dataset, filter_zerocount_target_col = 1:2)
 #' }
 #'
 
@@ -91,7 +91,7 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 #'   qc_filter_plasmid(gimap_dataset, filter_plasmid_target_col = 1:2)
 #'
 #'   # or to specify a cutoff value that will be used in the filter rather than the lower outlier default as well as to specify a different column (or set of columns) to select
-#'   qc_filter_plasmid(gimap_dataset, cutoff=1.75, filter_plasmid_target_col=c(1,2))
+#'   qc_filter_plasmid(gimap_dataset, cutoff=1.75, filter_plasmid_target_col=1:2)
 #' 
 #' }
 #'
