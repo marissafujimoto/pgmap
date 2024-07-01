@@ -122,13 +122,13 @@ qc_variance_hist <- function(gimap_dataset, filter_replicates_target_col = NULL,
 #' qc_constructs_countzero_bar(gimap_dataset)
 #' 
 #' #or if you want to select a specific column(s) for looking at where/which samples zero counts are present for
-#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = c(3:5))
+#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5)
 #' 
 #' #or if you want to select a specific column(s) for the final day/sample replicates
-#' qc_constructs_countzero_bar(gimap_dataset, filter_replicates_target_col = c(3:5))
+#' qc_constructs_countzero_bar(gimap_dataset, filter_replicates_target_col = 3:5)
 #' 
 #' #or some combination of those
-#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = c(3:5), filter_replicates_target_col = c(3:5))
+#' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5, filter_replicates_target_col = 3:5)
 #' }
 #'
 
@@ -215,10 +215,10 @@ qc_cor_heatmap <- function(gimap_dataset) {
 #' qc_plasmid_histogram(gimap_dataset, cutoff=1.75)
 #' 
 #' # or to specify a different column (or set of columns) to select
-#' qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col=c(1,2))
+#' qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col=1:2)
 #'
 #' # or to specify a "cutoff" value that will be displayed as a dashed vertical line as well as to specify a different column (or set of columns) to select
-#' qc_plasmid_histogram(gimap_dataset, cutoff=2, filter_plasmid_target_col=c(1,2))
+#' qc_plasmid_histogram(gimap_dataset, cutoff=2, filter_plasmid_target_col=1:2)
 #' }
 #'
 
