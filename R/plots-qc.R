@@ -142,7 +142,7 @@ qc_constructs_countzero_bar <- function(gimap_dataset, filter_zerocount_target_c
   
 
   return(
-    example_counts[qc_filter_output$filter, filter_replicates_target_col] %>%
+    gimap_dataset$raw_counts[qc_filter_output$filter, filter_replicates_target_col] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
       tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[filter_replicates_target_col, c("day", "rep")], "colName")$colName,
