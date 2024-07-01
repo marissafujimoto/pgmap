@@ -164,6 +164,15 @@ run_qc(gimap_dataset,
        quiet = TRUE)
 ```
 
+
+```{r}
+gimap_dataset <- gimap_dataset %>%
+  gimap_filter() %>%
+  gimap_annotate() %>%
+  gimap_normalize() %>%
+  calc_crispr()
+```
+
 ```{r}
 sessionInfo()
 ```

@@ -14,12 +14,14 @@
 #' gimap_dataset <- gimap_dataset %>%
 #'   gimap_filter() %>%
 #'   gimap_annotate() %>%
-#'   calc_lfc()
+#'   gimap_normalize(
+#'     timepoints = "day",
+#'     replicates = "rep")
 #'
 #' # To see results
-#' gimap_dataset$log_fc
+#' gimap_dataset$normalized_log_fc
 #' }
-calc_lfc <- function(.data = NULL,
+gimap_normalize <- function(.data = NULL,
                      gimap_dataset,
                      timepoints = NULL,
                      replicates = NULL) {
@@ -58,7 +60,7 @@ calc_lfc <- function(.data = NULL,
     )
   }
 
-  message("Calculating Log Fold Change")
+  message("Normalizing Log Fold Change")
 
   # Based on log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
@@ -98,54 +100,8 @@ calc_lfc <- function(.data = NULL,
       lfc_adj = lfc_adj / (median(lfc_adj[norm_ctrl_flag == "negative_control"]) - median(lfc_adj[norm_ctrl_flag == "positive_control"]))
     )
 
-  # Calculate medians based on single, double targeting as well as if they are unexpressed control genes
-  medians_df <- lfc_df %>%
-    dplyr::group_by(target_type, unexpressed_ctrl_flag) %>%
-    dplyr::summarize(median = median(lfc_adj)) %>%
-    dplyr::filter(unexpressed_ctrl_flag)
-
-  # Third adjustment
-  lfc_df <- lfc_df %>%
-    dplyr::left_join(medians_df, by = "target_type") %>%
-    dplyr::mutate(
-      # Since the pgPEN library uses non-targeting controls, we adjusted for the
-      # fact that single-targeting pgRNAs generate only two double-strand breaks
-      # (1 per allele), whereas the double-targeting pgRNAs generate four DSBs.
-      # To do this, we set the median (adjusted) LFC for unexpressed genes of each group to zero.
-      crispr_score = dplyr::case_when(
-        target_type == "single_targeting" ~ lfc_adj - median,
-        target_type == "double_targeting" ~ lfc_adj - median,
-        TRUE ~ lfc_adj
-      ),
-      n_genes_expressed = dplyr::case_when(
-        gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ "0",
-        gene1_expressed_flag == TRUE & gene2_expressed_flag == FALSE ~ "1",
-        gene1_expressed_flag == FALSE & gene2_expressed_flag == TRUE ~ "1",
-        gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
-    ) %>%
-    dplyr::select(pgRNA_target,
-                  pg_ids,
-                  early,
-                  late,
-                  plasmid,
-                  lfc_plasmid_vs_late,
-                  lfc_early_vs_late,
-                  lfc_adj,
-                  crispr_score)
-
   # Save this at the construct level
-  gimap_dataset$log_fc <- lfc_df
-
-  # Summarize to target level and save that
-  crispr_df <- lfc_df %>%
-    dplyr::group_by(pgRNA_target) %>%
-    dplyr::summarize(target_mean_cs = mean(crispr_score),
-           target_median_cs = median(crispr_score)) %>%
-    # TODO: This is suspicious step its going to drop a lot of data
-    dplyr::select(-pg_ids)
-
-  # Save at the target level
-  gimap_dataset$crispr <- crispr_df
+  gimap_dataset$normalized_log_fc <- lfc_df
 
   return(gimap_dataset)
 }
