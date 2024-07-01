@@ -58,7 +58,9 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 
   if (is.null(filter_zerocount_target_col)) {filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
 
-  #@Howard please help: should set up a check that if filter_zerocount_target_col is not null, it's an R vector (? -- the c() thing) of integers greater than or equal to 1 and less than or equal to number of possible columns in data
+if (!all(filter_zerocount_target_col %in% 1:ncol(gimap_dataset$raw_counts))) {
+    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by") 
+   }
   
   counts_filter <- data.frame(gimap_dataset$raw_counts[,filter_zerocount_target_col]) %>% map(~.x %in% c(0)) %>% reduce(`|`)
 
