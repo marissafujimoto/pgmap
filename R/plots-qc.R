@@ -136,9 +136,17 @@ qc_constructs_countzero_bar <- function(gimap_dataset, filter_zerocount_target_c
 
   if(is.null(filter_zerocount_target_col)){filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
   
+  if (!all(filter_zerocount_target_col %in% 1:ncol(gimap_dataset$raw_counts))) {
+    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by") 
+  }
+  
   qc_filter_output <- qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)
   
   if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
+  
+  if (!all(filter_replicates_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
+    stop("The columns selected do not exist. `filter_replicates_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+  }
   
 
   return(
