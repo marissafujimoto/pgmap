@@ -121,7 +121,7 @@ qc_constructs_countzero_bar <- function(gimap_dataset, wide_ar = 0.75){
   qc_filter_output <- qc_filter_zerocounts(gimap_dataset)
 
   return(
-    example_counts[qc_filter_output$filter, c(3:5)] %>%
+    gimap_dataset$raw_counts[qc_filter_output$filter, c(3:5)] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
       tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[c(3:5), c("day", "rep")], "colName")$colName,
@@ -204,6 +204,10 @@ qc_cor_heatmap <- function(gimap_dataset) {
 qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL, wide_ar = 0.75) {
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
+  
+  if (!all(filter_plasmid_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
+    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+  }
   
   to_plot <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
   
