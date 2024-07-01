@@ -5,6 +5,9 @@ author: "`r paste0('gimap (v', utils::packageVersion('gimap'), ')')`"
 params:
   dataset: NULL
   plots_dir: ./plots
+  filter_zerocount_target_col: NULL
+  filter_plasmid_target_col: NULL
+  filter_replicates_target_col: NULL
 output: 
   html_document:
     theme: spacelab
@@ -53,6 +56,43 @@ qc_sample_hist(gimap_dataset)
 qc_cor_heatmap(gimap_dataset)
 ```
 
+## Variance within replicates
+
+```{r}
+qc_variance_hist(gimap_dataset)
+```
+
+## Plasmid expression (log 2 cpm values for Day 0 sample/time point)
+
+```{r}
+qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col = filter_plasmid_target_col)
+```
+
+# Applying potential filters
+
+## Filter pgRNAs where there is a count of 0 for any sample/time point
+
+### Replicates with a pgRNA count of 0 
+
+```{r}
+qc_constructs_countzero_bar(gimap_dataset)
+```
+
+If this filter is applied, this is the number of pgRNAs that would be filtered out
+
+```{r}
+qc_filter_zerocounts(gimap_dataset)$reportdf
+```
+
+### Filter pgRNAs where there is a low log2 CPM value for the plasmid sample/time point
+
+If this filter is applied, this is the number of pgRNAs that would be filtered out
+
+```{r}
+qc_filter_plasmid(gimap_dataset, filter_plasmid_target_col = filter_plasmid_target_col)$plasmid_filter_report
+```
+
+# Session Info
 
 ```{r}
 sessionInfo()
