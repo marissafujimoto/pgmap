@@ -40,6 +40,7 @@ gimap_filter <- function(.data = NULL,
 #' Create a filter for pgRNAs which have a raw count of 0 for any sample/time point
 #' @description This function flags and reports which and how many pgRNAs have a raw count of 0 for any sample/time point
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the raw count data
+#' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom purrr reduce map
@@ -47,12 +48,21 @@ gimap_filter <- function(.data = NULL,
 #' @examples \dontrun{
 #'   gimap_dataset <- get_example_data("gimap")
 #'   qc_filter_zerocounts(gimap_dataset)
+#'   
+#'   #or to specify a different column (or set of columns to select)
+#'   qc_filter_zerocount(gimap_dataset, filter_zerocount_target_col = c(1,2))
 #' }
 #'
 
-qc_filter_zerocounts <- function(gimap_dataset){
+qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NULL){
 
-  counts_filter <- data.frame(gimap_dataset$raw_counts) %>% map(~.x %in% c(0)) %>% reduce(`|`)
+  if (is.null(filter_zerocount_target_col)) {filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
+
+  if (!all(filter_zerocount_target_col %in% 1:ncol(gimap_dataset$raw_counts))) {
+    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by") 
+   }
+  
+  counts_filter <- data.frame(gimap_dataset$raw_counts[,filter_zerocount_target_col]) %>% map(~.x %in% c(0)) %>% reduce(`|`)
 
   zerocount_df <- data.frame("RawCount0" = c(FALSE, TRUE), n = c(sum(!counts_filter), sum(counts_filter))) %>%
     mutate(percent = round(((n/sum(n))*100),2))
@@ -91,6 +101,10 @@ qc_filter_zerocounts <- function(gimap_dataset){
 qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL){
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
+  
+  if (!all(filter_plasmid_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
+    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+  }
   
   plasmid_data <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
   
