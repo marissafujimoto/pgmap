@@ -65,7 +65,7 @@ run_qc <- function(gimap_dataset,
       plots_dir = plots_dir,
       filter_zerocount_target_col = filter_zerocount_target_col,
       filter_plasmid_target_col = filter_zerocount_target_col,
-      filter_replicates_target_col = filter_zerocount_target_col,
+      filter_replicates_target_col = filter_zerocount_target_col
     ),
     ...
   )

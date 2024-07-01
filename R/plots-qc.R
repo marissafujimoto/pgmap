@@ -226,6 +226,10 @@ qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, filter_plasmid_ta
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
   
+  if (!all(filter_plasmid_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
+    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+  }
+  
   to_plot <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
   
   if (length(filter_plasmid_target_col >1)){ #if more than one column was selected, collapse all of the columns into the same vector and store in a df to plot 
