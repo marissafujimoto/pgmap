@@ -40,6 +40,8 @@ gimap_annotate <- function(.data = NULL,
     annotation_df <- get_example_data("annotation")
   }
 
+  message("Annotating Data")
+
   ############################ CONTROL GENE ANNOTATION #########################
   # If control genes aren't provided then we get some from DepMap
   if (!is.null(control_genes)) {
@@ -68,8 +70,8 @@ gimap_annotate <- function(.data = NULL,
   if (!file.exists(tpm_file)) tpm_setup()
 
   depmap_tpm <- readr::read_csv(tpm_file,
-    show_col_types = FALSE,
-    col_select = c("genes", dplyr::all_of(my_depmap_id))
+                                show_col_types = FALSE,
+                                col_select = c("genes", dplyr::all_of(my_depmap_id))
   ) %>%
     dplyr::rename(log2_tpm = my_depmap_id) %>%
     dplyr::mutate(expressed_flag = dplyr::case_when(

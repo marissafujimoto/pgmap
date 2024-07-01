@@ -16,8 +16,10 @@
 #' gimap_dataset <- gimap_dataset %>%
 #'   gimap_filter() %>%
 #'   gimap_annotate() %>%
-#'   calc_lfc() %>%
+#'   gimap_normalize() %>%
+#'   calc_crispr() %>%
 #'   calc_gi()
+#'
 #' }
 calc_gi <- function(gimap_dataset) {
   if (!is.null(.data)) gimap_dataset <- .data
