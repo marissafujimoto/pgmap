@@ -94,7 +94,7 @@ gimap_filter <- function(.data = NULL,
 #'   qc_filter_zerocounts(gimap_dataset)
 #'   
 #'   #or to specify a different column (or set of columns to select)
-#'   qc_filter_zerocount(gimap_dataset, filter_zerocount_target_col = c(1,2))
+#'   qc_filter_zerocount(gimap_dataset, filter_zerocount_target_col = 1:2)
 #' }
 #'
 
@@ -102,7 +102,9 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 
   if (is.null(filter_zerocount_target_col)) {filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
 
-  #@Howard please help: should set up a check that if filter_zerocount_target_col is not null, it's an R vector (? -- the c() thing) of integers greater than or equal to 1 and less than or equal to number of possible columns in data
+  if (!all(filter_zerocount_target_col %in% 1:ncol(gimap_dataset$raw_counts))) {
+    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by") 
+   }
   
   counts_filter <- data.frame(gimap_dataset$raw_counts[,filter_zerocount_target_col]) %>% map(~.x %in% c(0)) %>% reduce(`|`)
 
@@ -133,10 +135,10 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 #'   qc_filter_plasmid(gimap_dataset, cutoff=2)
 #'   
 #'   #or to specify a different column (or set of columns to select)
-#'   qc_filter_plasmid(gimap_dataset, filter_plasmid_target_col = c(1,2))
+#'   qc_filter_plasmid(gimap_dataset, filter_plasmid_target_col = 1:2)
 #'
 #'   # or to specify a cutoff value that will be used in the filter rather than the lower outlier default as well as to specify a different column (or set of columns) to select
-#'   qc_filter_plasmid(gimap_dataset, cutoff=1.75, filter_plasmid_target_col=c(1,2))
+#'   qc_filter_plasmid(gimap_dataset, cutoff=1.75, filter_plasmid_target_col=1:2)
 #' 
 #' }
 #'
@@ -145,7 +147,9 @@ qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_targe
   
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
   
-  #@Howard please help: should set up a check that if filter_plasmid_target_col is not null, it's an R vector (? -- the c() thing) of integers greater than or equal to 1 and less than or equal to number of possible columns in data
+  if (!all(filter_plasmid_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
+    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+  }
   
   plasmid_data <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
   

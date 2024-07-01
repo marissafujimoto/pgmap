@@ -148,7 +148,7 @@ There is a filter that flags pgRNA constructs where any of the time points have 
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
   
 There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point. 
-  - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out. [TODO: Candace/Kate/Howard or is this being used as an argument in the code?]
+  - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out. 
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter. 
 
 ```{r}
