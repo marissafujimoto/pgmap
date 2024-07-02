@@ -31,7 +31,9 @@ run_qc(gimap_dataset)
 gimap_dataset <- gimap_dataset \%>\%
   gimap_filter() \%>\%
   gimap_annotate() \%>\%
-  gimap_normalize() \%>\%
+  gimap_normalize(
+    timepoints = "day",
+    replicates = "rep") \%>\%
   calc_crispr() \%>\%
   calc_gi()
 

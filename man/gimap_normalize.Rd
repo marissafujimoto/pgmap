@@ -2,7 +2,7 @@
 % Please edit documentation in R/04-normalize.R
 \name{gimap_normalize}
 \alias{gimap_normalize}
-\title{Calculate log fold change for a}
+\title{Normalize Log fold changes}
 \usage{
 gimap_normalize(
   .data = NULL,
