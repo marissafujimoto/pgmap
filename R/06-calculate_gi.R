@@ -69,33 +69,7 @@ calc_gi <- function(.data = NULL,
     left_join(stats, by = "rep") %>%
     mutate(gi_score = target_crispr - (intercept + slope * expected_crispr))
 
-  gimap_dataset$gi_scores <- gi_calc_adj %>%
-    dplyr::select()
-
-  d.double_GI_scores <- gi_calc_adj %>%
-    filter(rep == i) %>%
-    group_by(paralog_pair) %>%
-    mutate(p_val = t.test(x = single_GI_scores,
-                          y = GI_score,
-                          paired = FALSE)$p.value)
-
-  ## adjust for multiple testing using the Benjamini-Hochberg method
-  d.p_val <- d.double_GI_scores %>%
-    dplyr::select(paralog_pair, p_val) %>%
-    arrange(p_val) %>%
-    distinct(p_val, .keep_all = TRUE)
-
-  p_vals <- d.p_val %>%
-    pull(p_val)
-
-  fdr_vals <- p.adjust(p_vals, method = "BH")
-
-  fdr_df <- tibble("fdr" = fdr_vals) %>%
-    bind_cols(d.p_val) %>%
-    dplyr::select(-p_val)
-
-  ## add FDR values back into the double-targeting DF
-  d.double_GI_scores <- left_join(d.double_GI_scores, fdr_df, by = "paralog_pair")
+  gimap_dataset$gi_scores <- gi_calc_adj
 
   return(gimap_dataset)
 }
@@ -122,13 +96,44 @@ calc_gi <- function(.data = NULL,
 #'   gimap_normalize(
 #'     timepoints = "day",
 #'     replicates = "rep") %>%
-#'   calc_crispr() %>%
-#'   calc_gi()
+#'   calc_crispr()
+#'
+#'
 #'
 #' }
-## get a vector of GI scores for all single-targeting ("control") pgRNAs for each rep
-## get double-targeting pgRNAs for this rep, do a t-test to compare the double-
 
-## targeting GI scores for each paralog pair to the control vector
 
-## adjust for multiple testing using the Benjamini-Hochberg method
+gimap_stats <- function() {
+  ## get a vector of GI scores for all single-targeting ("control") pgRNAs for each rep
+  ## get double-targeting pgRNAs for this rep, do a t-test to compare the double-
+
+  ## targeting GI scores for each paralog pair to the control vector
+
+  ## adjust for multiple testing using the Benjamini-Hochberg method
+
+  d.double_GI_scores <- gi_calc_adj %>%
+    filter(rep == i) %>%
+    group_by(paralog_pair) %>%
+    mutate(p_val = t.test(x = single_GI_scores,
+                          y = GI_score,
+                          paired = FALSE)$p.value)
+
+  ## adjust for multiple testing using the Benjamini-Hochberg method
+  d.p_val <- d.double_GI_scores %>%
+    dplyr::select(paralog_pair, p_val) %>%
+    arrange(p_val) %>%
+    distinct(p_val, .keep_all = TRUE)
+
+  p_vals <- d.p_val %>%
+    pull(p_val)
+
+  fdr_vals <- p.adjust(p_vals, method = "BH")
+
+  fdr_df <- tibble("fdr" = fdr_vals) %>%
+    bind_cols(d.p_val) %>%
+    dplyr::select(-p_val)
+
+  ## add FDR values back into the double-targeting DF
+  d.double_GI_scores <- left_join(d.double_GI_scores, fdr_df, by = "paralog_pair")
+
+}
