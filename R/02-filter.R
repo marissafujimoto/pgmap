@@ -5,9 +5,9 @@
 #' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `both`. Potentially in the future also `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
 #' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
+#' @param filter_replicates_target_col default is NULL, Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used
 #' @param cutoff default is NULL, relates to the low_plasmid_cpm filter; the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
 #' @param min_n_filters default is 1; this parameter defines at least how many/the minimum number of independent filters have to flag a pgRNA construct before the construct is filtered when using a combination of filters
-#' @param output_filter_report default is TRUE; if TRUE, will store a list of pgRNA construct IDs that are removed by filtering as well as the filter(s) that flagged it for removal
 #' You should decide on the appropriate filter based on the results of your QC report.
 #' @importFrom purrr reduce
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
@@ -45,8 +45,8 @@ gimap_filter <- function(.data = NULL,
                          cutoff = NULL,
                          filter_zerocount_target_col = NULL,
                          filter_plasmid_target_col = NULL,
-                         min_n_filters = 1,
-                         output_filter_report = TRUE) {
+                         filter_replicates_target_col = NULL,
+                         min_n_filters = 1) {
 
   if (!is.null(.data)) gimap_dataset <- .data
 
@@ -82,9 +82,18 @@ gimap_filter <- function(.data = NULL,
   combined_filter <- rowSums(one_filter_df) >= min_n_filters
   #within `combined_filter` TRUE means that the filtering steps flagged the pgRNA construct for removal, therefore, we'll want to use the opposite FALSE values for the filtered data, keeping those that weren't flagged by filtering steps
   
-  gimap_dataset$filtered_data$filter_step_run <- TRUE #adding a way to know if the filter step was run since it's optional
+  
+  # store some data/results from filtering
+  ## adding a way to know if the filter step was run since it's optional
+  gimap_dataset$filtered_data$filter_step_run <- TRUE 
+  
+  ## subset the pgRNA IDs such that these are the ones that remain in the dataset following completion of filtering
   gimap_dataset$filtered_data$metadata_pg_ids <- gimap_dataset$metadata$pg_ids[!combined_filter,]
+  
+  ## subset the log2_cpm data such that these are the ones that remain in the dataset following completion of filtering
   gimap_dataset$filtered_data$transformed_log2_cpm <- gimap_dataset$transformed_data$log2_cpm[!combined_filter,]
+  
+  ## save a list of which pgRNAs are filtered out once filtering is complete
   gimap_dataset$filtered_data$removed_pg_ids <- cbind(gimap_dataset$metadata$pg_ids[combined_filter,], one_filter_df[combined_filter,]) %>% #add the IDs as a column together with the TRUEs and FALSEs for each filter, focusing only on pgRNAs which are in some way flagged for removal
                                                         pivot_longer(starts_with("Filter"), #pivot longer so that IDs are repeated and filter names are listed in a column and the last column (`boolVals`) are TRUEs and FALSEs
                                                                      names_to = "filterName", 
@@ -93,7 +102,21 @@ gimap_filter <- function(.data = NULL,
                                                         select(id, filterName) %>% #drop the boolVals column because don't need it anymore
                                                         group_by(id) %>% #group by the pgRNA constructs
                                                         summarize(relevantFilters = toString(filterName)), #and make a column that comma separates the relevant filters
-  gimap_dataset$filtered_data$all_reps_zerocount_ids <- NULL #makes sense to define it here, but would have rerun code
+  
+  ## save a list of which pgRNAs have a zero count in all final timepoint replicates. 
+  #NOTE these are NOT necessarily filtered out
+  gimap_dataset$filtered_data$all_reps_zerocount_ids <- gimap_dataset$metadata$pg_ids[unlist(
+                                                                                              gimap_dataset$raw_counts[,filter_replicates_target_col] %>% #grab the data from the final timepoint replicate columns
+                                                                                               as.data.frame() %>%
+                                                                                               mutate(row = row_number()) %>% #add a row number column for reference
+                                                                                               tidyr::pivot_longer(colnames(gimap_dataset$raw_counts)[filter_replicates_target_col], #Use pivot longer to put the sample names of the samples in a `name` column
+                                                                                                              values_to = "counts") %>% #and the corresponding values in a `counts` column
+                                                                                               group_by(row) %>% #group by the row index/reference
+                                                                                               summarize(numzero = sum(counts == 0)) %>% #summarize the number of replicates that have a count of 0 for each row/pgRNA construct
+                                                                                               filter(numzero == length(filter_replicates_target_col)) %>% #filter to include only pgRNA constructs that have a zero count for all replicates
+                                                                                               select(row) #select the rows column so we can grab the corresponding pgRNA IDs
+                                                                                              ) #unlist the tibble
+                                                                                      ,] #subselect just the IDs and store
                                                       
   
                                                       
