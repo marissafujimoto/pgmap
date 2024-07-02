@@ -5,12 +5,17 @@
 #' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `both`. Potentially in the future also `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
 #' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
-#' @param filter_replicates_target_col default is NULL, Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used
+#' @param filter_replicates_target_col default is NULL, Which sample columns are the final time point replicates; If NULL, the last 3 sample columns are used. This is only used by this function to save a list of which pgRNA IDs have a zero count for all of these samples.
 #' @param cutoff default is NULL, relates to the low_plasmid_cpm filter; the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
 #' @param min_n_filters default is 1; this parameter defines at least how many/the minimum number of independent filters have to flag a pgRNA construct before the construct is filtered when using a combination of filters
 #' You should decide on the appropriate filter based on the results of your QC report.
 #' @importFrom purrr reduce
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
+#'          filter_step_run is a boolean reporting if the filter step was run or not (since it's optional)
+#'          metadata_pg_ids is a subset the pgRNA IDs such that these are the ones that remain in the dataset following completion of filtering
+#'          transformed_log2_cpm is a subset the log2_cpm data such that these are the ones that remain in the dataset following completion of filtering
+#'          removed_pg_ids is a record of which pgRNAs are filtered out once filtering is complete
+#'          all_reps_zerocount_ids is not actually filtered data necessarily. Instead it's just a record of which pgRNAs have a zero count in all final timepoint replicates
 #' @export
 #' @examples \dontrun{
 #'
