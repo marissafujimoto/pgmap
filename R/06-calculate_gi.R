@@ -16,7 +16,9 @@
 #' gimap_dataset <- gimap_dataset %>%
 #'   gimap_filter() %>%
 #'   gimap_annotate() %>%
-#'   gimap_normalize() %>%
+#'   gimap_normalize(
+#'     timepoints = "day",
+#'     replicates = "rep") %>%
 #'   calc_crispr() %>%
 #'   calc_gi()
 #'
@@ -26,7 +28,11 @@ calc_gi <- function(gimap_dataset) {
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
 
+
+
   gimap_dataset$results <- NULL # TODO: Final step is genetic interactions results table should be saved here.
+
+  # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/04-calculate_GI_scores.Rmd
 
   return(gimap_dataset)
 }

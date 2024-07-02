@@ -15,7 +15,9 @@
 #' gimap_dataset <- gimap_dataset %>%
 #'   gimap_filter() %>%
 #'   gimap_annotate() %>%
-#'   gimap_normalize() %>%
+#'   gimap_normalize(
+#'     timepoints = "day",
+#'     replicates = "rep") %>%
 #'   calc_crispr()
 #'
 #' # To see results
@@ -23,8 +25,6 @@
 #' }
 calc_crispr <- function(.data = NULL,
                      gimap_dataset,
-                     timepoints = NULL,
-                     replicates = NULL,
                      normalized = TRUE) {
 
   if (!is.null(.data)) gimap_dataset <- .data
@@ -58,7 +58,7 @@ calc_crispr <- function(.data = NULL,
     dplyr::filter(unexpressed_ctrl_flag)
 
   # Third adjustment
-  lfc_df <- lfc_df %>%
+  lfc_df <- source_data %>%
     dplyr::left_join(medians_df, by = "target_type") %>%
     dplyr::mutate(
       # Since the pgPEN library uses non-targeting controls, we adjusted for the
@@ -75,24 +75,49 @@ calc_crispr <- function(.data = NULL,
         gene1_expressed_flag == TRUE & gene2_expressed_flag == FALSE ~ "1",
         gene1_expressed_flag == FALSE & gene2_expressed_flag == TRUE ~ "1",
         gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
-    ) %>%
-    dplyr::select(pgRNA_target,
-                  pg_ids,
-                  early,
-                  late,
-                  plasmid,
-                  lfc_plasmid_vs_late,
-                  lfc_early_vs_late,
-                  lfc_adj,
-                  crispr_score)
+    )
+
+  message("Calculating CRISPR score")
+
+  # Calculate for single targets
+  single_target_df <- lfc_df %>%
+    dplyr::filter(target_type %in% c("ctrl_gene", "gene_ctrl")) %>%
+    mutate(targeting_gRNA_seq = case_when(
+      target_type == "gene_ctrl" ~ gRNA1_seq,
+      target_type == "ctrl_gene" ~ gRNA2_seq
+    ),
+    gene_symbol = dplyr::case_when(
+      target_type == "gene_ctrl" ~ gene1_symbol,
+      target_type == "ctrl_gene" ~ gene2_symbol
+    )) %>%
+    group_by(pgRNA_target, targeting_gRNA_seq) %>%
+    mutate(single_target_crispr = mean(crispr_score)) %>%
+    dplyr::select(pgRNA_target, targeting_gRNA_seq, single_target_crispr)
 
   # Summarize to target level and save that
-  crispr_df <- gimap_dataset$log_fc %>%
-    dplyr::group_by(pgRNA_target) %>%
-    dplyr::summarize(target_mean_cs = mean(crispr_score),
-           target_median_cs = median(crispr_score)) %>%
-    # TODO: This is suspicious step its going to drop a lot of data
-    dplyr::select(-pg_ids)
+  double_target_df <- lfc_df %>%
+    dplyr::filter(target_type == "gene_gene") %>%
+    dplyr::group_by(pgRNA_target, target_type) %>%
+    dplyr::summarize(double_target_crispr = mean(crispr_score)) %>%
+    dplyr::inner_join(dplyr::select(lfc_df, pgRNA_target, gRNA1_seq, gRNA2_seq),
+                      by = "pgRNA_target") %>%
+    dplyr::select(-target_type) %>%
+    tidyr::pivot_longer(c(-double_target_crispr, -pgRNA_target),
+                        names_to = "sequence",
+                        values_to = "double_targeting_sequence")
+
+  crispr_df <- single_target_df %>%
+    dplyr::left_join(double_target_df,
+                     by = c("targeting_gRNA_seq" = "double_targeting_sequence"),
+                     relationship = "many-to-many",
+                     suffix = c("_single", "_double")) %>%
+    dplyr::select(
+      pgRNA_target_single,
+      pgRNA_target_double,
+      single_target_crispr,
+      double_target_crispr,
+      targeting_gRNA_seq
+    )
 
   # Save at the target level
   gimap_dataset$crispr_score <- crispr_df
