@@ -1,4 +1,4 @@
-#' Calculate log fold change for a
+#' Normalize Log fold changes
 #' @description This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
@@ -25,6 +25,9 @@ gimap_normalize <- function(.data = NULL,
                      gimap_dataset,
                      timepoints = NULL,
                      replicates = NULL) {
+
+  # Code adapted from
+  # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
   if (!is.null(.data)) gimap_dataset <- .data
 
@@ -71,25 +74,42 @@ gimap_normalize <- function(.data = NULL,
     dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
     tidyr::pivot_longer(-pg_ids) %>%
     dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%
-    dplyr::group_by(timepoints, pg_ids) %>%
-    dplyr::summarize(timepoint_avg = mean(value)) %>%
-    tidyr::pivot_wider(values_from = timepoint_avg,
-                       names_from = timepoints)
+    dplyr::select(-name) %>%
+    # Take an average for
+    tidyr::pivot_wider(values_from = value,
+                       names_from = c(timepoints, replicates))
+
+  late_df <- dplyr::select(lfc_df, dplyr::starts_with("late"))
+  early_df <- apply(dplyr::select(lfc_df, dplyr::starts_with("early")), 1, mean)
+  plasmid_df <- apply(dplyr::select(lfc_df, starts_with("plasmid")), 1, mean)
+
 
   # Do the actual calculations
-  lfc_df$lfc_plasmid_vs_late <- lfc_df$late - lfc_df$plasmid
-  lfc_df$lfc_early_vs_late <- lfc_df$late - lfc_df$early
+  #late_vs_early <-  lfc_df %>%
+  #  dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - early_df ) %>%
+  #  dplyr::select(pg_ids, dplyr::starts_with("late"))
+
+  late_vs_plasmid_df <-  lfc_df %>%
+    dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - plasmid_df) %>%
+    dplyr::select(pg_ids, dplyr::starts_with("late"))  %>%
+    dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id"))
+
 
   ########################### Perform adjustments #############################
 
-  lfc_df <- lfc_df %>%
-    dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id"))
-
   ### Calculate medians
-  neg_control_median <- median(lfc_df$lfc_plasmid_vs_late[lfc_df$norm_ctrl_flag == "negative_control"])
+  neg_control_median_df <- late_vs_plasmid_df %>%
+    dplyr::filter(norm_ctrl_flag == "negative_control") %>%
+    dplyr::select(pg_ids, dplyr::starts_with("late"))
+
+  neg_control_median <- median(apply(neg_control_median_df[, -1], 1, median))
 
   # First and second adjustments to LFC
   lfc_df <- lfc_df %>%
+    tidyr::pivot_longer(dplyr::starts_with("late"),
+                        names_to = "rep",
+                        values_to = "lfc_plasmid_vs_late")  %>%
+    dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id")) %>%
     dplyr::mutate(
       # Take LFC, then subtract median of negative controls.
       # This will result in the median of the nontargeting being set to 0.
