@@ -24,8 +24,8 @@
 #' gimap_dataset$crispr_score
 #' }
 calc_crispr <- function(.data = NULL,
-                     gimap_dataset,
-                     normalized = TRUE) {
+                        gimap_dataset,
+                        normalized = TRUE) {
 
   if (!is.null(.data)) gimap_dataset <- .data
 
@@ -91,32 +91,33 @@ calc_crispr <- function(.data = NULL,
       target_type == "ctrl_gene" ~ gene2_symbol
     )) %>%
     group_by(pgRNA_target, targeting_gRNA_seq) %>%
-    mutate(single_target_crispr = mean(crispr_score)) %>%
-    dplyr::select(pgRNA_target, targeting_gRNA_seq, single_target_crispr)
+    mutate(mean_single_target_crispr = mean(crispr_score)) %>%
+    dplyr::select(pgRNA_target, targeting_gRNA_seq, mean_single_target_crispr)
 
   # Summarize to target level and save that
   double_target_df <- lfc_df %>%
     dplyr::filter(target_type == "gene_gene") %>%
-    dplyr::group_by(pgRNA_target, target_type) %>%
-    dplyr::summarize(double_target_crispr = mean(crispr_score)) %>%
-    dplyr::inner_join(dplyr::select(lfc_df, pgRNA_target, gRNA1_seq, gRNA2_seq),
-                      by = "pgRNA_target") %>%
-    dplyr::select(-target_type) %>%
-    tidyr::pivot_longer(c(-double_target_crispr, -pgRNA_target),
-                        names_to = "sequence",
-                        values_to = "double_targeting_sequence")
+    dplyr::select(double_target_crispr = crispr_score, pgRNA_target, gRNA1_seq, gRNA2_seq,
+                  pgRNA_target_double = pgRNA_target)
 
-  crispr_df <- single_target_df %>%
-    dplyr::left_join(double_target_df,
-                     by = c("targeting_gRNA_seq" = "double_targeting_sequence"),
+  crispr_df <- double_target_df %>%
+    dplyr::left_join(single_target_df,
+                     by = c("gRNA1_seq" = "targeting_gRNA_seq"),
                      relationship = "many-to-many",
-                     suffix = c("_single", "_double")) %>%
+                     suffix = c("_double", "_1")) %>%
+    dplyr::left_join(single_target_df,
+                     by = c("gRNA2_seq" = "targeting_gRNA_seq"),
+                     relationship = "many-to-many",
+                     suffix = c("_1", "_2")) %>%
     dplyr::select(
-      pgRNA_target_single,
       pgRNA_target_double,
-      single_target_crispr,
+      pgRNA_target_1,
+      pgRNA_target_2,
+      mean_single_target_crispr_1,
+      mean_single_target_crispr_2,
       double_target_crispr,
-      targeting_gRNA_seq
+      gRNA1_seq,
+      gRNA2_seq
     )
 
   # Save at the target level

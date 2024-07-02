@@ -23,10 +23,18 @@
 #'   calc_gi()
 #'
 #' }
-calc_gi <- function(gimap_dataset) {
+calc_gi <- function(.data = NULL,
+                    gimap_dataset) {
+
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
+
+
+  ## calculate expected double-targeting GI score by summing the two mean single-targeting
+  ## CRISPR scores for that paralog pair
+  gimap_dataset$crispr_score %>%
+    dplyr::mutate(expected_crispr = mean_single_target_crispr_1 + mean_single_target_crispr_2)
 
 
 
