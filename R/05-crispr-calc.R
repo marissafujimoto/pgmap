@@ -57,12 +57,11 @@ calc_crispr <- function(.data = NULL,
   # Calculate medians based on single, double targeting as well as if they are unexpressed control genes
   medians_df <- source_data %>%
     dplyr::group_by(target_type, unexpressed_ctrl_flag) %>%
-    dplyr::summarize(median = median(lfc_adj)) %>%
-    dplyr::filter(unexpressed_ctrl_flag)
+    dplyr::summarize(median = median(lfc_adj))
 
 
   lfc_df <- source_data %>%
-    dplyr::left_join(medians_df, by = "target_type") %>%
+    dplyr::left_join(medians_df, by = c("target_type", "unexpressed_ctrl_flag")) %>%
     dplyr::mutate(
       # Since the pgPEN library uses non-targeting controls, we adjusted for the
       # fact that single-targeting pgRNAs generate only two double-strand breaks
@@ -85,7 +84,7 @@ calc_crispr <- function(.data = NULL,
                         names_to = "position",
                         values_to = "control_gRNA_seq") %>%
     dplyr::group_by(rep, control_gRNA_seq) %>%
-    dplyr::mutate(mean_double_control_crispr = mean(crispr_score)) %>%
+    dplyr::summarize(mean_double_control_crispr = mean(crispr_score, na.rm = TRUE)) %>%
     dplyr::select(rep, control_gRNA_seq, mean_double_control_crispr)
 
   # Calculate CRISPR scores for single targets
