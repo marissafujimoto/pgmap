@@ -152,6 +152,10 @@ This report also includes several visualizations after filters are applied:
 There is a filter that flags pgRNA constructs where any of the time points have a count of zero.
   - We include a bar plot that shows the number of pgRNA constructs which have counts of zero in either 0, 1, 2, or 3 replicates.
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
+  
+There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point. 
+  - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
+  - We include a table that specifies how many pgRNAs would be filtered out by applying this filter. 
 
 There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point.
   - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
@@ -163,6 +167,8 @@ There is a filter that flags pgRNA constructs that have low log2 CPM counts for 
 #       overwrite = TRUE,
 #       quiet = TRUE)
 ```
+
+After considering the QC report and which filters are appropriate/desired for your data, you can apply filters to the data using the `gimap_filter` function.
 
 ## Running the pipeline
 
@@ -181,6 +187,17 @@ gimap_dataset <- gimap_dataset %>%
 nrow(gimap_dataset$filtered_data$transformed_log2_cpm)
 
 ```
+
+By default, ...
+
+As you can see from the output above, there are fewer pgRNA constructs in the filtered dataset following completion of filtering. 
+
+The filtering step also stores two tables of information that you may want to use or report. 
+
+- `$filtered_data$removed_pg_ids` is a table that has the pgRNA construct IDs that are removed following completion of filtering in the `id` column and the relevant filter(s) that led to removal as a comma separated list in the `relevantFilters` column
+- `$filtered_data$all_reps_zerocount_ids` is a table that lists the IDs of pgRNA constructs which had a count of 0 for all final timepoint replicates. These pgRNA constructs are NOT necessarily filtered out
+
+To view or output these tables....
 
 ```{r}
 sessionInfo()
