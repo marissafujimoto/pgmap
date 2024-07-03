@@ -2,9 +2,7 @@
 #' @description Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param test options include 'wilcoxon' and 't-test'. By default, both will be run.
-#' @param overwrite default is FALSE; whether to overwrite the QC Report file
-#' @param output_file default is `GI_Results`; name of the output GI results file
+#' @param test options 't-test'. By default, both will be run.
 #' @export
 #' @examples \dontrun{
 #'
@@ -51,13 +49,14 @@ calc_gi <- function(.data = NULL,
       group_modify(~ broom::tidy(lm(mean_observed_crispr ~ mean_expected_crispr, data = .x)))
 
   # Run the overall linear model
-  stats <- results %>%
+  stats <- overall_results %>%
       dplyr::ungroup() %>%
       dplyr::select(term, estimate, rep) %>%
       pivot_wider(names_from = term,
                   values_from = estimate) %>%
       rename(intercept = "(Intercept)", slope = mean_expected_crispr)
 
+  message("Calculating Genetic Interaction scores")
   # Do the linear model adjustments
   gi_calc_adj <- gi_calc_df %>%
     dplyr::left_join(stats, by = "rep") %>%
@@ -80,13 +79,16 @@ calc_gi <- function(.data = NULL,
   # Turn into a data.frame
   target_results_df <- dplyr::bind_rows(target_results, .id = "replicate") %>%
     tidyr::pivot_wider(names_from = replicate,
-                       values_from = p_vals)
+                       values_from = c(p_val_ttest,
+                                       p_val_wil,
+                                       fdr_vals_ttest,
+                                       fdr_vals_wil))
 
   gimap_dataset$gi_scores <- gi_calc_adj
 
   # Store this
   gimap_dataset$results <-
-    list(overall = results,
+    list(overall = overall_results,
          by_target = target_results_df)
 
   return(gimap_dataset)
@@ -127,23 +129,31 @@ gimap_rep_stats <- function(replicate, gi_calc_adj) {
     doubles <- dplyr::filter(double_scores, pgRNA_target_double == target)
     singles <- dplyr::filter(single_scores, pgRNA_target_double == target)
 
-    if (nrow(singles) > 0) {
-         p_val <- t.test(
-         x = doubles$double_target_gi_score,
-         y = c(singles$single_target_gi_score_1, singles$single_target_gi_score_2),
-         paired = FALSE)$p.value
+    p_val_ttest <- t.test(
+      x = doubles$double_target_gi_score,
+      y = c(singles$single_target_gi_score_1, singles$single_target_gi_score_2),
+      paired = FALSE)$p.value
 
-         return(p_val)
-    }
+    p_val_wil <- wilcox.test(
+      x = doubles$double_target_gi_score,
+      y = c(singles$single_target_gi_score_1, singles$single_target_gi_score_2),
+      paired = FALSE)$p.value
+
+    p_vals <- data.frame(p_val_ttest,
+                         p_val_wil)
+
+    return(p_vals)
   })
 
   # Put this together in a dataframe for this replicate
-  p_vals_df <-
-    data.frame(double_targets,
-               p_vals = unlist(p_vals))
+  p_vals_df <- data.frame(
+    targets = double_targets,
+    bind_rows(p_vals)
+  )
 
   # Adjust for multiple testing using the Benjamini-Hochberg method
-  p_vals$fdr_vals <- p.adjust(p_vals_df$p_vals, method = "BH")
+  p_vals_df$fdr_vals_ttest <- p.adjust(p_vals_df$p_val_ttest, method = "BH")
+  p_vals_df$fdr_vals_wil <- p.adjust(p_vals_df$p_val_wil, method = "BH")
 
   return(p_vals_df)
 

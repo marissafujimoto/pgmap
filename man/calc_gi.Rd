@@ -11,11 +11,7 @@ calc_gi(.data = NULL, gimap_dataset)
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{test}{options include 'wilcoxon' and 't-test'. By default, both will be run.}
-
-\item{overwrite}{default is FALSE; whether to overwrite the QC Report file}
-
-\item{output_file}{default is `GI_Results`; name of the output GI results file}
+\item{test}{options 't-test'. By default, both will be run.}
 }
 \description{
 Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
