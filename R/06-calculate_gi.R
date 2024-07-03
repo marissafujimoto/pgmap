@@ -4,7 +4,7 @@
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param test options 't-test'. By default, both will be run.
 #' @export
-#' @examples \dontrun{
+#' @examples {
 #'
 #' gimap_dataset <- get_example_data("gimap")
 #'
@@ -20,6 +20,7 @@
 #'   calc_crispr() %>%
 #'   calc_gi()
 #'
+#' saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
 #' }
 calc_gi <- function(.data = NULL,
                     gimap_dataset) {
@@ -84,6 +85,7 @@ calc_gi <- function(.data = NULL,
                                        fdr_vals_ttest,
                                        fdr_vals_wil))
 
+  # Store the useful bits
   gimap_dataset$gi_scores <- gi_calc_adj %>%
     dplyr::select(pgRNA_target_double,
                   rep,

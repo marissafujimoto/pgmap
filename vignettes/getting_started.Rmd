@@ -169,9 +169,57 @@ run_qc(gimap_dataset,
 gimap_dataset <- gimap_dataset %>%
   gimap_filter() %>%
   gimap_annotate() %>%
-  gimap_normalize() %>%
-  calc_crispr()
+  gimap_normalize(
+    timepoints = "day",
+    replicates = "rep") %>%
+  calc_crispr() %>%
+  calc_gi()
 ```
+
+There's a lot that's calculated here. Let's take a look!
+
+```{r}
+str(gimap_dataset)
+```
+
+We can save these data as an RDS. 
+
+```{r}
+saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
+```
+
+Every list item is a data frame that we can write to files if we like like this: 
+
+First let's create a folder we will save files to. 
+
+```{r}
+output_dir <- "output_data"
+dir.create(output_dir, showWarnings = FALSE)
+```
+
+We can save the genetic interactions scores like this:
+
+```{r}
+readr::write_tsv(gimap_dataset$gi_scores, file.path(output_dir, "gi_scores.tsv"))
+```
+
+Similarly let's save the CRISPR scores. 
+
+```{r}
+readr::write_tsv(gimap_dataset$crispr_score, file.path(output_dir, "crispr_scores.tsv"))
+```
+
+We can extract and save the stats results to the TSV 
+
+```{r}
+readr::write_tsv(gimap_dataset$results$overall, file.path(output_dir, "overall_stats.tsv"))
+readr::write_tsv(gimap_dataset$results$by_target, file.path(output_dir, "by_target_stats.tsv"))
+```
+
+
+## Session Info 
+
+This is just for provenance purposes. 
 
 ```{r}
 sessionInfo()
