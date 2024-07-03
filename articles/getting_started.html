@@ -283,19 +283,19 @@ experimental setup.</li>
 <span><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. .. ..$ : chr [1:5] "Day00_RepA" "Day05_RepA" "Day22_RepA" "Day22_RepB" ...</span></span>
-<span><span class="co">#&gt;  $ metadata         :List of 3</span></span>
+<span><span class="co">#&gt;  $ metadata         :List of 2</span></span>
 <span><span class="co">#&gt;   ..$ pg_ids         : tibble [33,170 × 1] (S3: tbl_df/tbl/data.frame)</span></span>
 <span><span class="co">#&gt;   .. ..$ id: chr [1:33170] "AADAC_AADACL2_pg1" "AADAC_AADACL2_pg10" "AADAC_AADACL2_pg11" "AADAC_AADACL2_pg12" ...</span></span>
-<span><span class="co">#&gt;   ..$ pg_metadata    : NULL</span></span>
 <span><span class="co">#&gt;   ..$ sample_metadata:'data.frame':  5 obs. of  3 variables:</span></span>
 <span><span class="co">#&gt;   .. ..$ id : int [1:5] 1 2 3 4 5</span></span>
 <span><span class="co">#&gt;   .. ..$ day: Factor w/ 3 levels "Day00","Day05",..: 1 2 3 3 3</span></span>
 <span><span class="co">#&gt;   .. ..$ rep: Factor w/ 3 levels "RepA","RepB",..: 1 1 1 2 3</span></span>
-<span><span class="co">#&gt;  $ filtered_data    :List of 4</span></span>
-<span><span class="co">#&gt;   ..$ filter_step_run     : logi FALSE</span></span>
-<span><span class="co">#&gt;   ..$ metadata_pg_ids     : NULL</span></span>
-<span><span class="co">#&gt;   ..$ pg_metadata         : NULL</span></span>
-<span><span class="co">#&gt;   ..$ transformed_log2_cpm: NULL</span></span>
+<span><span class="co">#&gt;  $ filtered_data    :List of 5</span></span>
+<span><span class="co">#&gt;   ..$ filter_step_run       : logi FALSE</span></span>
+<span><span class="co">#&gt;   ..$ metadata_pg_ids       : NULL</span></span>
+<span><span class="co">#&gt;   ..$ transformed_log2_cpm  : NULL</span></span>
+<span><span class="co">#&gt;   ..$ removed_pg_ids        : NULL</span></span>
+<span><span class="co">#&gt;   ..$ all_reps_zerocount_ids: NULL</span></span>
 <span><span class="co">#&gt;  $ annotation       : NULL</span></span>
 <span><span class="co">#&gt;  $ log_fc           : NULL</span></span>
 <span><span class="co">#&gt;  $ results          : NULL</span></span>
@@ -355,12 +355,35 @@ many pgRNAs would be filtered out by applying this filter.</p>
 <span>       quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Results in: example_qc_report.html</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>After considering the QC report and which filters are
+appropriate/desired for your data, you can apply filters to the data
+using the <code>gimap_filter</code> function.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gimap_dataset</span> <span class="op">&lt;-</span> <span class="va">gimap_dataset</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/gimap_filter.html">gimap_filter</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">gimap_dataset</span><span class="op">$</span><span class="va">filtered_data</span><span class="op">$</span><span class="va">transformed_log2_cpm</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 31817</span></span></code></pre></div>
+<p>By default, …</p>
+<p>As you can see from the output above, there are fewer pgRNA
+constructs in the filtered dataset following completion of
+filtering.</p>
+<p>The filtering step also stores two tables of information that you may
+want to use or report.</p>
+<ul>
+<li>
+<code>$filtered_data$removed_pg_ids</code> is a table that has the
+pgRNA construct IDs that are removed following completion of filtering
+in the <code>id</code> column and the relevant filter(s) that led to
+removal as a comma separated list in the <code>relevantFilters</code>
+column</li>
+<li>
+<code>$filtered_data$all_reps_zerocount_ids</code> is a table that
+lists the IDs of pgRNA constructs which had a count of 0 for all final
+timepoint replicates. These pgRNA constructs are NOT necessarily
+filtered out</li>
+</ul>
+<p>To view or output these tables….</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.4.1 (2024-06-14)</span></span>
