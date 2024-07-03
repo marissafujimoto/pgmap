@@ -100,7 +100,7 @@ gimap_filter <- function(.data = NULL,
   
   ## save a list of which pgRNAs are filtered out once filtering is complete
   gimap_dataset$filtered_data$removed_pg_ids <- cbind(gimap_dataset$metadata$pg_ids[combined_filter,], one_filter_df[combined_filter,]) %>% #add the IDs as a column together with the TRUEs and FALSEs for each filter, focusing only on pgRNAs which are in some way flagged for removal
-                                                        pivot_longer(starts_with("Filter"), #pivot longer so that IDs are repeated and filter names are listed in a column and the last column (`boolVals`) are TRUEs and FALSEs
+                                                        pivot_longer(starts_with("filter_"), #pivot longer so that IDs are repeated and filter names are listed in a column and the last column (`boolVals`) are TRUEs and FALSEs
                                                                      names_to = "filter_name", 
                                                                      values_to = "bool_vals") %>% 
                                                         filter(bool_vals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
