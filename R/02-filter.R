@@ -106,7 +106,7 @@ gimap_filter <- function(.data = NULL,
                                                         filter(boolVals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
                                                         select(id, filterName) %>% #drop the boolVals column because don't need it anymore
                                                         group_by(id) %>% #group by the pgRNA constructs
-                                                        summarize(relevantFilters = toString(filterName)), #and make a column that comma separates the relevant filters
+                                                        summarize(relevantFilters = toString(filterName)) #and make a column that comma separates the relevant filters
   
   ## save a list of which pgRNAs have a zero count in all final timepoint replicates. 
   #NOTE these are NOT necessarily filtered out
