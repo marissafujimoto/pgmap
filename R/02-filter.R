@@ -36,7 +36,7 @@
 #' gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "low_plasmid_cpm_only")
 #' 
 #' # If you want to use multiple filters and more than one to flag a pgRNA construct before it's filtered out, use the `min_n_filters` argument
-#' gimap_dataset <- gimap_filter(gimap_ddataset, filter_type = "both", min_n_filters = 2)
+#' gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "both", min_n_filters = 2)
 #' 
 #' # You can also specify which columns the filters will be applied to
 #' gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "zero_count_only", filter_zerocount_target_col = c(1,2))
@@ -110,18 +110,20 @@ gimap_filter <- function(.data = NULL,
   
   ## save a list of which pgRNAs have a zero count in all final timepoint replicates. 
   #NOTE these are NOT necessarily filtered out
-  #gimap_dataset$filtered_data$all_reps_zerocount_ids <- gimap_dataset$metadata$pg_ids[unlist(
-   #                                                                                           gimap_dataset$raw_counts[,filter_replicates_target_col] %>% #grab the data from the final timepoint replicate columns
-    #                                                                                           as.data.frame() %>%
-     #                                                                                          mutate(row = row_number()) %>% #add a row number column for reference
-      #                                                                                         tidyr::pivot_longer(colnames(gimap_dataset$raw_counts)[filter_replicates_target_col], #Use pivot longer to put the sample names of the samples in a `name` column
-       #                                                                                                       values_to = "counts") %>% #and the corresponding values in a `counts` column
-        #                                                                                       group_by(row) %>% #group by the row index/reference
-         #                                                                                      summarize(numzero = sum(counts == 0)) %>% #summarize the number of replicates that have a count of 0 for each row/pgRNA construct
-          #                                                                                     filter(numzero == length(filter_replicates_target_col)) %>% #filter to include only pgRNA constructs that have a zero count for all replicates
-           #                                                                                    select(row) #select the rows column so we can grab the corresponding pgRNA IDs
-            #                                                                                  ) #unlist the tibble
-             #                                                                         ,] #subselect just the IDs and store
+  if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
+  
+  gimap_dataset$filtered_data$all_reps_zerocount_ids <- gimap_dataset$metadata$pg_ids[unlist(
+                                                                                              gimap_dataset$raw_counts[,filter_replicates_target_col] %>% #grab the data from the final timepoint replicate columns
+                                                                                               as.data.frame() %>%
+                                                                                               mutate(row = row_number()) %>% #add a row number column for reference
+                                                                                               tidyr::pivot_longer(colnames(gimap_dataset$raw_counts)[filter_replicates_target_col], #Use pivot longer to put the sample names of the samples in a `name` column
+                                                                                                              values_to = "counts") %>% #and the corresponding values in a `counts` column
+                                                                                               group_by(row) %>% #group by the row index/reference
+                                                                                               summarize(numzero = sum(counts == 0)) %>% #summarize the number of replicates that have a count of 0 for each row/pgRNA construct
+                                                                                               filter(numzero == length(filter_replicates_target_col)) %>% #filter to include only pgRNA constructs that have a zero count for all replicates
+                                                                                               select(row) #select the rows column so we can grab the corresponding pgRNA IDs
+                                                                                              ) #unlist the tibble
+                                                                                      ,] #subselect just the IDs and store
                                                       
   
                                                       
