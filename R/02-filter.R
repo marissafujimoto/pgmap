@@ -83,7 +83,7 @@ gimap_filter <- function(.data = NULL,
   #and finally compares the row sum to the `min_n_filters` parameter to report TRUEs and FALSEs according to whether each construct is flagged by the minimum number of required filters
   #TRUE means it should be filtered, FALSE means it shouldn't be filtered
   one_filter_df <- reduce(possible_filters, cbind) %>% 
-    `colnames<-`(c("FilterZeroCount", "FilterLowPlasmidCPM")) #*ADD any new filter's name here* as an additional column name; START with "Filter"
+    `colnames<-`(c("filter_zero_count", "filter_low_plasmi_cpm")) #*ADD any new filter's name here* as an additional column name; START with "Filter"
   combined_filter <- rowSums(one_filter_df) >= min_n_filters
   #within `combined_filter` TRUE means that the filtering steps flagged the pgRNA construct for removal, therefore, we'll want to use the opposite FALSE values for the filtered data, keeping those that weren't flagged by filtering steps
   
