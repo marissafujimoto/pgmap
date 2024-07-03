@@ -34,7 +34,13 @@ setup_data <- function(counts = NULL,
       pg_ids = NULL,
       sample_metadata = NULL
     ),
-    filtered_data = NULL,
+    filtered_data = list(
+      filter_step_run = FALSE, #adding a way to know if the filter step was run since it's optional
+      metadata_pg_ids = NULL,
+      transformed_log2_cpm = NULL,
+      removed_pg_ids = NULL,
+      all_reps_zerocount_ids = NULL
+    ),
     annotation = NULL,
     normalized_log_fc = NULL,
     crispr_score = NULL,
