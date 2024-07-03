@@ -84,7 +84,12 @@ calc_gi <- function(.data = NULL,
                                        fdr_vals_ttest,
                                        fdr_vals_wil))
 
-  gimap_dataset$gi_scores <- gi_calc_adj
+  gimap_dataset$gi_scores <- gi_calc_adj %>%
+    dplyr::select(pgRNA_target_double,
+                  rep,
+                  double_target_gi_score,
+                  single_target_gi_score_1,
+                  single_target_gi_score_2)
 
   # Store this
   gimap_dataset$results <-
