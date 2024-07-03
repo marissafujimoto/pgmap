@@ -103,7 +103,7 @@ gimap_filter <- function(.data = NULL,
                                                         pivot_longer(starts_with("Filter"), #pivot longer so that IDs are repeated and filter names are listed in a column and the last column (`boolVals`) are TRUEs and FALSEs
                                                                      names_to = "filter_name", 
                                                                      values_to = "bool_vals") %>% 
-                                                        filter(boolVals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
+                                                        filter(bool_vals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
                                                         select(id, filterName) %>% #drop the boolVals column because don't need it anymore
                                                         group_by(id) %>% #group by the pgRNA constructs
                                                         summarize(relevantFilters = toString(filterName)) #and make a column that comma separates the relevant filters
