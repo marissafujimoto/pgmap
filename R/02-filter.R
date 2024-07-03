@@ -104,7 +104,7 @@ gimap_filter <- function(.data = NULL,
                                                                      names_to = "filter_name", 
                                                                      values_to = "bool_vals") %>% 
                                                         filter(bool_vals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
-                                                        select(id, filterName) %>% #drop the boolVals column because don't need it anymore
+                                                        select(id, filter_name) %>% #drop the boolVals column because don't need it anymore
                                                         group_by(id) %>% #group by the pgRNA constructs
                                                         summarize(relevantFilters = toString(filterName)) #and make a column that comma separates the relevant filters
   
