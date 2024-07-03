@@ -175,5 +175,13 @@ There is a filter that flags pgRNA constructs that have low log2 CPM counts for 
 ```
 
 ```{r}
+gimap_dataset <- gimap_dataset %>% 
+  gimap_filter()
+
+nrow(gimap_dataset$filtered_data$transformed_log2_cpm)
+
+```
+
+```{r}
 sessionInfo()
 ```
