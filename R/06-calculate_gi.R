@@ -41,23 +41,16 @@ calc_gi <- function(.data = NULL,
                     target_type == "gene_gene" ~ mean_single_target_crispr_1 + mean_single_target_crispr_2,
                     target_type == "gene_ctrl" ~ mean_single_target_crispr_1 + mean_double_control_crispr_2,
                     target_type == "ctrl_gene" ~ mean_double_control_crispr_1 + mean_single_target_crispr_2)
-                    ) %>%
-    tidyr::pivot_longer(cols = c(pgRNA_target_1, pgRNA_target_2, -expected_crispr),
-                        names_to = "position",
-                        values_to = "pgRNA_target") %>%
-    tidyr::pivot_longer(cols = c(mean_single_target_crispr_1, mean_single_target_crispr_2, -expected_crispr),
-                        names_to = "target",
-                        values_to = "target_crispr")
-
-  results <- gi_calc_df %>%
-    dplyr::group_by(rep, pgRNA_target) %>%
+                    )
+  # Calculating mean crisprs
+  overall_results <- gi_calc_df %>%
+    dplyr::group_by(rep, pgRNA_target_double) %>%
     dplyr::summarize(
       mean_expected_crispr = mean(expected_crispr, na.rm = TRUE),
-      mean_observed_crispr = mean(target_crispr, na.rm = TRUE)) %>%
+      mean_observed_crispr = mean(double_crispr_score, na.rm = TRUE)) %>%
       group_modify(~ broom::tidy(lm(mean_observed_crispr ~ mean_expected_crispr, data = .x)))
 
-  gimap_dataset$results <- results
-
+  # Run the overall linear model
   stats <- results %>%
       dplyr::ungroup() %>%
       dplyr::select(term, estimate, rep) %>%
@@ -65,45 +58,46 @@ calc_gi <- function(.data = NULL,
                   values_from = estimate) %>%
       rename(intercept = "(Intercept)", slope = mean_expected_crispr)
 
+  # Do the linear model adjustments
   gi_calc_adj <- gi_calc_df %>%
-    left_join(stats, by = "rep") %>%
-    mutate(gi_score = target_crispr - (intercept + slope * expected_crispr))
+    dplyr::left_join(stats, by = "rep") %>%
+    dplyr::mutate(double_target_gi_score = double_crispr_score - (intercept + slope * expected_crispr),
+           single_target_gi_score_1 = single_crispr_score_1 - (intercept + slope * expected_crispr),
+           single_target_gi_score_2 = single_crispr_score_2 - (intercept + slope * expected_crispr)
+           )
+
+  # Which replicates we have?
+  replicates <- unique(gi_calc_adj$rep)
+
+  # TODO: this is an lapply inside an lapply at the end of the day. Not ideal
+  target_results <- lapply(replicates,
+                           gimap_rep_stats,
+                           gi_calc_adj = gi_calc_adj)
+
+  # Bring over the replicate names
+  names(target_results) <- replicates
+
+  # Turn into a data.frame
+  target_results_df <- dplyr::bind_rows(target_results, .id = "replicate") %>%
+    tidyr::pivot_wider(names_from = replicate,
+                       values_from = p_vals)
 
   gimap_dataset$gi_scores <- gi_calc_adj
+
+  # Store this
+  gimap_dataset$results <-
+    list(overall = results,
+         by_target = target_results_df)
 
   return(gimap_dataset)
 }
 
 
-#' Do tests for each sample
-#' @description Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
-#' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param test options include 'wilcoxon' and 't-test'. By default, both will be run.
-#' @param overwrite default is FALSE; whether to overwrite the QC Report file
-#' @param output_file default is `GI_Results`; name of the output GI results file
-#' @export
-#' @examples \dontrun{
-#'
-#' gimap_dataset <- get_example_data("gimap")
-#'
-#' # Highly recommended but not required
-#' run_qc(gimap_dataset)
-#'
-#' gimap_dataset <- gimap_dataset %>%
-#'   gimap_filter() %>%
-#'   gimap_annotate() %>%
-#'   gimap_normalize(
-#'     timepoints = "day",
-#'     replicates = "rep") %>%
-#'   calc_crispr()
-#'
-#'
-#'
-#' }
-
-
-gimap_stats <- function() {
+#' Do tests for each replicate --an internal function used by calc_gi() function
+#' @description Create results table that has t test p values
+#' @param replicate a name of a replicate to filter out from gi_calc_adj
+#' @param gi_calc_adj a data.frame with adjusted gi scores
+gimap_rep_stats <- function(replicate, gi_calc_adj) {
   ## get a vector of GI scores for all single-targeting ("control") pgRNAs for each rep
   ## get double-targeting pgRNAs for this rep, do a t-test to compare the double-
 
@@ -111,29 +105,46 @@ gimap_stats <- function() {
 
   ## adjust for multiple testing using the Benjamini-Hochberg method
 
-  d.double_GI_scores <- gi_calc_adj %>%
-    filter(rep == i) %>%
-    group_by(paralog_pair) %>%
-    mutate(p_val = t.test(x = single_GI_scores,
-                          y = GI_score,
-                          paired = FALSE)$p.value)
+  per_rep_stats <- gi_calc_adj %>%
+    dplyr::filter(rep == replicate, pgRNA_target_double != "ctrl_ctrl")
 
-  ## adjust for multiple testing using the Benjamini-Hochberg method
-  d.p_val <- d.double_GI_scores %>%
-    dplyr::select(paralog_pair, p_val) %>%
-    arrange(p_val) %>%
-    distinct(p_val, .keep_all = TRUE)
+  # Extract double scores
+  double_scores <- per_rep_stats %>%
+    dplyr::select(pgRNA_target_double, double_target_gi_score)
 
-  p_vals <- d.p_val %>%
-    pull(p_val)
+  # Extract single target scores
+  single_scores <- per_rep_stats %>%
+    dplyr::select(pgRNA_target_double, single_target_gi_score_1,
+                  single_target_gi_score_2)
 
-  fdr_vals <- p.adjust(p_vals, method = "BH")
+  # What's the target list
+  double_targets <- unique(double_scores$pgRNA_target_double)
 
-  fdr_df <- tibble("fdr" = fdr_vals) %>%
-    bind_cols(d.p_val) %>%
-    dplyr::select(-p_val)
+  # Run the test for each target
+  p_vals <- lapply(double_targets, function(target) {
 
-  ## add FDR values back into the double-targeting DF
-  d.double_GI_scores <- left_join(d.double_GI_scores, fdr_df, by = "paralog_pair")
+    # Get the values for this particular target
+    doubles <- dplyr::filter(double_scores, pgRNA_target_double == target)
+    singles <- dplyr::filter(single_scores, pgRNA_target_double == target)
+
+    if (nrow(singles) > 0) {
+         p_val <- t.test(
+         x = doubles$double_target_gi_score,
+         y = c(singles$single_target_gi_score_1, singles$single_target_gi_score_2),
+         paired = FALSE)$p.value
+
+         return(p_val)
+    }
+  })
+
+  # Put this together in a dataframe for this replicate
+  p_vals_df <-
+    data.frame(double_targets,
+               p_vals = unlist(p_vals))
+
+  # Adjust for multiple testing using the Benjamini-Hochberg method
+  p_vals$fdr_vals <- p.adjust(p_vals_df$p_vals, method = "BH")
+
+  return(p_vals_df)
 
 }

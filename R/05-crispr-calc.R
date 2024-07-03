@@ -39,8 +39,9 @@ calc_crispr <- function(.data = NULL,
   }
 
   # If data is normalized and normalized is TRUE, we set this to the source data
-  if (!is.null(gimap_dataset$normalized_log_fc) && normalized) source_data <- gimap_dataset$normalized_log_fc
-
+  if (!is.null(gimap_dataset$normalized_log_fc) && normalized) {
+    source_data <- gimap_dataset$normalized_log_fc
+  }
   # If normalized is set to FALSE, we use rawish data but attach annotation
   if (!normalized) {
     source_data <- gimap_dataset$transformed_data$log2_cpm %>%
@@ -59,6 +60,7 @@ calc_crispr <- function(.data = NULL,
     dplyr::group_by(target_type, unexpressed_ctrl_flag) %>%
     dplyr::summarize(median = median(lfc_adj))
 
+  message("Calculating CRISPR score")
 
   lfc_df <- source_data %>%
     dplyr::left_join(medians_df, by = c("target_type", "unexpressed_ctrl_flag")) %>%
@@ -74,8 +76,6 @@ calc_crispr <- function(.data = NULL,
         gene1_expressed_flag == FALSE & gene2_expressed_flag == TRUE ~ "1",
         gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
     )
-
-  message("Calculating CRISPR score")
 
   # Get mean control target CRISPR scores
   control_target_df <- lfc_df %>%
@@ -104,12 +104,23 @@ calc_crispr <- function(.data = NULL,
     )) %>%
     group_by(rep, pgRNA_target, targeting_gRNA_seq) %>%
     mutate(mean_single_target_crispr = mean(crispr_score)) %>%
-    dplyr::select(rep, pgRNA_target, targeting_gRNA_seq, mean_single_target_crispr)
+    dplyr::select(rep,
+                  pgRNA_target,
+                  targeting_gRNA_seq,
+                  mean_single_target_crispr,
+                  single_crispr_score = crispr_score)
 
   # Now put it all together into one df
   crispr_df <- lfc_df %>%
-    dplyr::select(rep, target_type, pgRNA_target, gRNA1_seq, gRNA2_seq,
+    dplyr::filter(target_type %in% c("gene_gene", "ctrl_ctrl")) %>%
+    dplyr::select(rep,
+                  double_crispr_score = crispr_score,
+                  target_type,
+                  pgRNA_target,
+                  gRNA1_seq,
+                  gRNA2_seq,
                   pgRNA_target_double = pgRNA_target) %>%
+    # Join on single target crispr scores
     dplyr::left_join(single_target_df,
                      by = c("rep" = "rep", "gRNA1_seq" = "targeting_gRNA_seq"),
                      relationship = "many-to-many",
@@ -130,13 +141,14 @@ calc_crispr <- function(.data = NULL,
     dplyr::select(
       target_type,
       rep,
+      double_crispr_score,
+      single_crispr_score_1,
+      single_crispr_score_2,
       pgRNA_target_double,
-      pgRNA_target_1,
-      pgRNA_target_2,
       mean_single_target_crispr_1,
       mean_single_target_crispr_2,
-      gRNA1_seq,
-      gRNA2_seq,
+      pgRNA1_seq = gRNA1_seq,
+      pgRNA2_seq = gRNA2_seq,
       mean_double_control_crispr_1 = mean_double_control_crispr,
       mean_double_control_crispr_2
     ) %>%
