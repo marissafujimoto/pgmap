@@ -70,6 +70,7 @@ calc_crispr <- function(.data = NULL,
       # (1 per allele), whereas the double-targeting pgRNAs generate four DSBs.
       # To do this, we set the median (adjusted) LFC for unexpressed genes of each group to zero.
       crispr_score = lfc_adj - median,
+      # TODO: I think this n_genes_expressed variable is never used so can we eliminate?
       n_genes_expressed = dplyr::case_when(
         gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ "0",
         gene1_expressed_flag == TRUE & gene2_expressed_flag == FALSE ~ "1",
@@ -77,7 +78,7 @@ calc_crispr <- function(.data = NULL,
         gene1_expressed_flag == TRUE & gene2_expressed_flag == TRUE ~ "2")
     )
 
-  # Get mean control target CRISPR scores
+  # Get mean control target CRISPR scores -- they will be used for expected calculations
   control_target_df <- lfc_df %>%
     dplyr::filter(target_type == "ctrl_ctrl") %>%
     tidyr::pivot_longer(cols = c(gRNA1_seq, gRNA2_seq),
@@ -90,6 +91,7 @@ calc_crispr <- function(.data = NULL,
   # Calculate CRISPR scores for single targets
   single_target_df <- lfc_df %>%
     dplyr::filter(target_type %in% c("ctrl_gene", "gene_ctrl")) %>%
+    # We will be joining things based on the gRNA sequences so we do some recoding here
     mutate(targeting_gRNA_seq = case_when(
       target_type == "gene_ctrl" ~ gRNA1_seq,
       target_type == "ctrl_gene" ~ gRNA2_seq
@@ -103,6 +105,7 @@ calc_crispr <- function(.data = NULL,
       target_type == "ctrl_gene" ~ gRNA1_seq
     )) %>%
     group_by(rep, pgRNA_target, targeting_gRNA_seq) %>%
+    # Taking the mean of the single target crisprs
     mutate(mean_single_target_crispr = mean(crispr_score)) %>%
     dplyr::select(rep,
                   pgRNA_target,
@@ -152,7 +155,7 @@ calc_crispr <- function(.data = NULL,
       mean_double_control_crispr_1 = mean_double_control_crispr,
       mean_double_control_crispr_2
     ) %>%
-    #TODO: What we dropping here?
+    #TODO: What we dropping here? This needs investigation
     dplyr::distinct()
 
   # Save at the target level

@@ -2,7 +2,11 @@
 #' @description This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
 #' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.
+#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints.
+#'  Timepoints will be made into three categories: `plasmid` for the earliest time point, `early` for all middle timepoints and `late` for the latest timepoints.
+#'  The `late` timepoints will be the focus for the calculations. The column used for timepoints must be numeric or at least ordinal.
+#' @param replicates Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents column that specifies replicates.
+#' These replicates will be kept separate for the `late` but the `early` and `plasmid` others will be averaged and used for normalization.
 #' @export
 #' @examples \dontrun{
 #'
@@ -50,6 +54,8 @@ gimap_normalize <- function(.data = NULL,
     # Rename and recode the timepoints variable
     gimap_dataset$metadata$sample_metadata <- gimap_dataset$metadata$sample_metadata %>%
       dplyr::rename(timepoints = all_of(timepoints)) %>%
+
+      # Note that timepoints are extablished as three categories: plasmid, early, or late.
       dplyr::mutate(timepoints = dplyr::case_when(
         timepoints == min(timepoints) ~ "plasmid",
         timepoints == max(timepoints) ~ "late",
@@ -73,18 +79,21 @@ gimap_normalize <- function(.data = NULL,
     as.data.frame() %>%
     dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
     tidyr::pivot_longer(-pg_ids) %>%
+    # Adding on metdata
     dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%
     dplyr::select(-name) %>%
-    # Take an average for
     tidyr::pivot_wider(values_from = value,
                        names_from = c(timepoints, replicates))
 
+  # Extract only the late columns we'll keep these replicates for calculations later
   late_df <- dplyr::select(lfc_df, dplyr::starts_with("late"))
+
+  # Calculate the means for each construct across the groups
   early_df <- apply(dplyr::select(lfc_df, dplyr::starts_with("early")), 1, mean)
   plasmid_df <- apply(dplyr::select(lfc_df, starts_with("plasmid")), 1, mean)
 
 
-  # Do the actual calculations
+  # TODO: I don't think this gets used anywhere so we can bring it back from the original code but for now I'm commenting it out
   #late_vs_early <-  lfc_df %>%
   #  dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - early_df ) %>%
   #  dplyr::select(pg_ids, dplyr::starts_with("late"))
@@ -102,6 +111,7 @@ gimap_normalize <- function(.data = NULL,
     dplyr::filter(norm_ctrl_flag == "negative_control") %>%
     dplyr::select(pg_ids, dplyr::starts_with("late"))
 
+  # TODO: There's one main median that's found by taking the median of the medians?
   neg_control_median <- median(apply(neg_control_median_df[, -1], 1, median))
 
   # First and second adjustments to LFC
@@ -110,6 +120,7 @@ gimap_normalize <- function(.data = NULL,
                         names_to = "rep",
                         values_to = "lfc_plasmid_vs_late")  %>%
     dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id")) %>%
+    # TODO: This section needs a careful review to make sure it is relfective of the previous code's calculations
     dplyr::mutate(
       # Take LFC, then subtract median of negative controls.
       # This will result in the median of the nontargeting being set to 0.
