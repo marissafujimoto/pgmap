@@ -110,6 +110,8 @@ gimap_filter <- function(.data = NULL,
   
   ## save a list of which pgRNAs have a zero count in all final timepoint replicates. 
   #NOTE these are NOT necessarily filtered out
+  if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
+  
   gimap_dataset$filtered_data$all_reps_zerocount_ids <- gimap_dataset$metadata$pg_ids[unlist(
                                                                                               gimap_dataset$raw_counts[,filter_replicates_target_col] %>% #grab the data from the final timepoint replicate columns
                                                                                                as.data.frame() %>%
