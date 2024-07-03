@@ -158,10 +158,10 @@ There is a filter that flags pgRNA constructs that have low log2 CPM counts for 
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter. 
 
 ```{r}
-run_qc(gimap_dataset,
-       output_file = "example_qc_report.Rmd",
-       overwrite = TRUE,
-       quiet = TRUE)
+#run_qc(gimap_dataset,
+#       output_file = "example_qc_report.Rmd",
+#       overwrite = TRUE,
+#       quiet = TRUE)
 ```
 
 
