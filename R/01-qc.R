@@ -74,7 +74,7 @@ run_qc <- function(gimap_dataset,
   results_file <- gsub("\\.Rmd$", "\\.html", output_file)
   message("Results in: ", results_file)
 
-  results_file <- normalizePath(list.files(pattern = results_file, full.names = TRUE))
-
   if (results_file != "") browseURL(results_file)
+
+  results_file
 }

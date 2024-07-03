@@ -7,7 +7,7 @@
 #' @importFrom ggplot2 ggplot labs
 #' @return counts_cdf a ggplot
 #' @examples \dontrun{
-#' 
+#'
 #' gimap_dataset <- get_example_data("gimap")
 #' qc_cdf(gimap_dataset)
 #'
@@ -76,6 +76,7 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
 #' @import ggplot2
+#' @import dplyr
 #' @return a ggplot histogram
 #' @examples \dontrun{
 #' gimap_dataset <- get_example_data("gimap")
@@ -86,14 +87,14 @@ qc_sample_hist <- function(gimap_dataset, wide_ar = 0.75) {
 qc_variance_hist <- function(gimap_dataset, filter_replicates_target_col = NULL, wide_ar = 0.75){
 
   if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
-  
+
   return(
     gimap_dataset$transformed_data$log2_cpm[,filter_replicates_target_col] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
       tidyr::pivot_longer(-row) %>%
       group_by(row) %>%
-      summarize(var = var(value)) %>%
+      dplyr::summarize(var = var(value)) %>%
       ggplot(aes(x=var)) +
       geom_histogram(binwidth = 0.1) +
       theme(panel.background = element_blank(),
@@ -116,17 +117,18 @@ qc_variance_hist <- function(gimap_dataset, filter_replicates_target_col = NULL,
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
 #' @import ggplot2
+#' @import dplyr
 #' @return a ggplot barplot
 #' @examples \dontrun{
 #' gimap_dataset <- get_example_data("gimap")
 #' qc_constructs_countzero_bar(gimap_dataset)
-#' 
+#'
 #' #or if you want to select a specific column(s) for looking at where/which samples zero counts are present for
 #' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5)
-#' 
+#'
 #' #or if you want to select a specific column(s) for the final day/sample replicates
 #' qc_constructs_countzero_bar(gimap_dataset, filter_replicates_target_col = 3:5)
-#' 
+#'
 #' #or some combination of those
 #' qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5, filter_replicates_target_col = 3:5)
 #' }
@@ -135,19 +137,19 @@ qc_variance_hist <- function(gimap_dataset, filter_replicates_target_col = NULL,
 qc_constructs_countzero_bar <- function(gimap_dataset, filter_zerocount_target_col = NULL, filter_replicates_target_col = NULL, wide_ar = 0.75){
 
   if(is.null(filter_zerocount_target_col)){filter_zerocount_target_col <- c(1:ncol(gimap_dataset$raw_counts))}
-  
+
   if (!all(filter_zerocount_target_col %in% 1:ncol(gimap_dataset$raw_counts))) {
-    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by") 
+    stop("The columns selected do not exist. `filter_zerocount_target_col` needs to correspond to the index of the columns in `gimap_dataset$raw_counts` that you need to filter by")
   }
-  
+
   qc_filter_output <- qc_filter_zerocounts(gimap_dataset, filter_zerocount_target_col = filter_zerocount_target_col)
-  
+
   if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
-  
+
   if (!all(filter_replicates_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
-    stop("The columns selected do not exist. `filter_replicates_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+    stop("The columns selected do not exist. `filter_replicates_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by")
   }
-  
+
 
   return(
     gimap_dataset$raw_counts[qc_filter_output$filter, filter_replicates_target_col] %>%
@@ -214,14 +216,14 @@ qc_cor_heatmap <- function(gimap_dataset) {
 #' @import ggplot2
 #' @return a ggplot histogram
 #' @examples \dontrun{
-#' 
+#'
 #' gimap_dataset <- get_example_data("gimap")
-#' 
+#'
 #' qc_plasmid_histogram(gimap_dataset)
-#' 
+#'
 #' # or to specify a "cutoff" value that will be displayed as a dashed vertical line
 #' qc_plasmid_histogram(gimap_dataset, cutoff=1.75)
-#' 
+#'
 #' # or to specify a different column (or set of columns) to select
 #' qc_plasmid_histogram(gimap_dataset, filter_plasmid_target_col=1:2)
 #'
@@ -229,27 +231,26 @@ qc_cor_heatmap <- function(gimap_dataset) {
 #' qc_plasmid_histogram(gimap_dataset, cutoff=2, filter_plasmid_target_col=1:2)
 #' }
 #'
-
 qc_plasmid_histogram <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL, wide_ar = 0.75) {
-  
+
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
-  
+
   if (!all(filter_plasmid_target_col %in% 1:ncol(gimap_dataset$transformed_data$log2_cpm))) {
-    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by") 
+    stop("The columns selected do not exist. `filter_plasmid_target_col` needs to correspond to the index of the columns in `gimap_dataset$transformed_data$log2_cpm` that you need to filter by")
   }
-  
+
   to_plot <- data.frame(gimap_dataset$transformed_data$log2_cpm[, filter_plasmid_target_col]) %>% `colnames<-`(rep(c("plasmid_log2_cpm"), length(filter_plasmid_target_col))) %>% clean_names()
-  
-  if (length(filter_plasmid_target_col >1)){ #if more than one column was selected, collapse all of the columns into the same vector and store in a df to plot 
+
+  if (length(filter_plasmid_target_col >1)){ #if more than one column was selected, collapse all of the columns into the same vector and store in a df to plot
     to_plot <- data.frame(unlist(to_plot %>% select(starts_with("plasmid_log2_cpm")), use.names = FALSE)) %>% `colnames<-`(c("plasmid_log2_cpm"))
   }
-  
+
     quantile_info <- quantile(to_plot$plasmid_log2_cpm)
-    
+
     if (is.null(cutoff)) { cutoff <- quantile_info["25%"] - (1.5 * (quantile_info["75%"] - quantile_info["25%"]))}
       # if cutoff is null, suggest a cutoff and plot with suggested
-  
-  return(   
+
+  return(
     ggplot(to_plot, aes(x = plasmid_log2_cpm)) +
       geom_histogram(binwidth = 0.2, color = "black", fill = "gray60") +
       plot_options() +
