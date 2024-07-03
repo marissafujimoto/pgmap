@@ -97,8 +97,8 @@ Sample metadata is the information that describes the samples and is sorted the 
 You need to have two columns in the metadata you provide (they must be named exactly this).
 
 - `col_names` - Must match the colnames of the counts data being submitted
-- `timepoints` - A numeric variable that describes the timepoints for these data. 
-- `replicates` - A factor that describes which columns are replicates of each other. It doesn't matter what you name these except that this column is a factor that will be used for calculations. 
+- `timepoints` - A numeric variable that describes the timepoints for these data.
+- `replicates` - A factor that describes which columns are replicates of each other. It doesn't matter what you name these except that this column is a factor that will be used for calculations.
 
 ```{r}
 example_sample_metadata <- data.frame(
@@ -152,10 +152,10 @@ This report also includes several visualizations after filters are applied:
 There is a filter that flags pgRNA constructs where any of the time points have a count of zero.
   - We include a bar plot that shows the number of pgRNA constructs which have counts of zero in either 0, 1, 2, or 3 replicates.
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
-  
-There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point. 
-  - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out. 
-  - We include a table that specifies how many pgRNAs would be filtered out by applying this filter. 
+
+There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point.
+  - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
+  - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
 
 ```{r}
 #run_qc(gimap_dataset,
@@ -164,13 +164,14 @@ There is a filter that flags pgRNA constructs that have low log2 CPM counts for 
 #       quiet = TRUE)
 ```
 
+## Running the pipeline
 
 ```{r}
-gimap_dataset <- gimap_dataset %>%
-  gimap_filter() %>%
-  gimap_annotate() %>%
-  gimap_normalize() %>%
-  calc_crispr()
+#gimap_dataset <- gimap_dataset %>%
+#  gimap_filter() %>%
+#  gimap_annotate() %>%
+#  gimap_normalize() %>%
+#  calc_crispr()
 ```
 
 ```{r}
