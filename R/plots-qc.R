@@ -155,13 +155,10 @@ qc_constructs_countzero_bar <- function(gimap_dataset, filter_zerocount_target_c
     gimap_dataset$raw_counts[qc_filter_output$filter, filter_replicates_target_col] %>%
       as.data.frame() %>%
       mutate(row = row_number()) %>%
-      tidyr::pivot_longer(tidyr::unite(gimap_dataset$metadata$sample_metadata[filter_replicates_target_col, c("day", "rep")], "colName")$colName,
+      tidyr::pivot_longer(colnames(gimap_dataset$raw_counts)[filter_replicates_target_col],
                   values_to = "counts") %>%
       group_by(row) %>%
-      summarize(numzero = sum(counts == 0),
-                max_diff = max(counts) - min(counts),
-                sec_diff = min(counts[counts > 0]) - min(counts)
-                ) %>%
+      summarize(numzero = sum(counts == 0)) %>%
       group_by(numzero) %>%
       summarize(count = n()) %>%
       ggplot(aes(x=numzero, y = count)) +

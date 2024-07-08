@@ -122,7 +122,18 @@ gimap_annotate <- function(.data = NULL,
       "double_targeting"
     )))
 
+  if (gimap_dataset$filtered_data$filter_step_run){
+    keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
+    annotation_df <- annotation_df[keep_for_annotdf,]
+  }
+  
   ################################ STORE IT ####################################
+  
+  if (gimap_dataset$filtered_data$filter_step_run){
+    keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
+    annotation_df <- annotation_df[keep_for_annotdf,]
+  }
+  
   gimap_dataset$annotation <- annotation_df
 
   return(gimap_dataset)
