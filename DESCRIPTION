@@ -22,17 +22,17 @@ URL: https://github.com/FredHutch/gimap
 BugReports: https://github.com/FredHutch/gimap/issues
 Imports:
     readr,
-    dplyr,
     tidyr,
     knitr,
     rmarkdown,
     rcmdcheck,
     ggplot2,
-    magrittr, 
-    kableExtra, 
+    magrittr,
+    kableExtra,
     pheatmap,
     purrr,
     janitor,
+    dplyr
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,

@@ -10,8 +10,6 @@
 #' @param ... additional parameters are sent to `rmarkdown::render()`
 #' @returns a QC report saved locally
 #' @export
-#' @importFrom tidyr pivot_longer
-#' @importFrom magrittr %>%
 #' @examples \dontrun{
 #'
 #' gimap_dataset <- get_example_data("gimap")

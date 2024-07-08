@@ -9,7 +9,6 @@
 #' @param cutoff default is NULL, relates to the low_plasmid_cpm filter; the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
 #' @param min_n_filters default is 1; this parameter defines at least how many/the minimum number of independent filters have to flag a pgRNA construct before the construct is filtered when using a combination of filters
 #' You should decide on the appropriate filter based on the results of your QC report.
-#' @importFrom purrr reduce
 #' @returns a filtered version of the gimap_dataset returned in the $filtered_data section
 #'          filter_step_run is a boolean reporting if the filter step was run or not (since it's optional)
 #'          metadata_pg_ids is a subset the pgRNA IDs such that these are the ones that remain in the dataset following completion of filtering
@@ -135,9 +134,6 @@ gimap_filter <- function(.data = NULL,
 #' @description This function flags and reports which and how many pgRNAs have a raw count of 0 for any sample/time point
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the raw count data
 #' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
-#' @importFrom magrittr %>%
-#' @importFrom dplyr mutate
-#' @importFrom purrr reduce map
 #' @return a named list with the filter `filter` specifying which pgRNA have a count zero for at least one sample/time point and a report df `reportdf` for the number and percent of pgRNA which have a count zero for at least one sample/time point
 #' @examples \dontrun{
 #'   gimap_dataset <- get_example_data("gimap")
@@ -172,10 +168,6 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 #' @param gimap_dataset The special gimap_dataset from the `setup_data` function which contains the log2 CPM transformed data
 #' @param cutoff default is NULL, the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used
 #' @param filter_plasmid_target_col default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected
-#' @importFrom magrittr %>%
-#' @importFrom dplyr mutate across if_any
-#' @importFrom tidyr pivot_wider pivot_longer
-#' @importFrom janitor clean_names
 #' @return a named list with the filter `filter` specifying which pgRNAs have low plasmid log2 CPM (column of interest is `plasmid_cpm_filter`) and a report df `reportdf` for the number and percent of pgRNA which have a low plasmid log2 CPM
 #' @examples \dontrun{
 #'   gimap_dataset <- get_example_data("gimap")
@@ -193,7 +185,6 @@ qc_filter_zerocounts <- function(gimap_dataset, filter_zerocount_target_col = NU
 #'
 #' }
 #'
-
 qc_filter_plasmid <- function(gimap_dataset, cutoff = NULL, filter_plasmid_target_col = NULL){
 
   if (is.null(filter_plasmid_target_col)) {filter_plasmid_target_col <- c(1)}
