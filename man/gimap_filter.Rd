@@ -4,21 +4,37 @@
 \alias{gimap_filter}
 \title{A function to run filtering}
 \usage{
-gimap_filter(.data = NULL, gimap_dataset, filter_type = "both")
+gimap_filter(
+  .data = NULL,
+  gimap_dataset,
+  filter_type = "both",
+  cutoff = NULL,
+  filter_zerocount_target_col = NULL,
+  filter_plasmid_target_col = NULL,
+  min_n_filters = 1
+)
 }
 \arguments{
 \item{.data}{Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset}
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{filter_type}{Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
+\item{filter_type}{Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `both`. Potentially in the future also `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.}
+
+\item{cutoff}{default is NULL, relates to the low_plasmid_cpm filter; the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used}
+
+\item{filter_zerocount_target_col}{default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns}
+
+\item{filter_plasmid_target_col}{default is NULL, and if NULL, will select the first column only; this parameter specifically should be used to specify the plasmid column(s) that will be selected}
+
+\item{min_n_filters}{default is 1; this parameter defines at least how many/the minimum number of independent filters have to flag a pgRNA construct before the construct is filtered when using a combination of filters
 You should decide on the appropriate filter based on the results of your QC report.}
 }
 \value{
 a filtered version of the gimap_dataset returned in the $filtered_data section
 }
 \description{
-This is a function here's where we describe what it does
+This function applies filters to the gimap data. By default it runs both the zero count (across all samples) and the low plasmid cpm filters, but users can select a subset of these filters or even adjust the behavior of each filter
 }
 \examples{
 \dontrun{
@@ -33,6 +49,17 @@ gimap_dataset <- gimap_filter(gimap_dataset)
 
 # To see filtered data
 gimap_dataset$filtered_data
+
+# If you want to only use a single filter or some subset, specify which using the filter_type parameter
+gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "zero_count_only") 
+#or 
+gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "low_plasmid_cpm_only")
+
+# If you want to use multiple filters and more than one to flag a pgRNA construct before it's filtered out, use the `min_n_filters` argument
+gimap_dataset <- gimap_filter(gimap_ddataset, filter_type = "both", min_n_filters = 2)
+
+# You can also specify which columns the filters will be applied to
+gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "zero_count_only", filter_zerocount_target_col = c(1,2))
 
 }
 
