@@ -64,8 +64,8 @@ run_qc <- function(gimap_dataset,
       dataset = gimap_dataset,
       plots_dir = plots_dir,
       filter_zerocount_target_col = filter_zerocount_target_col,
-      filter_plasmid_target_col = filter_zerocount_target_col,
-      filter_replicates_target_col = filter_zerocount_target_col
+      filter_plasmid_target_col = filter_plasmid_target_col,
+      filter_replicates_target_col = filter_replicates_target_col
     ),
     ...
   )
@@ -74,7 +74,7 @@ run_qc <- function(gimap_dataset,
   results_file <- gsub("\\.Rmd$", "\\.html", output_file)
   message("Results in: ", results_file)
 
-  results_file <- normalizePath(list.files(pattern = results_file, full.names = TRUE))
-
   if (results_file != "") browseURL(results_file)
+
+  results_file
 }
