@@ -17,7 +17,7 @@ calc_gi(.data = NULL, gimap_dataset)
 Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
 }
 \examples{
-\dontrun{
+{
 
 gimap_dataset <- get_example_data("gimap")
 
@@ -33,5 +33,6 @@ gimap_dataset <- gimap_dataset \%>\%
   calc_crispr() \%>\%
   calc_gi()
 
+saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
 }
 }
