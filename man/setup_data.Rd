@@ -38,6 +38,5 @@ gimap_dataset <- setup_data(counts = example_counts)
 
 # You can see what an example dataset looks like by pulling the example gimap_dataset:
 gimap_dataset <- get_example_data("gimap")
-
 }
 }
