@@ -208,12 +208,26 @@ constructs.</p>
 <code class="sourceCode R"><span><span class="va">example_pg_metadata</span> <span class="op">&lt;-</span> <span class="va">example_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"id"</span>, <span class="st">"seq_1"</span>, <span class="st">"seq_2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Sample metadata is the information that describes the samples and is
-sorted the same way as the columns in the count data.</p>
+sorted the same order as the columns in the count data.</p>
+<p>You need to have two columns in the metadata you provide (they must
+be named exactly this).</p>
+<ul>
+<li>
+<code>col_names</code> - Must match the colnames of the counts data
+being submitted</li>
+<li>
+<code>timepoints</code> - A numeric variable that describes the
+timepoints for these data.</li>
+<li>
+<code>replicates</code> - A factor that describes which columns are
+replicates of each other. It doesn’t matter what you name these except
+that this column is a factor that will be used for calculations.</li>
+</ul>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_sample_metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
-<span>  day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Day00"</span>, <span class="st">"Day05"</span>, <span class="st">"Day22"</span>, <span class="st">"Day22"</span>, <span class="st">"Day22"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  rep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RepA"</span>, <span class="st">"RepA"</span>, <span class="st">"RepA"</span>, <span class="st">"RepB"</span>, <span class="st">"RepC"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Day00_RepA"</span>, <span class="st">"Day05_RepA"</span>, <span class="st">"Day22_RepA"</span>, <span class="st">"Day22_RepB"</span>, <span class="st">"Day22_RepC"</span><span class="op">)</span>,</span>
+<span>  timepoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>, <span class="st">"5"</span>, <span class="st">"22"</span>, <span class="st">"22"</span>, <span class="st">"22"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  replicates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RepA"</span>, <span class="st">"RepA"</span>, <span class="st">"RepA"</span>, <span class="st">"RepB"</span>, <span class="st">"RepC"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We’ll need to provide <code>example_counts</code>,
 <code>pg_ids</code> and <code>pg_metadata</code> to
@@ -264,7 +278,7 @@ experimental setup.</li>
 </ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">gimap_dataset</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 8</span></span>
+<span><span class="co">#&gt; List of 9</span></span>
 <span><span class="co">#&gt;  $ raw_counts       : num [1:33170, 1:5] 951 1511 191 588 289 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
@@ -288,9 +302,9 @@ experimental setup.</li>
 <span><span class="co">#&gt;   ..$ pg_ids         : tibble [33,170 × 1] (S3: tbl_df/tbl/data.frame)</span></span>
 <span><span class="co">#&gt;   .. ..$ id: chr [1:33170] "AADAC_AADACL2_pg1" "AADAC_AADACL2_pg10" "AADAC_AADACL2_pg11" "AADAC_AADACL2_pg12" ...</span></span>
 <span><span class="co">#&gt;   ..$ sample_metadata:'data.frame':  5 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;   .. ..$ id : int [1:5] 1 2 3 4 5</span></span>
-<span><span class="co">#&gt;   .. ..$ day: Factor w/ 3 levels "Day00","Day05",..: 1 2 3 3 3</span></span>
-<span><span class="co">#&gt;   .. ..$ rep: Factor w/ 3 levels "RepA","RepB",..: 1 1 1 2 3</span></span>
+<span><span class="co">#&gt;   .. ..$ col_names : chr [1:5] "Day00_RepA" "Day05_RepA" "Day22_RepA" "Day22_RepB" ...</span></span>
+<span><span class="co">#&gt;   .. ..$ timepoints: num [1:5] 0 5 22 22 22</span></span>
+<span><span class="co">#&gt;   .. ..$ replicates: Factor w/ 3 levels "RepA","RepB",..: 1 1 1 2 3</span></span>
 <span><span class="co">#&gt;  $ filtered_data    :List of 5</span></span>
 <span><span class="co">#&gt;   ..$ filter_step_run       : logi FALSE</span></span>
 <span><span class="co">#&gt;   ..$ metadata_pg_ids       : NULL</span></span>
@@ -298,7 +312,8 @@ experimental setup.</li>
 <span><span class="co">#&gt;   ..$ removed_pg_ids        : NULL</span></span>
 <span><span class="co">#&gt;   ..$ all_reps_zerocount_ids: NULL</span></span>
 <span><span class="co">#&gt;  $ annotation       : NULL</span></span>
-<span><span class="co">#&gt;  $ log_fc           : NULL</span></span>
+<span><span class="co">#&gt;  $ normalized_log_fc: NULL</span></span>
+<span><span class="co">#&gt;  $ crispr_score     : NULL</span></span>
 <span><span class="co">#&gt;  $ results          : NULL</span></span>
 <span><span class="co">#&gt;  - attr(*, "class")= chr [1:2] "list" "gimap_dataset"</span></span></code></pre></div>
 </div>
@@ -349,17 +364,31 @@ earlier does have a dashed line specifying the lower outlier (or a user
 defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than
 that value can be filtered out. - We include a table that specifies how
 many pgRNAs would be filtered out by applying this filter.</p>
+<p>There is a filter that flags pgRNA constructs that have low log2 CPM
+counts for the day 0 or plasmid time point. - The histogram of the log2
+CPM values of pgRNA constructs at the plasmid time point mentioned
+earlier does have a dashed line specifying the lower outlier (or a user
+defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than
+that value can be filtered out. - We include a table that specifies how
+many pgRNAs would be filtered out by applying this filter.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_qc.html">run_qc</a></span><span class="op">(</span><span class="va">gimap_dataset</span>,</span>
-<span>       output_file <span class="op">=</span> <span class="st">"example_qc_report.Rmd"</span>,</span>
-<span>       overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>       quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Results in: example_qc_report.html</span></span></code></pre></div>
-<p><img src="getting_started_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; [1] "example_qc_report.html"</span></span></code></pre>
+<code class="sourceCode R"><span><span class="co">#run_qc(gimap_dataset,</span></span>
+<span><span class="co">#       output_file = "example_qc_report.Rmd",</span></span>
+<span><span class="co">#       overwrite = TRUE,</span></span>
+<span><span class="co">#       quiet = TRUE)</span></span></code></pre></div>
 <p>After considering the QC report and which filters are
 appropriate/desired for your data, you can apply filters to the data
 using the <code>gimap_filter</code> function.</p>
+</div>
+<div class="section level3">
+<h3 id="running-the-pipeline">Running the pipeline<a class="anchor" aria-label="anchor" href="#running-the-pipeline"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#gimap_dataset &lt;- gimap_dataset %&gt;%</span></span>
+<span><span class="co">#  gimap_filter() %&gt;%</span></span>
+<span><span class="co">#  gimap_annotate() %&gt;%</span></span>
+<span><span class="co">#  gimap_normalize() %&gt;%</span></span>
+<span><span class="co">#  calc_crispr()</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gimap_dataset</span> <span class="op">&lt;-</span> <span class="va">gimap_dataset</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/gimap_filter.html">gimap_filter</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -409,26 +438,26 @@ filtered out</li>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] purrr_1.0.2   ggplot2_3.5.1 dplyr_1.1.4   gimap_0.1.0  </span></span>
+<span><span class="co">#&gt; [1] dplyr_1.1.4 gimap_0.1.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyr_1.3.1        sass_0.4.9         utf8_1.2.4         generics_0.1.3    </span></span>
 <span><span class="co">#&gt;  [5] xml2_1.3.6         stringi_1.8.4      hms_1.1.3          digest_0.6.36     </span></span>
 <span><span class="co">#&gt;  [9] magrittr_2.0.3     evaluate_0.24.0    grid_4.4.1         timechange_0.3.0  </span></span>
-<span><span class="co">#&gt; [13] RColorBrewer_1.1-3 fastmap_1.2.0      jsonlite_1.8.8     fansi_1.0.6       </span></span>
-<span><span class="co">#&gt; [17] viridisLite_0.4.2  scales_1.3.0       textshaping_0.4.0  jquerylib_0.1.4   </span></span>
-<span><span class="co">#&gt; [21] cli_3.6.3          crayon_1.5.3       rlang_1.1.4        bit64_4.0.5       </span></span>
-<span><span class="co">#&gt; [25] munsell_0.5.1      withr_3.0.0        cachem_1.1.0       yaml_2.3.9        </span></span>
-<span><span class="co">#&gt; [29] parallel_4.4.1     tools_4.4.1        tzdb_0.4.0         colorspace_2.1-0  </span></span>
-<span><span class="co">#&gt; [33] kableExtra_1.4.0   vctrs_0.6.5        R6_2.5.1           lifecycle_1.0.4   </span></span>
-<span><span class="co">#&gt; [37] lubridate_1.9.3    snakecase_0.11.1   stringr_1.5.1      bit_4.0.5         </span></span>
-<span><span class="co">#&gt; [41] fs_1.6.4           vroom_1.6.5        ragg_1.3.2         janitor_2.2.0     </span></span>
-<span><span class="co">#&gt; [45] pkgconfig_2.0.3    desc_1.4.3         pkgdown_2.1.0      pillar_1.9.0      </span></span>
-<span><span class="co">#&gt; [49] bslib_0.7.0        gtable_0.3.5       glue_1.7.0         systemfonts_1.1.0 </span></span>
-<span><span class="co">#&gt; [53] highr_0.11         xfun_0.45          tibble_3.2.1       tidyselect_1.2.1  </span></span>
-<span><span class="co">#&gt; [57] rstudioapi_0.16.0  knitr_1.48         farver_2.1.2       htmltools_0.5.8.1 </span></span>
-<span><span class="co">#&gt; [61] labeling_0.4.3     rmarkdown_2.27     svglite_2.1.3      readr_2.1.5       </span></span>
-<span><span class="co">#&gt; [65] pheatmap_1.0.12    compiler_4.4.1</span></span></code></pre></div>
+<span><span class="co">#&gt; [13] RColorBrewer_1.1-3 fastmap_1.2.0      jsonlite_1.8.8     purrr_1.0.2       </span></span>
+<span><span class="co">#&gt; [17] fansi_1.0.6        viridisLite_0.4.2  scales_1.3.0       textshaping_0.4.0 </span></span>
+<span><span class="co">#&gt; [21] jquerylib_0.1.4    cli_3.6.3          crayon_1.5.3       rlang_1.1.4       </span></span>
+<span><span class="co">#&gt; [25] bit64_4.0.5        munsell_0.5.1      withr_3.0.0        cachem_1.1.0      </span></span>
+<span><span class="co">#&gt; [29] yaml_2.3.9         parallel_4.4.1     tools_4.4.1        tzdb_0.4.0        </span></span>
+<span><span class="co">#&gt; [33] colorspace_2.1-0   ggplot2_3.5.1      kableExtra_1.4.0   vctrs_0.6.5       </span></span>
+<span><span class="co">#&gt; [37] R6_2.5.1           lifecycle_1.0.4    lubridate_1.9.3    snakecase_0.11.1  </span></span>
+<span><span class="co">#&gt; [41] stringr_1.5.1      bit_4.0.5          fs_1.6.4           vroom_1.6.5       </span></span>
+<span><span class="co">#&gt; [45] ragg_1.3.2         janitor_2.2.0      pkgconfig_2.0.3    desc_1.4.3        </span></span>
+<span><span class="co">#&gt; [49] pkgdown_2.1.0      pillar_1.9.0       bslib_0.7.0        gtable_0.3.5      </span></span>
+<span><span class="co">#&gt; [53] glue_1.7.0         systemfonts_1.1.0  xfun_0.45          tibble_3.2.1      </span></span>
+<span><span class="co">#&gt; [57] tidyselect_1.2.1   rstudioapi_0.16.0  knitr_1.48         htmltools_0.5.8.1 </span></span>
+<span><span class="co">#&gt; [61] rmarkdown_2.27     svglite_2.1.3      readr_2.1.5        pheatmap_1.0.12   </span></span>
+<span><span class="co">#&gt; [65] compiler_4.4.1</span></span></code></pre></div>
 </div>
 </div>
   </div>
