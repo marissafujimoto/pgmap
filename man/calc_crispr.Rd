@@ -7,7 +7,7 @@
 calc_crispr(.data = NULL, gimap_dataset, normalized = TRUE)
 }
 \arguments{
-\item{.data}{Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset}
+\item{.data}{Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset}
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 

@@ -1,6 +1,6 @@
 #' Calculate CRISPR scores
 #' @description This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.
 #' @param normalized Default is TRUE meaning that we should expect to look for normalized data in the gimap_dataset.

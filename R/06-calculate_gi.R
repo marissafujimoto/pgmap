@@ -1,6 +1,6 @@
 #' Calculate Genetic Interaction scores
 #' @description Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param test options 't-test'. By default, both will be run.
 #' @export

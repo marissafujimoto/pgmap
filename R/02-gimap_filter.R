@@ -1,6 +1,6 @@
 #' A function to run filtering
 #' @description This function applies filters to the gimap data. By default it runs both the zero count (across all samples) and the low plasmid cpm filters, but users can select a subset of these filters or even adjust the behavior of each filter
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param filter_type Can be one of the following: `zero_count_only`, `low_plasmid_cpm_only` or `both`. Potentially in the future also `rep_variation`, `zero_in_last_time_point` or a vector that includes multiple of these filters.
 #' @param filter_zerocount_target_col default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns
@@ -37,7 +37,7 @@
 #'
 #' # If you want to use multiple filters and more than one to flag a pgRNA construct before it's filtered out, use the `min_n_filters` argument
 #' gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "both", min_n_filters = 2)
-#' 
+#'
 #' # You can also specify which columns the filters will be applied to
 #' gimap_dataset <- gimap_filter(gimap_dataset, filter_type = "zero_count_only", filter_zerocount_target_col = c(1,2))
 #'
@@ -82,36 +82,36 @@ gimap_filter <- function(.data = NULL,
   #then it finds the row sum (how many are filters flagged each construct e.g., number of TRUE in each row),
   #and finally compares the row sum to the `min_n_filters` parameter to report TRUEs and FALSEs according to whether each construct is flagged by the minimum number of required filters
   #TRUE means it should be filtered, FALSE means it shouldn't be filtered
-  one_filter_df <- reduce(possible_filters, cbind) %>% 
+  one_filter_df <- reduce(possible_filters, cbind) %>%
     `colnames<-`(c("filter_zero_count", "filter_low_plasmi_cpm")) #*ADD any new filter's name here* as an additional column name; START with "Filter"
   combined_filter <- rowSums(one_filter_df) >= min_n_filters
   #within `combined_filter` TRUE means that the filtering steps flagged the pgRNA construct for removal, therefore, we'll want to use the opposite FALSE values for the filtered data, keeping those that weren't flagged by filtering steps
-  
-  
+
+
   # store some data/results from filtering
   ## adding a way to know if the filter step was run since it's optional
-  gimap_dataset$filtered_data$filter_step_run <- TRUE 
-  
+  gimap_dataset$filtered_data$filter_step_run <- TRUE
+
   ## subset the pgRNA IDs such that these are the ones that remain in the dataset following completion of filtering
   gimap_dataset$filtered_data$metadata_pg_ids <- gimap_dataset$metadata$pg_ids[!combined_filter,]
-  
+
   ## subset the log2_cpm data such that these are the ones that remain in the dataset following completion of filtering
   gimap_dataset$filtered_data$transformed_log2_cpm <- gimap_dataset$transformed_data$log2_cpm[!combined_filter,]
-  
+
   ## save a list of which pgRNAs are filtered out once filtering is complete
   gimap_dataset$filtered_data$removed_pg_ids <- cbind(gimap_dataset$metadata$pg_ids[combined_filter,], one_filter_df[combined_filter,]) %>% #add the IDs as a column together with the TRUEs and FALSEs for each filter, focusing only on pgRNAs which are in some way flagged for removal
                                                         pivot_longer(starts_with("filter_"), #pivot longer so that IDs are repeated and filter names are listed in a column and the last column (`boolVals`) are TRUEs and FALSEs
-                                                                     names_to = "filter_name", 
-                                                                     values_to = "bool_vals") %>% 
+                                                                     names_to = "filter_name",
+                                                                     values_to = "bool_vals") %>%
                                                         filter(bool_vals == TRUE) %>% #drop rows where boolVals is false, so this leaves only filters that flagged a pgRNA for removal
                                                         select(id, filter_name) %>% #drop the boolVals column because don't need it anymore
                                                         group_by(id) %>% #group by the pgRNA constructs
                                                         summarize(relevantFilters = toString(filter_name)) #and make a column that comma separates the relevant filters
-  
-  ## save a list of which pgRNAs have a zero count in all final timepoint replicates. 
+
+  ## save a list of which pgRNAs have a zero count in all final timepoint replicates.
   #NOTE these are NOT necessarily filtered out
   if(is.null(filter_replicates_target_col)){ filter_replicates_target_col <- c((ncol(gimap_dataset$transformed_data$log2_cpm)-2) : ncol(gimap_dataset$transformed_data$log2_cpm))} #last 3 columns of the data
-  
+
   gimap_dataset$filtered_data$all_reps_zerocount_ids <- gimap_dataset$metadata$pg_ids[unlist(
                                                                                               gimap_dataset$raw_counts[,filter_replicates_target_col] %>% #grab the data from the final timepoint replicate columns
                                                                                                as.data.frame() %>%
@@ -124,9 +124,9 @@ gimap_filter <- function(.data = NULL,
                                                                                                select(row) #select the rows column so we can grab the corresponding pgRNA IDs
                                                                                               ) #unlist the tibble
                                                                                       ,] #subselect just the IDs and store
-                                                      
-  
-                                                      
+
+
+
   return(gimap_dataset)
 }
 

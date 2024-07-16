@@ -1,6 +1,6 @@
 #' Annotate gimap data
 #' @description In this function, a `gimap_dataset` is annotated as far as which genes should be used as controls.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param cell_line which cell line are you using? Default is "HELA"
 #' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap. These data are optional
@@ -139,14 +139,14 @@ gimap_annotate <- function(.data = NULL,
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
     annotation_df <- annotation_df[keep_for_annotdf,]
   }
-  
+
   ################################ STORE IT ####################################
-  
+
   if (gimap_dataset$filtered_data$filter_step_run){
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
     annotation_df <- annotation_df[keep_for_annotdf,]
   }
-  
+
   gimap_dataset$annotation <- annotation_df
 
   return(gimap_dataset)
@@ -235,4 +235,3 @@ crtl_genes <- function() {
 
   return(crtl_genes_file)
 }
-
