@@ -26,6 +26,13 @@ library(gimap)
 library(dplyr)
 ```
 
+First let's create a folder we will save files to.
+
+```{r}
+output_dir <- "output_data"
+dir.create(output_dir, showWarnings = FALSE)
+```
+
 ## Data requirements
 
 Let's examine this example pgPEN counts table. It's divided into columns containing:
@@ -103,8 +110,8 @@ You need to have two columns in the metadata you provide (they must be named exa
 ```{r}
 example_sample_metadata <- data.frame(
   col_names = c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC"),
-  timepoints = as.numeric(c("0", "5", "22", "22", "22")),
-  replicates = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
+  day = as.numeric(c("0", "5", "22", "22", "22")),
+  rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
 )
 ```
 
@@ -152,52 +159,120 @@ This report also includes several visualizations after filters are applied:
 There is a filter that flags pgRNA constructs where any of the time points have a count of zero.
   - We include a bar plot that shows the number of pgRNA constructs which have counts of zero in either 0, 1, 2, or 3 replicates.
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
-  
-There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point. 
+
+There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point.
   - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
-  - We include a table that specifies how many pgRNAs would be filtered out by applying this filter. 
+  - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
 
 There is a filter that flags pgRNA constructs that have low log2 CPM counts for the day 0 or plasmid time point.
   - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
 
 ```{r}
-#run_qc(gimap_dataset,
-#       output_file = "example_qc_report.Rmd",
-#       overwrite = TRUE,
-#       quiet = TRUE)
+run_qc(gimap_dataset,
+       output_file = "example_qc_report.Rmd",
+       overwrite = TRUE,
+       quiet = TRUE)
 ```
+
+
+## Filtering the data 
 
 After considering the QC report and which filters are appropriate/desired for your data, you can apply filters to the data using the `gimap_filter` function.
 
-## Running the pipeline
-
 ```{r}
-#gimap_dataset <- gimap_dataset %>%
-#  gimap_filter() %>%
-#  gimap_annotate() %>%
-#  gimap_normalize() %>%
-#  calc_crispr()
-```
-
-```{r}
-gimap_dataset <- gimap_dataset %>% 
+gimap_dataset <- gimap_dataset %>%
   gimap_filter()
-
-nrow(gimap_dataset$filtered_data$transformed_log2_cpm)
-
 ```
 
-By default, ...
+Filtered forms of the data can be seen in the `$filtered_data entry`
 
-As you can see from the output above, there are fewer pgRNA constructs in the filtered dataset following completion of filtering. 
+```{r}
+str(gimap_dataset$filtered_data)
+```
 
-The filtering step also stores two tables of information that you may want to use or report. 
+Let's take a look at how many rows of data we have left: 
+
+```{r}
+nrow(gimap_dataset$filtered_data$transformed_log2_cpm)
+```
+
+As you can see from the output above, there are fewer pgRNA constructs in the filtered dataset following completion of filtering.
+
+The filtering step also stores two tables of information that you may want to use or report.
 
 - `$filtered_data$removed_pg_ids` is a table that has the pgRNA construct IDs that are removed following completion of filtering in the `id` column and the relevant filter(s) that led to removal as a comma separated list in the `relevantFilters` column
 - `$filtered_data$all_reps_zerocount_ids` is a table that lists the IDs of pgRNA constructs which had a count of 0 for all final timepoint replicates. These pgRNA constructs are NOT necessarily filtered out
 
-To view or output these tables....
+
+```{r}
+gimap_dataset <- gimap_dataset %>%
+  gimap_annotate() %>%
+  gimap_normalize(
+    timepoints = "day",
+    replicates = "rep") %>%
+  calc_crispr() %>%
+  calc_gi()
+```
+
+Take a look at the results. 
+
+
+Here's what's included in the GI Scores table: 
+
+```{r}
+head(gimap_dataset$gi_scores)
+```
+
+Take a look at a preview of the crispr scores: 
+
+```{r}
+head(gimap_dataset$crispr_score)
+```
+
+Take a look at the overall stats: 
+
+```{r}
+gimap_dataset$results$overall
+```
+
+Lastly, let's take a look at the by target results. We can arrange by results using `dplyr::arrange()` 
+
+```{r}
+gimap_dataset$results$by_target %>% 
+  dplyr::arrange(fdr_vals_wil_late_RepA)
+```
+
+## Saving results to files
+
+We can save the genetic interactions scores like this:
+
+```{r}
+readr::write_tsv(gimap_dataset$gi_scores, file.path(output_dir, "gi_scores.tsv"))
+```
+
+Similarly let's save the CRISPR scores.
+
+```{r}
+readr::write_tsv(gimap_dataset$crispr_score, file.path(output_dir, "crispr_scores.tsv"))
+```
+
+We can extract and save the stats results to the TSV
+
+```{r}
+readr::write_tsv(gimap_dataset$results$overall, file.path(output_dir, "overall_stats.tsv"))
+readr::write_tsv(gimap_dataset$results$by_target, file.path(output_dir, "by_target_stats.tsv"))
+```
+
+We can save all these data as an RDS.
+
+```{r}
+saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
+```
+
+## Session Info
+
+This is just for provenance purposes.
 
 ```{r}
 sessionInfo()

@@ -1,12 +1,14 @@
 #' Normalize Log fold changes
 #' @description This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with a tidyverse pipe from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
-#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints.
-#'  Timepoints will be made into three categories: `plasmid` for the earliest time point, `early` for all middle timepoints and `late` for the latest timepoints.
-#'  The `late` timepoints will be the focus for the calculations. The column used for timepoints must be numeric or at least ordinal.
-#' @param replicates Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents column that specifies replicates.
-#' These replicates will be kept separate for the `late` but the `early` and `plasmid` others will be averaged and used for normalization.
+#' @param timepoints Specifies the column name of the metadata set up in `$metadata$sample_metadata`
+#' that has a factor that represents the timepoints. Timepoints will be made into three categories:
+#' plasmid for the earliest time point, early for all middle timepoints and late for the latest timepoints.
+#' The late timepoints will be the focus for the calculations. The column used for timepoints must be numeric or at least ordinal.
+#' @param replicates Specifies the column name of the metadata set up in `$metadata$sample_metadata`
+#' that has a factor that represents column that specifies replicates. These replicates will be kept separate
+#' for the late but the early and plasmid others will be averaged and used for normalization.
 #' @export
 #' @examples \dontrun{
 #'
@@ -74,10 +76,17 @@ gimap_normalize <- function(.data = NULL,
   # Based on log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
+  if (gimap_dataset$filtered_data$filter_step_run) {
+    dataset <- gimap_dataset$filtered_data$transformed_log2_cpm
+    pg_ids <- gimap_dataset$filtered_data$metadata_pg_ids$id
+  } else {
+    dataset <- gimap_dataset$transformed_data$log2_cpm
+    pg_ids <- gimap_dataset$metadata$pg_ids
+  }
   # Doing some reshaping to get one handy data frame
-  lfc_df <- gimap_dataset$transformed_data$log2_cpm %>%
+  lfc_df <- dataset %>%
     as.data.frame() %>%
-    dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
+    dplyr::mutate(pg_ids = pg_ids) %>%
     tidyr::pivot_longer(-pg_ids) %>%
     # Adding on metdata
     dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%

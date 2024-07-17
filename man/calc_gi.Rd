@@ -2,26 +2,22 @@
 % Please edit documentation in R/06-calculate_gi.R
 \name{calc_gi}
 \alias{calc_gi}
-\title{This is a title for a function}
+\title{Calculate Genetic Interaction scores}
 \usage{
-calc_gi(gimap_dataset)
+calc_gi(.data = NULL, gimap_dataset)
 }
 \arguments{
+\item{.data}{Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset}
+
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{.data}{Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset}
-
-\item{test}{options include 'wilcoxon' and 't-test'. By default, both will be run.}
-
-\item{overwrite}{default is FALSE; whether to overwrite the QC Report file}
-
-\item{output_file}{default is `GI_Results`; name of the output GI results file}
+\item{test}{options 't-test'. By default, both will be run.}
 }
 \description{
 Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
 }
 \examples{
-\dontrun{
+{
 
 gimap_dataset <- get_example_data("gimap")
 
@@ -37,5 +33,6 @@ gimap_dataset <- gimap_dataset \%>\%
   calc_crispr() \%>\%
   calc_gi()
 
+saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
 }
 }

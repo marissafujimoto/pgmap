@@ -1,6 +1,6 @@
 #' Annotate gimap data
 #' @description In this function, a `gimap_dataset` is annotated as far as which genes should be used as controls.
-#' @param .data Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset
+#' @param .data Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset
 #' @param gimap_dataset A special dataset structure that is setup using the `setup_data()` function.
 #' @param cell_line which cell line are you using? Default is "HELA"
 #' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap. These data are optional
@@ -50,10 +50,7 @@ gimap_annotate <- function(.data = NULL,
   } else {
     # This file is from https://depmap.org/portal/download/all/ and from DepMap Public 19Q3 All Files
     # Essential gene labeling is from inst/extdata/Achilles_common_essentials.csv
-    control_genes <- readr::read_tsv("https://figshare.com/ndownloader/files/40448429", show_col_types = FALSE)
-    control_genes <- control_genes %>%
-      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop") %>%
-      dplyr::pull(gene_symbol)
+    control_genes <- crtl_genes()
   }
 
   ############################ Get TPM data ####################################
@@ -139,14 +136,14 @@ gimap_annotate <- function(.data = NULL,
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
     annotation_df <- annotation_df[keep_for_annotdf,]
   }
-  
+
   ################################ STORE IT ####################################
-  
+
   if (gimap_dataset$filtered_data$filter_step_run){
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
     annotation_df <- annotation_df[keep_for_annotdf,]
   }
-  
+
   gimap_dataset$annotation <- annotation_df
 
   return(gimap_dataset)
@@ -160,10 +157,10 @@ tpm_setup <- function() {
     "CCLE_expression.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989919",
-                destfile = tpm_file,
-                method = "wget"
-  )
+  system(paste(
+    "wget https://figshare.com/ndownloader/files/34989919",
+    "-O", tpm_file
+  ))
 
   data_df <- readr::read_csv(tpm_file,
                              show_col_types = FALSE,
@@ -189,15 +186,17 @@ tpm_setup <- function() {
 
 # This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
 cn_setup <- function() {
+  options(timeout=1000)
+
   cn_file <- file.path(
     system.file("extdata", package = "gimap"),
     "CCLE_gene_cn.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989937",
-                destfile = cn_file,
-                method = "wget"
-  )
+  system(paste(
+    "wget https://figshare.com/ndownloader/files/34989937",
+    "-O", cn_file
+  ))
 
   data_df <- readr::read_csv(cn_file,
                              show_col_types = FALSE,
@@ -228,11 +227,19 @@ crtl_genes <- function() {
     "Achilles_common_essentials.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989871",
-                destfile = crtl_genes_file,
-                method = "wget"
-  )
+  if (!file.exists(crtl_genes_file)) {
+    system(paste(
+      "wget https://figshare.com/ndownloader/files/34989871",
+      "-O", crtl_genes_file
+    ))
 
-  return(crtl_genes_file)
+    crtl_genes <- readr::read_csv(crtl_genes_file, show_col_types = FALSE) %>%
+      tidyr::separate(col = gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
+
+    readr::write_csv(crtl_genes, crtl_genes_file)
+  } else {
+    crtl_genes <- readr::read_csv(crtl_genes_file)
+  }
+
+  return(crtl_genes$gene_symbol)
 }
-

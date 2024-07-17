@@ -12,11 +12,18 @@ gimap_normalize(
 )
 }
 \arguments{
-\item{.data}{Data can be piped in with %>% or |> from function to function. But the data must still be a gimap_dataset}
+\item{.data}{Data can be piped in with a tidyverse pipe from function to function. But the data must still be a gimap_dataset}
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
-\item{timepoints}{Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.}
+\item{timepoints}{Specifies the column name of the metadata set up in `$metadata$sample_metadata`
+that has a factor that represents the timepoints. Timepoints will be made into three categories:
+plasmid for the earliest time point, early for all middle timepoints and late for the latest timepoints.
+The late timepoints will be the focus for the calculations. The column used for timepoints must be numeric or at least ordinal.}
+
+\item{replicates}{Specifies the column name of the metadata set up in `$metadata$sample_metadata`
+that has a factor that represents column that specifies replicates. These replicates will be kept separate
+for the late but the early and plasmid others will be averaged and used for normalization.}
 }
 \description{
 This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
