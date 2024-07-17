@@ -160,10 +160,10 @@ tpm_setup <- function() {
     "CCLE_expression.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989919",
-                destfile = tpm_file,
-                method = "wget"
-  )
+  system(paste(
+    "wget https://figshare.com/ndownloader/files/34989919",
+    "-O", tpm_file
+  ))
 
   data_df <- readr::read_csv(tpm_file,
                              show_col_types = FALSE,
@@ -196,10 +196,10 @@ cn_setup <- function() {
     "CCLE_gene_cn.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989937",
-                destfile = cn_file,
-                method = "wget"
-  )
+  system(paste(
+    "wget https://figshare.com/ndownloader/files/34989937",
+    "-O", cn_file
+  ))
 
   data_df <- readr::read_csv(cn_file,
                              show_col_types = FALSE,
@@ -230,10 +230,10 @@ crtl_genes <- function() {
     "Achilles_common_essentials.csv"
   )
 
-  download.file("https://figshare.com/ndownloader/files/34989871",
-                destfile = crtl_genes_file,
-                method = "wget"
-  )
+  system(paste(
+    "wget https://figshare.com/ndownloader/files/34989871",
+    "-O", crtl_genes_file
+  ))
 
   return(crtl_genes_file)
 }
