@@ -52,7 +52,7 @@ we pool all the replicate samples to find the lower outlier and flag constructs 
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create a filter for pgRNAs which have a low log2 CPM value for the plasmid/Day 0 sample/time point</h1>
-    <small class="dont-index">Source: <a href="https://github.com/FredHutch/gimap/blob/main/R/02-filter.R" class="external-link"><code>R/02-filter.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/FredHutch/gimap/blob/main/R/02-gimap_filter.R" class="external-link"><code>R/02-gimap_filter.R</code></a></small>
     <div class="hidden name"><code>qc_filter_plasmid.Rd</code></div>
     </div>
 
@@ -75,6 +75,7 @@ we pool all the replicate samples to find the lower outlier and flag constructs 
 
 <dl><dt id="arg-gimap-dataset">gimap_dataset<a class="anchor" aria-label="anchor" href="#arg-gimap-dataset"></a></dt>
 <dd><p>The special gimap_dataset from the `setup_data` function which contains the log2 CPM transformed data</p></dd>
+
 
 <dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
 <dd><p>default is NULL, the cutoff for low log2 CPM values for the plasmid time period; if not specified, The lower outlier (defined by taking the difference of the lower quartile and 1.5 * interquartile range) is used</p></dd>
