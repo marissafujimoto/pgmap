@@ -50,10 +50,7 @@ gimap_annotate <- function(.data = NULL,
   } else {
     # This file is from https://depmap.org/portal/download/all/ and from DepMap Public 19Q3 All Files
     # Essential gene labeling is from inst/extdata/Achilles_common_essentials.csv
-    control_genes <- readr::read_tsv("https://figshare.com/ndownloader/files/40448429", show_col_types = FALSE)
-    control_genes <- control_genes %>%
-      tidyr::separate(col = Gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop") %>%
-      dplyr::pull(gene_symbol)
+    control_genes <- crtl_genes()
   }
 
   ############################ Get TPM data ####################################
@@ -230,10 +227,19 @@ crtl_genes <- function() {
     "Achilles_common_essentials.csv"
   )
 
-  system(paste(
-    "wget https://figshare.com/ndownloader/files/34989871",
-    "-O", crtl_genes_file
-  ))
+  if (!file.exists(crtl_genes_file)) {
+    system(paste(
+      "wget https://figshare.com/ndownloader/files/34989871",
+      "-O", crtl_genes_file
+    ))
 
-  return(crtl_genes_file)
+    crtl_genes <- readr::read_csv(crtl_genes_file, show_col_types = FALSE) %>%
+      tidyr::separate(col = gene, into = c("gene_symbol", "entrez_id"), remove = FALSE, extra = "drop")
+
+    readr::write_csv(crtl_genes, crtl_genes_file)
+  } else {
+    crtl_genes <- readr::read_csv(crtl_genes_file)
+  }
+
+  return(crtl_genes$gene_symbol)
 }
