@@ -161,7 +161,8 @@ tpm_setup <- function() {
   )
 
   download.file("https://figshare.com/ndownloader/files/34989919",
-                destfile = tpm_file
+                destfile = tpm_file,
+                method = "wget"
   )
 
   data_df <- readr::read_csv(tpm_file,
@@ -188,13 +189,16 @@ tpm_setup <- function() {
 
 # This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
 cn_setup <- function() {
+  options(timeout=1000)
+
   cn_file <- file.path(
     system.file("extdata", package = "gimap"),
     "CCLE_gene_cn.csv"
   )
 
   download.file("https://figshare.com/ndownloader/files/34989937",
-                destfile = cn_file
+                destfile = cn_file,
+                method = "wget"
   )
 
   data_df <- readr::read_csv(cn_file,
@@ -227,7 +231,8 @@ crtl_genes <- function() {
   )
 
   download.file("https://figshare.com/ndownloader/files/34989871",
-                destfile = crtl_genes_file
+                destfile = crtl_genes_file,
+                method = "wget"
   )
 
   return(crtl_genes_file)
