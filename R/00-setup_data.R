@@ -17,7 +17,6 @@
 #'
 #' # You can see what an example dataset looks like by pulling the example gimap_dataset:
 #' gimap_dataset <- get_example_data("gimap")
-#'
 #' }
 setup_data <- function(counts = NULL,
                        pg_ids = NULL,
@@ -43,7 +42,8 @@ setup_data <- function(counts = NULL,
       all_reps_zerocount_ids = NULL
     ),
     annotation = NULL,
-    log_fc = NULL,
+    normalized_log_fc = NULL,
+    crispr_score = NULL,
     results = NULL
   )
 
