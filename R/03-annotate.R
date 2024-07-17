@@ -161,8 +161,7 @@ tpm_setup <- function() {
   )
 
   download.file("https://figshare.com/ndownloader/files/34989919",
-                destfile = tpm_file,
-                mode = "wb"
+                destfile = tpm_file
   )
 
   data_df <- readr::read_csv(tpm_file,
@@ -195,8 +194,7 @@ cn_setup <- function() {
   )
 
   download.file("https://figshare.com/ndownloader/files/34989937",
-                destfile = cn_file,
-                mode = "wb"
+                destfile = cn_file
   )
 
   data_df <- readr::read_csv(cn_file,
@@ -229,8 +227,7 @@ crtl_genes <- function() {
   )
 
   download.file("https://figshare.com/ndownloader/files/34989871",
-                destfile = crtl_genes_file,
-                 mode = "wb"
+                destfile = crtl_genes_file
   )
 
   return(crtl_genes_file)
