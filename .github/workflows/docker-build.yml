@@ -44,9 +44,6 @@ jobs:
       # Set up Docker build
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v1
-
-      - name: Get token
-        run: echo ${{ secrets.GH_PAT }} > ${{ inputs.directory }}/git_token.txt
         
       # Build docker image
       - name: Build Docker image
@@ -70,5 +67,5 @@ jobs:
       - name: Push Docker image if manual trigger set to true
         if: ${{ github.event.inputs.dockerhubpush != 'false' }}
         run: |
-          docker tag jhudsl/base_ottr:latest jhudsl/base_ottr:$github.event.inputs.tag
-          docker push jhudsl/base_ottr:$github.event.inputs.tag
+          docker tag hutch/gimap:latest hutch/gimap:$github.event.inputs.tag
+          docker push hutch/gimap:$github.event.inputs.tag
