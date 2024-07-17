@@ -76,10 +76,17 @@ gimap_normalize <- function(.data = NULL,
   # Based on log fold change calculations and other handling will go based on the code in:
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
+  if (gimap_dataset$filtered_data$filter_step_run) {
+    dataset <- gimap_dataset$filtered_data$transformed_log2_cpm
+    pg_ids <- gimap_dataset$filtered_data$metadata_pg_ids$id
+  } else {
+    dataset <- gimap_dataset$transformed_data$log2_cpm
+    pg_ids <- gimap_dataset$metadata$pg_ids
+  }
   # Doing some reshaping to get one handy data frame
-  lfc_df <- gimap_dataset$transformed_data$log2_cpm %>%
+  lfc_df <- dataset %>%
     as.data.frame() %>%
-    dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
+    dplyr::mutate(pg_ids = pg_ids) %>%
     tidyr::pivot_longer(-pg_ids) %>%
     # Adding on metdata
     dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%

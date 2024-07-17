@@ -42,11 +42,17 @@ calc_crispr <- function(.data = NULL,
   if (!is.null(gimap_dataset$normalized_log_fc) && normalized) {
     source_data <- gimap_dataset$normalized_log_fc
   }
+  if (gimap_dataset$filtered_data$filter_step_run) {
+    pg_ids <- gimap_dataset$filtered_data$metadata_pg_ids$id
+  } else {
+    pg_ids <- gimap_dataset$metadata$pg_ids
+  }
+
   # If normalized is set to FALSE, we use rawish data but attach annotation
   if (!normalized) {
     source_data <- gimap_dataset$transformed_data$log2_cpm %>%
       as.data.frame() %>%
-      dplyr::mutate(pg_ids = gimap_dataset$metadata$pg_ids$id) %>%
+      dplyr::mutate(pg_ids = pg_ids) %>%
       tidyr::pivot_longer(-pg_ids) %>%
       dplyr::left_join(gimap_dataset$metadata$sample_metadata, by = c("name" = "col_names")) %>%
       dplyr::group_by(timepoints, pg_ids) %>%

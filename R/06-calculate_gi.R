@@ -133,8 +133,10 @@ gimap_rep_stats <- function(replicate, gi_calc_adj) {
   p_vals <- lapply(double_targets, function(target) {
 
     # Get the values for this particular target
-    doubles <- dplyr::filter(double_scores, pgRNA_target_double == target)
-    singles <- dplyr::filter(single_scores, pgRNA_target_double == target)
+    doubles <- dplyr::filter(double_scores, pgRNA_target_double == target) %>%
+      dplyr::distinct()
+    singles <- dplyr::filter(single_scores, pgRNA_target_double == target) %>%
+      dplyr::distinct()
 
     p_val_ttest <- t.test(
       x = doubles$double_target_gi_score,
@@ -144,7 +146,7 @@ gimap_rep_stats <- function(replicate, gi_calc_adj) {
     p_val_wil <- wilcox.test(
       x = doubles$double_target_gi_score,
       y = c(singles$single_target_gi_score_1, singles$single_target_gi_score_2),
-      paired = FALSE)$p.value
+      paired = FALSE, exact = FALSE)$p.value
 
     p_vals <- data.frame(p_val_ttest,
                          p_val_wil)
