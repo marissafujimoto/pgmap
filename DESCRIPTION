@@ -33,7 +33,8 @@ Imports:
     pheatmap,
     purrr,
     janitor,
-    broom 
+    broom, 
+    stringr
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
