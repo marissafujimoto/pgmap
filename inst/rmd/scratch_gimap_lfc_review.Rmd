@@ -27,7 +27,53 @@ devtools::load_all()
 ## Load the GI Mapping Normalization/LFC results
 
 ```{r}
-old_lfc_results <- read_tsv("~/Downloads/results/calculate_LFC/tables/tsv/HeLa_lfc_annot_adj_pgRNA.txt")
+d.counts_flagged <- read.table("~/Downloads/results/pgRNA_counts_QC/tables/tsv/d.HeLa_counts_cpm_flag_long.txt", header=TRUE)
+
+d.annot <- readRDS("~/Downloads/results/pgRNA_annotations/tables/rds/d.HeLa_annot")
+
+d.counts_flagged_timepoint <- d.counts_flagged %>%
+  separate(sample, into = c("day", "rep"), sep = "_", remove = FALSE) %>%
+  mutate(day = readr::parse_number(day),
+         rep = str_replace(string = rep, pattern = "Rep", replacement = "")) %>%
+  group_by(id) %>%
+  mutate(timepoint = case_when(
+    day == min(day) ~ "plasmid",
+    day == max(day) ~ "late",
+    TRUE ~ "early")) %>%
+  ungroup()
+
+d.counts_flagged_timepoint_early <- d.counts_flagged_timepoint %>%
+  filter(timepoint == "plasmid" | timepoint == "early") %>%
+  dplyr::select(id, timepoint, log2_cpm) %>%
+  pivot_wider(names_from = timepoint, 
+              values_from = log2_cpm,
+              names_glue = "{timepoint}_{.value}")
+
+d.counts_flagged_timepoint_lfc <- d.counts_flagged_timepoint %>%
+  filter(timepoint == "late") %>% ## filter for only late timepoints
+  left_join(d.counts_flagged_timepoint_early, by = "id") %>%
+  mutate(lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm,
+         lfc_early_vs_late = log2_cpm - early_log2_cpm)
+
+d.lfc_annot <- d.counts_flagged_timepoint_lfc %>%
+  left_join(d.annot, by = c("id" = "pgRNA_id")) %>%
+  rename("pgRNA_id" = id)
+
+d.lfc_annot <- d.lfc_annot %>%
+  filter(rm_pgRNA == FALSE)
+
+d.lfc_annot_adj <- d.lfc_annot %>%
+  group_by(rep) %>%
+  mutate(lfc_adj1 = lfc_plasmid_vs_late - median(lfc_plasmid_vs_late[norm_ctrl_flag == "negative_control"]),
+         lfc_adj2 = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"]) -
+                                  median(lfc_adj1[norm_ctrl_flag == "positive_control"]))) %>%
+  ungroup()
+
+old_lfc_results <- d.lfc_annot_adj %>% select(pgRNA_id, rep, paralog_pair, lfc_adj2, target_type:gene2_essential_flag)
+```
+
+```{r}
+#old_lfc_results <- read_tsv("~/Downloads/results/calculate_LFC/tables/tsv/HeLa_lfc_annot_adj_pgRNA.txt")
 ```
 
 ## Compare them
@@ -61,14 +107,14 @@ setdiff(colnames(gimap_dataset$normalized_log_fc), colnames(old_lfc_results))
 print("Column names in old results not in new results")
 setdiff(colnames(old_lfc_results), colnames(gimap_dataset$normalized_log_fc))
 ```
+
 | New results column name | Equivalent in old results |
 |:-----------------------:|:-------------------------:|
 | `pg_ids`                | `pgRNA_id`                |
 | `log2_cn_gene1`         | `gene1_log2_cn`           |
 | `log2_cn_gene2`         | `gene2_log2_cn`           |
 | `log2_tpm_gene1`        | `gene1_log2_tpm`          |
-
-Are `lfc_adj` and `CRISPR_score` equivalent?
+| `lfc_adj`               | `lfc_adj2`                |
 
 `plasmid_RepA`, `early_RepA`, `lfc_plasmid_vs_late` `unexpressed_control_flag` seem to be columns unique to the new results, not in the old results
 
@@ -78,7 +124,7 @@ Are `lfc_adj` and `CRISPR_score` equivalent?
 joindf <- dplyr::full_join(old_lfc_results, gimap_dataset$normalized_log_fc,
                            by = c("pgRNA_id" = "pg_ids", "rep"),
                            suffix = c("_old", "_new")) %>%
-  select(lfc_adj, CRISPR_score, rep) %>%
+  select(lfc_adj, lfc_adj2, rep) %>%
   drop_na()
 
 nrow(joindf)
@@ -88,10 +134,10 @@ Resolved this Unexpected warning which was previously observed by adding in the 
 > Detected an unexpected many-to-many relationship between `x` and `y`.
 
 ```{r}
-joindf %>% ggplot(aes(x=lfc_adj, y = CRISPR_score)) +
+joindf %>% ggplot(aes(x=lfc_adj, y = lfc_adj2)) +
   geom_point(alpha=0.1) +
   xlab("gimap Normalization/LFC: lfc_adj") +
-  ylab("GI Mapping Normalization/LFC: CRISPR_score") +
+  ylab("GI Mapping Normalization/LFC: lfc_adj2") +
   theme_classic() +
   stat_regline_equation(label.y = 2.35) + stat_cor(label.y = 1.95) +
   facet_wrap(~rep)
