@@ -5,7 +5,6 @@
 .DS_Store
 .secrets/*
 .httr-oauth
-docs
 inst/extdata/cached-secrets/*
 .Rprofile
 .Rapp.history

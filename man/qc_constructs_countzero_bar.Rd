@@ -12,11 +12,14 @@ qc_constructs_countzero_bar(
 )
 }
 \arguments{
-\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}
+\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function
+which contains the transformed data}
 
-\item{filter_zerocount_target_col}{default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns}
+\item{filter_zerocount_target_col}{default is NULL; Which sample column(s)
+should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns}
 
-\item{filter_replicates_target_col}{default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
+\item{filter_replicates_target_col}{default is NULL; Which sample columns are
+replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
 
 \item{wide_ar}{aspect ratio, default is 0.75}
 }
@@ -24,23 +27,31 @@ qc_constructs_countzero_bar(
 a ggplot barplot
 }
 \description{
-This bar graph first uses the specified `filter_zerocount_target_col` columns to flag pgRNA constructs that have a raw count of 0 in any one of those columns/samples of interest.
-Then, it looks at the specified columns for the final day/sample replicates (`filter_replicates_target_col`) to see for pgRNAs that were flagged by the filter, how many of those replicate samples had raw counts of zeros. And it produces a bar plot reporting on this.
-Note, if you select samples/columns to check with the filter that don't have the replicate samples, this graph won't be informative. So you want there to be overlap between the columns for the two target_col parameters to have an informative graph
+This bar graph first uses the specified `filter_zerocount_target_col` columns to flag pgRNA constructs
+ that have a raw count of 0 in any one of those columns/samples of interest.
+Then, it looks at the specified columns for the final day/sample replicates
+(`filter_replicates_target_col`) to see for pgRNAs that were flagged by the filter,
+how many of those replicate samples had raw counts of zeros. And it produces a bar plot reporting on this.
+Note, if you select samples/columns to check with the filter that don't have the
+ replicate samples, this graph won't be informative. So you want there to be overlap
+  between the columns for the two target_col parameters to have an informative graph
 }
 \examples{
 \dontrun{
 gimap_dataset <- get_example_data("gimap")
 qc_constructs_countzero_bar(gimap_dataset)
 
-#or if you want to select a specific column(s) for looking at where/which samples zero counts are present for
+# or if you want to select a specific column(s) for
+# looking at where/which samples zero counts are present for
 qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5)
 
-#or if you want to select a specific column(s) for the final day/sample replicates
+# or if you want to select a specific column(s) for the final day/sample replicates
 qc_constructs_countzero_bar(gimap_dataset, filter_replicates_target_col = 3:5)
 
-#or some combination of those
-qc_constructs_countzero_bar(gimap_dataset, filter_zerocount_target_col = 3:5, filter_replicates_target_col = 3:5)
+# or some combination of those
+qc_constructs_countzero_bar(gimap_dataset,
+                            filter_zerocount_target_col = 3:5,
+                            filter_replicates_target_col = 3:5)
 }
 
 }

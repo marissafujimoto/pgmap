@@ -12,8 +12,6 @@ calc_crispr(.data = NULL, gimap_dataset, normalized = TRUE)
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
 
 \item{normalized}{Default is TRUE meaning that we should expect to look for normalized data in the gimap_dataset.}
-
-\item{timepoints}{Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.}
 }
 \description{
 This calculates the log fold change for a gimap dataset based on the annotation and metadata provided.
@@ -31,7 +29,8 @@ gimap_dataset <- gimap_dataset \%>\%
   gimap_annotate() \%>\%
   gimap_normalize(
     timepoints = "day",
-    replicates = "rep") \%>\%
+    replicates = "rep"
+  ) \%>\%
   calc_crispr()
 
 # To see results

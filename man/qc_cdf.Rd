@@ -7,24 +7,23 @@
 qc_cdf(gimap_dataset, wide_ar = 0.75)
 }
 \arguments{
-\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}
+\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function
+which contains the transformed data}
 
 \item{wide_ar}{aspect ratio, default is 0.75}
-
-\item{qc_obj}{The object that has the qc stuff stored}
 }
 \value{
 counts_cdf a ggplot
 }
 \description{
-This function uses pivot_longer to rearrange the data for plotting and then plots a CDF of the normalized counts
+This function uses pivot_longer to rearrange the data for plotting
+ and then plots a CDF of the normalized counts
 }
 \examples{
 \dontrun{
 
 gimap_dataset <- get_example_data("gimap")
 qc_cdf(gimap_dataset)
-
 }
 
 }

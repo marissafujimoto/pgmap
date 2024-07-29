@@ -22,16 +22,16 @@
 #'   gimap_annotate() %>%
 #'   gimap_normalize(
 #'     timepoints = "day",
-#'     replicates = "rep")
+#'     replicates = "rep"
+#'   )
 #'
 #' # To see results
 #' gimap_dataset$normalized_log_fc
 #' }
 gimap_normalize <- function(.data = NULL,
-                     gimap_dataset,
-                     timepoints = NULL,
-                     replicates = NULL) {
-
+                            gimap_dataset,
+                            timepoints = NULL,
+                            replicates = NULL) {
   # Code adapted from
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
@@ -56,12 +56,12 @@ gimap_normalize <- function(.data = NULL,
     # Rename and recode the timepoints variable
     gimap_dataset$metadata$sample_metadata <- gimap_dataset$metadata$sample_metadata %>%
       dplyr::rename(timepoints = all_of(timepoints)) %>%
-
       # Note that timepoints are extablished as three categories: plasmid, early, or late.
       dplyr::mutate(timepoints = dplyr::case_when(
         timepoints == min(timepoints) ~ "plasmid",
         timepoints == max(timepoints) ~ "late",
-        TRUE ~ "early"))
+        TRUE ~ "early"
+      ))
   }
 
   if (is.null(gimap_dataset$annotation)) {

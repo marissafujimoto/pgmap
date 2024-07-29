@@ -11,9 +11,11 @@ qc_variance_hist(
 )
 }
 \arguments{
-\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}
+\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function
+which contains the transformed data}
 
-\item{filter_replicates_target_col}{default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
+\item{filter_replicates_target_col}{default is NULL; Which sample columns are
+replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
 
 \item{wide_ar}{aspect ratio, default is 0.75}
 }
@@ -21,7 +23,9 @@ qc_variance_hist(
 a ggplot histogram
 }
 \description{
-This function uses pivot_longer to rearrange the data for plotting, finds the variance for each pgRNA construct (using row number as a proxy) and then plots a histogram of these variances
+This function uses pivot_longer to rearrange the data for plotting,
+ finds the variance for each pgRNA construct (using row number as a proxy) and then
+ plots a histogram of these variances
 }
 \examples{
 \dontrun{
