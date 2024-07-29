@@ -52,8 +52,7 @@ d.counts_flagged_timepoint_early <- d.counts_flagged_timepoint %>%
 d.counts_flagged_timepoint_lfc <- d.counts_flagged_timepoint %>%
   filter(timepoint == "late") %>% ## filter for only late timepoints
   left_join(d.counts_flagged_timepoint_early, by = "id") %>%
-  mutate(lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm,
-         lfc_early_vs_late = log2_cpm - early_log2_cpm)
+  mutate(lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm)
 
 d.lfc_annot <- d.counts_flagged_timepoint_lfc %>%
   left_join(d.annot, by = c("id" = "pgRNA_id")) %>%
