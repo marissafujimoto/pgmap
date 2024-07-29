@@ -78,10 +78,6 @@
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
 <dd><p>Default is TRUE meaning that we should expect to look for normalized data in the gimap_dataset.</p></dd>
 
-
-<dt id="arg-timepoints">timepoints<a class="anchor" aria-label="anchor" href="#arg-timepoints"></a></dt>
-<dd><p>Specifies the column name of the metadata set up in `$metadata$sample_metadata` that has a factor that represents the timepoints. The column used for timepoints must be numeric or at least ordinal.</p></dd>
-
 </dl></div>
 
     <div id="ref-examples">
@@ -98,7 +94,8 @@
 <span class="r-in"><span>  <span class="fu"><a href="gimap_annotate.html">gimap_annotate</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="gimap_normalize.html">gimap_normalize</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    timepoints <span class="op">=</span> <span class="st">"day"</span>,</span></span>
-<span class="r-in"><span>    replicates <span class="op">=</span> <span class="st">"rep"</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
+<span class="r-in"><span>    replicates <span class="op">=</span> <span class="st">"rep"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span> <span class="op">%&gt;%</span></span></span>
 <span class="r-in"><span>  <span class="fu">calc_crispr</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># To see results</span></span></span>
