@@ -94,18 +94,11 @@ gimap_normalize <- function(.data = NULL,
     tidyr::pivot_wider(values_from = "log2_cpm",
                        names_from = c(timepoints, replicates))
 
-  # Extract only the late columns we'll keep these replicates for calculations later
-  #late_df <- dplyr::select(lfc_df, dplyr::starts_with("late"))
+  
 
   # Calculate the means for each construct across the groups
-  #early_df <- apply(dplyr::select(lfc_df, dplyr::starts_with("early")), 1, mean)
   plasmid_df <- apply(dplyr::select(lfc_df, starts_with("plasmid")), 1, mean)
 
-
-  # TODO: I don't think this gets used anywhere so we can bring it back from the original code but for now I'm commenting it out
-  #late_vs_early <-  lfc_df %>%
-  #  dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - early_df ) %>%
-  #  dplyr::select(pg_ids, dplyr::starts_with("late"))
 
   late_vs_plasmid_df <-  lfc_df %>%
     dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - plasmid_df) %>%
@@ -120,18 +113,17 @@ gimap_normalize <- function(.data = NULL,
     dplyr::filter(norm_ctrl_flag == "negative_control") %>%
     dplyr::select(pg_ids, dplyr::starts_with("late"))
 
-  # TODO: They find a median for each rep, so apply across columns
+  # Find a median for each rep, so apply across columns
   neg_control_median <- apply(neg_control_median_df[, -1], 2, median)
 
   # First and second adjustments to LFC
-  lfc_df_withAdjs <- late_vs_plasmid_df %>%
+  lfc_df_adj <- late_vs_plasmid_df %>%
     #subtract the correct replicate negative control median from the late vs plasmid difference
     mutate(across(names(neg_control_median), ~ . - neg_control_median[cur_column()])) %>%
     tidyr::pivot_longer(dplyr::starts_with("late"),
                         names_to = "rep",
                         values_to = "lfc_adj1")  %>%
     group_by(rep) %>%
-    #dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id")) %>% #annotation is already joined with late_vs_plasmid_df
     dplyr::mutate(
       # Then, divide by the median of negative controls (double non-targeting) minus
       # median of positive controls (targeting 1 essential gene).
@@ -141,7 +133,7 @@ gimap_normalize <- function(.data = NULL,
     ungroup()
 
   # Save this at the construct level
-  gimap_dataset$normalized_log_fc <- lfc_df_withAdjs
+  gimap_dataset$normalized_log_fc <- lfc_df_adj
 
   return(gimap_dataset)
 }
