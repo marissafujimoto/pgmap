@@ -142,3 +142,14 @@ joindf %>% ggplot(aes(x=lfc_adj, y = lfc_adj2)) +
   facet_wrap(~rep)
 
 ```
+
+```{r}
+joindf %>% ggplot(aes(x=lfc_adj, y = lfc_adj2)) +
+  geom_point(alpha=0.1) +
+  xlab("gimap Normalization/LFC: lfc_adj") +
+  ylab("GI Mapping Normalization/LFC: lfc_adj2") +
+  theme_classic() +
+  stat_regline_equation(label.y = 2.35) + stat_cor(label.y = 1.95)
+
+```
+
