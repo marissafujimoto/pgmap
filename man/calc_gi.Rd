@@ -10,29 +10,27 @@ calc_gi(.data = NULL, gimap_dataset)
 \item{.data}{Data can be piped in with tidyverse pipes from function to function. But the data must still be a gimap_dataset}
 
 \item{gimap_dataset}{A special dataset structure that is setup using the `setup_data()` function.}
-
-\item{test}{options 't-test'. By default, both will be run.}
 }
 \description{
 Create results table that has CRISPR scores, Wilcoxon rank-sum test and t tests.
 }
 \examples{
 {
+  gimap_dataset <- get_example_data("gimap")
 
-gimap_dataset <- get_example_data("gimap")
+  # Highly recommended but not required
+  run_qc(gimap_dataset)
 
-# Highly recommended but not required
-run_qc(gimap_dataset)
+  gimap_dataset <- gimap_dataset \%>\%
+    gimap_filter() \%>\%
+    gimap_annotate() \%>\%
+    gimap_normalize(
+      timepoints = "day",
+      replicates = "rep"
+    ) \%>\%
+    calc_crispr() \%>\%
+    calc_gi()
 
-gimap_dataset <- gimap_dataset \%>\%
-  gimap_filter() \%>\%
-  gimap_annotate() \%>\%
-  gimap_normalize(
-    timepoints = "day",
-    replicates = "rep") \%>\%
-  calc_crispr() \%>\%
-  calc_gi()
-
-saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
+  saveRDS(gimap_dataset, "gimap_dataset_final.RDS")
 }
 }

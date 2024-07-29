@@ -1,0 +1,155 @@
+---
+title: "scratch gimap LFC & Normalization Review"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(devtools)
+library(magrittr)
+library(ggpubr)
+
+devtools::load_all()
+```
+
+## Get the gimap Normalization/LFC results
+
+```{r}
+ gimap_dataset <- get_example_data("gimap") %>%
+   gimap_filter() %>%
+   gimap_annotate() %>%
+   gimap_normalize(
+     timepoints = "day",
+     replicates = "rep")
+```
+
+## Load the GI Mapping Normalization/LFC results
+
+```{r}
+d.counts_flagged <- read.table("~/Downloads/results/pgRNA_counts_QC/tables/tsv/d.HeLa_counts_cpm_flag_long.txt", header=TRUE)
+
+d.annot <- readRDS("~/Downloads/results/pgRNA_annotations/tables/rds/d.HeLa_annot")
+
+d.counts_flagged_timepoint <- d.counts_flagged %>%
+  separate(sample, into = c("day", "rep"), sep = "_", remove = FALSE) %>%
+  mutate(day = readr::parse_number(day),
+         rep = str_replace(string = rep, pattern = "Rep", replacement = "")) %>%
+  group_by(id) %>%
+  mutate(timepoint = case_when(
+    day == min(day) ~ "plasmid",
+    day == max(day) ~ "late",
+    TRUE ~ "early")) %>%
+  ungroup()
+
+d.counts_flagged_timepoint_early <- d.counts_flagged_timepoint %>%
+  filter(timepoint == "plasmid" | timepoint == "early") %>%
+  dplyr::select(id, timepoint, log2_cpm) %>%
+  pivot_wider(names_from = timepoint, 
+              values_from = log2_cpm,
+              names_glue = "{timepoint}_{.value}")
+
+d.counts_flagged_timepoint_lfc <- d.counts_flagged_timepoint %>%
+  filter(timepoint == "late") %>% ## filter for only late timepoints
+  left_join(d.counts_flagged_timepoint_early, by = "id") %>%
+  mutate(lfc_plasmid_vs_late = log2_cpm - plasmid_log2_cpm)
+
+d.lfc_annot <- d.counts_flagged_timepoint_lfc %>%
+  left_join(d.annot, by = c("id" = "pgRNA_id")) %>%
+  rename("pgRNA_id" = id)
+
+d.lfc_annot <- d.lfc_annot %>%
+  filter(rm_pgRNA == FALSE)
+
+d.lfc_annot_adj <- d.lfc_annot %>%
+  group_by(rep) %>%
+  mutate(lfc_adj1 = lfc_plasmid_vs_late - median(lfc_plasmid_vs_late[norm_ctrl_flag == "negative_control"]),
+         lfc_adj2 = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"]) -
+                                  median(lfc_adj1[norm_ctrl_flag == "positive_control"]))) %>%
+  ungroup()
+
+old_lfc_results <- d.lfc_annot_adj %>% select(pgRNA_id, rep, paralog_pair, lfc_adj2, target_type:gene2_essential_flag)
+```
+
+```{r}
+#old_lfc_results <- read_tsv("~/Downloads/results/calculate_LFC/tables/tsv/HeLa_lfc_annot_adj_pgRNA.txt")
+```
+
+## Compare them
+
+### Rows
+
+```{r}
+nrow(gimap_dataset$normalized_log_fc)
+nrow(old_lfc_results)
+setdiff(old_lfc_results$pgRNA_id, gimap_dataset$normalized_log_fc$pg_ids)
+sum(gimap_dataset$normalized_log_fc$pg_ids == old_lfc_results$pgRNA_id)
+```
+
+The number of rows is more than 31817 which is the number of unique pgRNA IDs previously in the pipeline., but there aren't any pgRNA IDs present in one and not the other and the IDs seem to match row-wise. Each pgRNA ID is there in triplicate maybe? -- yes that seems to be the case because `unique(table(gimap_dataset$normalized_log_fc$pg_ids))` gives: `r unique(table(gimap_dataset$normalized_log_fc$pg_ids))`. Oh that's because there are 3 reps for each (A, B, and C for `old_lfc_results` and late_RepA, late_RepB, and late_RepC for `gimap_dataset$normalized_log_fc`) 
+
+#### sync the reps values
+
+```{r}
+old_lfc_results %<>% mutate(
+  rep = recode(rep, "A" = "late_RepA", "B" = "late_RepB", "C" = "late_RepC")
+)
+```
+
+### Columns
+
+```{r}
+ncol(gimap_dataset$normalized_log_fc)
+ncol(old_lfc_results)
+print("Column names in new results not in old results")
+setdiff(colnames(gimap_dataset$normalized_log_fc), colnames(old_lfc_results))
+print("Column names in old results not in new results")
+setdiff(colnames(old_lfc_results), colnames(gimap_dataset$normalized_log_fc))
+```
+
+| New results column name | Equivalent in old results |
+|:-----------------------:|:-------------------------:|
+| `pg_ids`                | `pgRNA_id`                |
+| `log2_cn_gene1`         | `gene1_log2_cn`           |
+| `log2_cn_gene2`         | `gene2_log2_cn`           |
+| `log2_tpm_gene1`        | `gene1_log2_tpm`          |
+| `lfc_adj`               | `lfc_adj2`                |
+
+`plasmid_RepA`, `early_RepA`, `lfc_plasmid_vs_late` `unexpressed_control_flag` seem to be columns unique to the new results, not in the old results
+
+`gene1_entrez_id` and `gene2_entrez_id` seem to be columns unique to the old results, not in the new results. (NOTE: but there are ensembl IDs in both, so I don't think this is a concern.)
+
+```{r}
+joindf <- dplyr::full_join(old_lfc_results, gimap_dataset$normalized_log_fc,
+                           by = c("pgRNA_id" = "pg_ids", "rep"),
+                           suffix = c("_old", "_new")) %>%
+  select(lfc_adj, lfc_adj2, rep) %>%
+  drop_na()
+
+nrow(joindf)
+```
+
+Resolved this Unexpected warning which was previously observed by adding in the joining by rep as well: 
+> Detected an unexpected many-to-many relationship between `x` and `y`.
+
+```{r}
+joindf %>% ggplot(aes(x=lfc_adj, y = lfc_adj2)) +
+  geom_point(alpha=0.1) +
+  xlab("gimap Normalization/LFC: lfc_adj") +
+  ylab("GI Mapping Normalization/LFC: lfc_adj2") +
+  theme_classic() +
+  stat_regline_equation(label.y = 2.35) + stat_cor(label.y = 1.95) +
+  facet_wrap(~rep)
+
+```
+
+```{r}
+joindf %>% ggplot(aes(x=lfc_adj, y = lfc_adj2)) +
+  geom_point(alpha=0.1) +
+  xlab("gimap Normalization/LFC: lfc_adj") +
+  ylab("GI Mapping Normalization/LFC: lfc_adj2") +
+  theme_classic() +
+  stat_regline_equation(label.y = 2.35) + stat_cor(label.y = 1.95)
+
+```
+
