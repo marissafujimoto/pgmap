@@ -468,15 +468,15 @@ filtered out</li>
 <p>Take a look at a preview of the crispr scores:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gimap_dataset</span><span class="op">$</span><span class="va">crispr_score</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 12</span></span></span>
-<span><span class="co">#&gt;   target_type rep       double_crispr_score single_crispr_score_1</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> gene_gene   late_RepA               0.913                0.427 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> gene_gene   late_RepA               0.913                0.427 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> gene_gene   late_RepA               0.913               -<span style="color: #BB0000;">0.051</span><span style="color: #BB0000; text-decoration: underline;">1</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> gene_gene   late_RepA               0.913               -<span style="color: #BB0000;">0.051</span><span style="color: #BB0000; text-decoration: underline;">1</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> gene_gene   late_RepB               0.767                0.140 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> gene_gene   late_RepB               0.767                0.140 </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 13</span></span></span>
+<span><span class="co">#&gt;   pg_ids            target_type rep    double_crispr_score single_crispr_score_1</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.913                0.427 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.913                0.427 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.913               -<span style="color: #BB0000;">0.051</span><span style="color: #BB0000; text-decoration: underline;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.913               -<span style="color: #BB0000;">0.051</span><span style="color: #BB0000; text-decoration: underline;">1</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.767                0.140 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> AADAC_AADACL2_pg1 gene_gene   late_…               0.767                0.140 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: single_crispr_score_2 &lt;dbl&gt;, pgRNA_target_double &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   mean_single_target_crispr_1 &lt;dbl&gt;, mean_single_target_crispr_2 &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   pgRNA1_seq &lt;chr&gt;, pgRNA2_seq &lt;chr&gt;, mean_double_control_crispr_1 &lt;dbl&gt;,</span></span></span>
