@@ -129,14 +129,16 @@ calc_crispr <- function(.data = NULL,
   # Now put it all together into one df
   crispr_df <- lfc_df %>%
     dplyr::filter(target_type %in% c("gene_gene", "ctrl_ctrl")) %>%
-    dplyr::select(rep,
-      double_crispr_score = crispr_score,
-      target_type,
-      pgRNA_target,
-      gRNA1_seq,
-      gRNA2_seq,
-      pgRNA_target_double = pgRNA_target
-    ) %>%
+    dplyr::select(pg_ids,
+                  rep,
+                  double_crispr_score = crispr_score,
+                  target_type,
+                  pgRNA_target,
+                  gRNA1_seq,
+                  gRNA2_seq,
+                  pgRNA_target_double = pgRNA_target
+                 ) %>%
+
     # Join on single target crispr scores
     dplyr::left_join(single_target_df,
       by = c("rep" = "rep", "gRNA1_seq" = "targeting_gRNA_seq"),
@@ -160,6 +162,7 @@ calc_crispr <- function(.data = NULL,
       suffix = c("", "_2")
     ) %>%
     dplyr::select(
+      pg_ids,
       target_type,
       rep,
       double_crispr_score,
