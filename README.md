@@ -14,6 +14,8 @@ remotes::install_github("FredHutch/gimap")
 
 ## Getting Started Tutorial 
 
-Now you can go to our tutorial to get started! Follow the steps there that will walk you through the example data. Then you can tailor that tutorial to use your own data. 
+Now you can [go to our tutorial to get started!](https://fredhutch.github.io/gimap/articles/getting_started.html)
+
+Follow the steps there that will walk you through the example data. Then you can tailor that tutorial to use your own data. 
 
 
