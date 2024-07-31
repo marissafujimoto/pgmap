@@ -7,7 +7,8 @@
 qc_sample_hist(gimap_dataset, wide_ar = 0.75)
 }
 \arguments{
-\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}
+\item{gimap_dataset}{The special gimap_dataset from the `setup_data` function
+which contains the transformed data}
 
 \item{wide_ar}{aspect ratio, default is 0.75}
 }
@@ -15,7 +16,8 @@ qc_sample_hist(gimap_dataset, wide_ar = 0.75)
 sample_cpm_histogram a ggplot
 }
 \description{
-This function uses pivot_longer to rearrange the data for plotting and then plots sample specific histograms of the pgRNA cpm's
+This function uses pivot_longer to rearrange the data for plotting and then
+plots sample specific histograms of the pgRNA cpm's
 }
 \examples{
 \dontrun{

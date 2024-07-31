@@ -20,15 +20,20 @@ run_qc(
 
 \item{output_file}{default is `QC_Report`; name of the output QC report file}
 
-\item{plots_dir}{default is `./qc_plots`; directory to save plots created with this function, if it doesn't exist already it will be created}
+\item{plots_dir}{default is `./qc_plots`; directory to save plots created with this function,
+if it doesn't exist already it will be created}
 
 \item{overwrite}{default is FALSE; whether to overwrite the QC Report file}
 
-\item{filter_zerocount_target_col}{default is NULL; Which sample column(s) should be used to check for counts of 0? If NULL and not specified, downstream analysis will select all sample columns}
+\item{filter_zerocount_target_col}{default is NULL; Which sample column(s) should be
+used to check for counts of 0?  If NULL and not specified, downstream analysis will select all sample columns}
 
-\item{filter_plasmid_target_col}{default is NULL; Which sample columns(s) should be used to look at log2 CPM expression for plasmid pgRNA constructs? If NULL and not specified, downstream analysis will select the first sample column only}
+\item{filter_plasmid_target_col}{default is NULL; Which sample columns(s) should be used to look at log2
+CPM expression for plasmid pgRNA constructs? If NULL and not specified, downstream analysis
+will select the first sample column only}
 
-\item{filter_replicates_target_col}{default is NULL; Which sample columns are replicates whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
+\item{filter_replicates_target_col}{default is NULL; Which sample columns are replicates
+whose variation you'd like to analyze; If NULL, the last 3 sample columns are used}
 
 \item{...}{additional parameters are sent to `rmarkdown::render()`}
 }

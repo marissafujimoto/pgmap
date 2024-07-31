@@ -8,19 +8,18 @@ qc_cor_heatmap(gimap_dataset)
 }
 \arguments{
 \item{gimap_dataset}{The special gimap_dataset from the `setup_data` function which contains the transformed data}
-
-\item{...}{Additional arguments are passed in to the pheatmap function.}
 }
 \value{
 `sample_cor_heatmap` a pheatmap
 }
 \description{
-This function uses the `cor` function to find correlations between the sample CPM's and then plots a heatmap of these
+This function uses the `cor` function to find correlations between the
+ sample CPM's and then plots a heatmap of these
 }
 \examples{
 \dontrun{
-  gimap_dataset <- get_example_data("gimap")
-  qc_cor_heatmap(gimap_dataset)
+gimap_dataset <- get_example_data("gimap")
+qc_cor_heatmap(gimap_dataset)
 }
 
 }

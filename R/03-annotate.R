@@ -6,6 +6,7 @@
 #' @param cn_annotate TRUE or FALSE you'd also like to have Copy number annotation from DepMap. These data are optional
 #' @param annotation_file If no file is given, will attempt to use the design file from https://media.addgene.org/cms/filer_public/a9/9a/a99a9328-324b-42ff-8ccc-30c544b899e4/pgrna_library.xlsx
 #' @param control_genes A vector of gene symbols (e.g. AAMP) that should be labeled as control genes. These will be used for log fold change calculations. If no list is given then DepMap Public 23Q4 Achilles_common_essentials.csv is used https://depmap.org/portal/download/all/
+#' @importFrom stringr word
 #' @export
 #' @examples \dontrun{
 #'
@@ -27,7 +28,6 @@ gimap_annotate <- function(.data = NULL,
                            control_genes = NULL,
                            cn_annotate = TRUE,
                            annotation_file = NULL) {
-
   if (!is.null(.data)) gimap_dataset <- .data
 
   if (!("gimap_dataset" %in% class(gimap_dataset))) stop("This function only works with gimap_dataset objects which can be made with the setup_data() function.")
@@ -67,8 +67,8 @@ gimap_annotate <- function(.data = NULL,
   if (!file.exists(tpm_file)) tpm_setup()
 
   depmap_tpm <- readr::read_csv(tpm_file,
-                                show_col_types = FALSE,
-                                col_select = c("genes", dplyr::all_of(my_depmap_id))
+    show_col_types = FALSE,
+    col_select = c("genes", dplyr::all_of(my_depmap_id))
   ) %>%
     dplyr::rename(log2_tpm = my_depmap_id) %>%
     dplyr::mutate(expressed_flag = dplyr::case_when(
@@ -79,14 +79,13 @@ gimap_annotate <- function(.data = NULL,
 
   ############################ COPY NUMBER ANNOTATION ##########################
   if (cn_annotate) {
-
     cn_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_gene_cn.csv")
     if (!file.exists(cn_file)) cn_setup()
 
     # Read in the CN data
     depmap_cn <- readr::read_csv(cn_file,
-                                 show_col_types = FALSE,
-                                 col_select = c("genes", my_depmap_id)
+      show_col_types = FALSE,
+      col_select = c("genes", my_depmap_id)
     ) %>%
       dplyr::rename(log2_cn = my_depmap_id)
 
@@ -101,7 +100,8 @@ gimap_annotate <- function(.data = NULL,
   annotation_df <- annotation_df %>%
     dplyr::mutate(
       gene1_essential_flag = gene1_symbol %in% control_genes,
-      gene2_essential_flag = gene2_symbol %in% control_genes) %>%
+      gene2_essential_flag = gene2_symbol %in% control_genes
+    ) %>%
     dplyr::left_join(depmap_tpm, by = c("gene1_symbol" = "genes")) %>%
     dplyr::rename(gene1_expressed_flag = expressed_flag) %>%
     dplyr::left_join(depmap_tpm, by = c("gene2_symbol" = "genes"), suffix = c("_gene1", "_gene2")) %>%
@@ -114,34 +114,36 @@ gimap_annotate <- function(.data = NULL,
       target_type == "ctrl_gene" & gene2_essential_flag != TRUE ~ "single_targeting",
       target_type == "ctrl_ctrl" ~ "negative_control"
     )) %>%
-    dplyr::mutate(norm_ctrl_flag = factor(norm_ctrl_flag, levels = c(
-      "negative_control",
-      "positive_control",
-      "single_targeting",
-      "double_targeting"
-    )),
-    unexpressed_ctrl_flag = dplyr::case_when(
-      norm_ctrl_flag == "double_targeting" & gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ TRUE,
-      norm_ctrl_flag == "single_targeting" & (gene1_expressed_flag == FALSE | gene2_expressed_flag == FALSE) ~ TRUE,
-      TRUE ~ FALSE
-    ),
-    pgRNA_target = dplyr::case_when(
-      target_type == "gene_gene" ~ paste(gene1_symbol, gene2_symbol, sep = "_"),
-      target_type == "gene_ctrl" ~ paste(gene1_symbol, "ctrl", sep = "_"),
-      target_type == "ctrl_gene" ~ paste("ctrl", gene2_symbol, sep = "_"),
-      TRUE ~ target_type
-    ))
+    dplyr::mutate(
+      norm_ctrl_flag = factor(norm_ctrl_flag, levels = c(
+        "negative_control",
+        "positive_control",
+        "single_targeting",
+        "double_targeting"
+      )),
+      unexpressed_ctrl_flag = dplyr::case_when(
+        norm_ctrl_flag == "double_targeting" & gene1_expressed_flag == FALSE & gene2_expressed_flag == FALSE ~ TRUE,
+        norm_ctrl_flag == "single_targeting" & (gene1_expressed_flag == FALSE | gene2_expressed_flag == FALSE) ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      pgRNA_target = dplyr::case_when(
+        target_type == "gene_gene" ~ paste(gene1_symbol, gene2_symbol, sep = "_"),
+        target_type == "gene_ctrl" ~ paste(gene1_symbol, "ctrl", sep = "_"),
+        target_type == "ctrl_gene" ~ paste("ctrl", gene2_symbol, sep = "_"),
+        TRUE ~ target_type
+      )
+    )
 
-  if (gimap_dataset$filtered_data$filter_step_run){
+  if (gimap_dataset$filtered_data$filter_step_run) {
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
-    annotation_df <- annotation_df[keep_for_annotdf,]
+    annotation_df <- annotation_df[keep_for_annotdf, ]
   }
 
   ################################ STORE IT ####################################
 
-  if (gimap_dataset$filtered_data$filter_step_run){
+  if (gimap_dataset$filtered_data$filter_step_run) {
     keep_for_annotdf <- annotation_df$pgRNA_id %in% unlist(gimap_dataset$filtered_data$metadata_pg_ids)
-    annotation_df <- annotation_df[keep_for_annotdf,]
+    annotation_df <- annotation_df[keep_for_annotdf, ]
   }
 
   gimap_dataset$annotation <- annotation_df
@@ -163,8 +165,8 @@ tpm_setup <- function() {
   ))
 
   data_df <- readr::read_csv(tpm_file,
-                             show_col_types = FALSE,
-                             name_repair = make.names
+    show_col_types = FALSE,
+    name_repair = make.names
   )
 
   cell_line_ids <- data_df$X
@@ -186,7 +188,7 @@ tpm_setup <- function() {
 
 # This function sets up the tpm data from DepMap is called by the `gimap_annotate()` function if the cn_annotate = TRUE
 cn_setup <- function() {
-  options(timeout=1000)
+  options(timeout = 1000)
 
   cn_file <- file.path(
     system.file("extdata", package = "gimap"),
@@ -199,8 +201,8 @@ cn_setup <- function() {
   ))
 
   data_df <- readr::read_csv(cn_file,
-                             show_col_types = FALSE,
-                             name_repair = make.names
+    show_col_types = FALSE,
+    name_repair = make.names
   )
 
   cell_line_ids <- data_df$X
