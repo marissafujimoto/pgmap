@@ -41,7 +41,8 @@ gimap_dataset <- gimap_dataset \%>\%
   gimap_annotate() \%>\%
   gimap_normalize(
     timepoints = "day",
-    replicates = "rep")
+    replicates = "rep"
+  )
 
 # To see results
 gimap_dataset$normalized_log_fc

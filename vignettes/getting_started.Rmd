@@ -168,13 +168,14 @@ There is a filter that flags pgRNA constructs that have low log2 CPM counts for 
   - The histogram of the log2 CPM values of pgRNA constructs at the plasmid time point mentioned earlier does have a dashed line specifying the lower outlier (or a user defined cutoff) and pgRNA constructs with a plasmid log2 CPM lower than that value can be filtered out.
   - We include a table that specifies how many pgRNAs would be filtered out by applying this filter.
 
-```{r}
+```
 run_qc(gimap_dataset,
        output_file = "example_qc_report.Rmd",
        overwrite = TRUE,
        quiet = TRUE)
 ```
 
+You can take a look at an [example QC report here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/FredHutch/gimap/main/inst/example_qc_report.html). 
 
 ## Filtering the data 
 
