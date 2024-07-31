@@ -24,10 +24,14 @@ devtools::load_all()
   calc_gi()
 ```
 
+```{r}
+saveRDS(gimap_dataset, "gimap_dataset_calculated.RDS")
+```
+
 ## Load the GI Mapping GI results
 
 ```{r}
-old_gi_results <- readRDS("~/Downloads/results/calculate_GI_scores/tables/rds/d.HeLa_GI_scores_target")
+old_gi_results <- readRDS("d.HeLa_GI_scores_target")
 ```
 
 ## Compare results
@@ -36,6 +40,9 @@ old_gi_results <- readRDS("~/Downloads/results/calculate_GI_scores/tables/rds/d.
 
 ```{r}
 colnames(gimap_dataset$gi_scores)
+```
+
+```{r}
 colnames(old_gi_results)
 ```
 
@@ -46,6 +53,9 @@ Columns in the GI Mapping results not in the gimap results seem to include model
 ### Target overlap
 
 ```{r}
+
+length(unique(gimap_dataset$normalized_log_fc$pgRNA_target))
+
 length(unique(old_gi_results$pgRNA_target))
 length(unique(gimap_dataset$gi_scores$pgRNA_target_double))
 length(intersect(unique(old_gi_results$pgRNA_target), unique(gimap_dataset$gi_scores$pgRNA_target_double)))
