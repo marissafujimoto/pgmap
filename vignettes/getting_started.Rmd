@@ -85,18 +85,11 @@ The next datasets are metadata that describe the dimensions of the count data.
 - These both need to be data frames.
 - The sizes of these metadata must correspond to the dimensions of the counts data.
 
-`pg_id` are just the unique IDs listed in the same order/sorted the same way as the count data and can be used for mapping between the count data and the metadata.
+`pg_id` are just the unique IDs listed in the same order/sorted the same way as the count data and can be used for mapping between the count data and the metadata. This is required and very important because it is necessary to know the IDs and be able to map them to pgRNA constructs and counts data.
 
 ```{r}
 example_pg_id <- example_data %>%
   dplyr::select("id")
-```
-
-One of these (`example_pg_metadata`) is required because it is necessary to know the IDs and be able to map them to pgRNA constructs.
-
-```{r}
-example_pg_metadata <- example_data %>%
-  select(c("id", "seq_1", "seq_2"))
 ```
 
 Sample metadata is the information that describes the samples and is sorted the same order as the columns in the count data.
@@ -115,14 +108,13 @@ example_sample_metadata <- data.frame(
 )
 ```
 
-We'll need to provide `example_counts`, `pg_ids` and `pg_metadata` to `setup_data()`. We can provide `sample_metadata`, but it is not required at the moment.
+We'll need to provide `example_counts`, `pg_ids` and `sample_metadata` to `setup_data()`. 
 
 Now let's setup our data using `setup_data()`. Optionally we can provide the metadata in this function as well so that it is stored with the data.
 
 ```{r}
 gimap_dataset <- setup_data(counts = example_counts,
                             pg_ids = example_pg_id,
-                            pg_metadata = example_pg_metadata,
                             sample_metadata = example_sample_metadata)
 ```
 
@@ -206,9 +198,16 @@ The filtering step also stores two tables of information that you may want to us
 - `$filtered_data$all_reps_zerocount_ids` is a table that lists the IDs of pgRNA constructs which had a count of 0 for all final timepoint replicates. These pgRNA constructs are NOT necessarily filtered out
 
 
+Now that you've performed QC and filtering, the rest of the pipeline can be run 
+
+- First annotating the data set (expression levels, copy number, etc.) with DepMap data. For the annotation step, you *must* specify which `cell_line` your data uses so that the correct corresponding DepMap data is used for annotation. This function is `gimap_annotate()`
+- Then the data is normalized with the `gimap_normalize()` function. `timepoints` and `replicates` need to be specified pointing to the correct column names from the `sample_data` passed to the `setup_data()` function earlier.
+- CRISPR scores are calculated with the `calc_crispr()` function.
+- Genetic interaction scores are computed with the `calc_gi()` function.
+
 ```{r}
 gimap_dataset <- gimap_dataset %>%
-  gimap_annotate() %>%
+  gimap_annotate(cell_line = "HELA") %>%
   gimap_normalize(
     timepoints = "day",
     replicates = "rep") %>%
