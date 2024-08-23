@@ -3,7 +3,6 @@
 #' @description This function allows people to have their data ready to be processed by gimap
 #' @param counts a matrix of data that contains the counts where rows are each paired_guide target and columns are each sample
 #' @param pg_ids the pgRNA IDs: metadata associated with the pgRNA constructs that correspond to the rows of the counts data
-#' @param pg_metadata construct metadata
 #' @param sample_metadata metadata associated with the samples of the dataset that correspond to the columns of the counts data.
 #' Should include a column that has replicate information as well as a column that contains timepoint information respectively (this will be used for log fold calculations). These columns should be factors.
 #' @return A special gimap_dataset to be used with the other functions in this package.
@@ -21,7 +20,6 @@
 #' }
 setup_data <- function(counts = NULL,
                        pg_ids = NULL,
-                       pg_metadata = NULL,
                        sample_metadata = NULL) {
   new_data <- list(
     raw_counts = NULL,
@@ -53,8 +51,9 @@ setup_data <- function(counts = NULL,
   if (is.null(counts)) stop("counts cannot be NULL")
   if (!is.matrix(counts)) stop("counts can only be in the form of a matrix")
 
+  
   # If they don't give sample metadata, then we will make up a row id
-  if (is.null(sample_metadata)) sample_metadata <- data.frame(id = 1:ncol(counts))
+  if (is.null(sample_metadata)) stop("sample metadata will be required in later steps. Please provide it")
   if (!is.data.frame(sample_metadata)) stop("metadata can only be in the form of a data.frame")
   if (nrow(sample_metadata) != ncol(counts)) stop("the number of rows in the sample metadata is not equal to the number of columns in the counts")
 
