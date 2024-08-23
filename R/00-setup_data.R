@@ -1,35 +1,3 @@
-#' Specify a design matrix
-#' @description This function allows people to have their data ready to be processed by gimap
-#' @param counts a matrix of data that contains the counts where rows are each paired_guide target and columns are each sample
-#' @param pg_ids the pgRNA IDs: metadata associated with the pgRNA constructs that correspond to the rows of the counts data
-#' @param pg_metadata construct metadata
-#' @param sample_metadata metadata associated with the samples of the dataset that correspond to the columns of the counts data.
-#' Should include a column that has replicate information as well as a column that contains timepoint information respectively (this will be used for log fold calculations). These columns should be factors.
-#' @return A special gimap_dataset to be used with the other functions in this package.
-#' @export
-#' @examples \dontrun{
-#'
-#' example_counts <- get_example_data("count") %>%
-#'   dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
-#'   as.matrix()
-#'
-#' example_sample_metadata <- data.frame(
-#'   col_names = c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC"),
-#'   day = as.numeric(c("0", "5", "22", "22", "22")),
-#'   rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
-#'   )
-#'
-#' model.matrix(~day + rep, data = example_sample_metadata)
-#'
-#' gimap_dataset <- setup_data(counts = example_counts,
-#'                             design_matrix = )
-#' }
-#'
-#'
-#'
-
-
-
 
 #' Making a new gimap dataset
 #' @description This function allows people to have their data ready to be processed by gimap
