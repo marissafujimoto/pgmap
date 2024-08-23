@@ -62,7 +62,7 @@ gimap_annotate <- function(.data = NULL,
     dplyr::filter(stripped_cell_line_name == cell_line) %>%
     dplyr::pull(DepMap_ID)
 
-  if (length(my_depmap_id) == 0) stop("The cell line specified, " cell_line, "was not found in the DepMap data. Run supported_cell_lines() to see the full list")
+  if (length(my_depmap_id) == 0) stop("The cell line specified, ", cell_line, "was not found in the DepMap data. Run supported_cell_lines() to see the full list")
 
   tpm_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_expression.csv")
 
