@@ -9,6 +9,9 @@
 #' @param replicates Specifies the column name of the metadata set up in `$metadata$sample_metadata`
 #' that has a factor that represents column that specifies replicates. These replicates will be kept separate
 #' for the late but the early and plasmid others will be averaged and used for normalization.
+#' @param num_ids_wo_annot default is 20; the number of pgRNA IDs to display to console if they don't have corresponding annotation data;
+#' ff there are more IDs without annotation data than this number, the output will be sent to a file rather than the console.
+#' @param rm_ids_wo_annot default is TRUE; whether or not to filter out pgRNA IDs from the input dataset that don't have corresponding annotation data available
 #' @export
 #' @examples \dontrun{
 #'
@@ -31,7 +34,9 @@
 gimap_normalize <- function(.data = NULL,
                             gimap_dataset,
                             timepoints = NULL,
-                            replicates = NULL) {
+                            replicates = NULL,
+                            num_ids_wo_annot = 20,
+                            rm_ids_wo_annot = TRUE) {
   # Code adapted from
   # https://github.com/FredHutch/GI_mapping/blob/main/workflow/scripts/03-filter_and_calculate_LFC.Rmd
 
@@ -83,6 +88,7 @@ gimap_normalize <- function(.data = NULL,
     dataset <- gimap_dataset$transformed_data$log2_cpm
     pg_ids <- gimap_dataset$metadata$pg_ids
   }
+  
   # Doing some reshaping to get one handy data frame
   lfc_df <- dataset %>%
     as.data.frame() %>%
@@ -95,16 +101,29 @@ gimap_normalize <- function(.data = NULL,
                        names_from = c(timepoints, replicates))
 
   
-
+  missing_ids <- setdiff(lfc_df$pg_ids, gimap_dataset$annotation$pgRNA_id)
+  
+  if ((length(missing_ids) > 0) & (length(missing_ids) < num_ids_wo_annot)){
+    message("The following ", length(missing_ids), " IDs were not found in the annotation data: \n", paste0(missing_ids, collapse = ", "))
+  } else {
+    #output to a file
+  }
+  
+  if ((length(missing_ids) > 0) & (rm_ids_wo_annot == TRUE)){
+    lfc_df <- lfc_df %>%
+      filter(!pg_ids %in% missing_ids)
+    message("The input data for the IDs which were not found in the annotation data has been filtered out and will not be included in the analysis output.")
+  } else{
+    message("The input data for the IDs which were not found in the annotation data will be kept throughout the analysis, but any data from the annotation won't be available for them.")
+  }
+  
   # Calculate the means for each construct across the groups
   plasmid_df <- apply(dplyr::select(lfc_df, starts_with("plasmid")), 1, mean)
-
-
+  
   late_vs_plasmid_df <-  lfc_df %>%
     dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - plasmid_df) %>%
     dplyr::select(pg_ids, dplyr::starts_with("late"))  %>%
     dplyr::left_join(gimap_dataset$annotation, by = c("pg_ids" = "pgRNA_id"))
-
 
   ########################### Perform adjustments #############################
 
@@ -128,10 +147,10 @@ gimap_normalize <- function(.data = NULL,
       # Then, divide by the median of negative controls (double non-targeting) minus
       # median of positive controls (targeting 1 essential gene).
       # This will effectively set the median of the positive controls (essential genes) to -1.
-      lfc_adj = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"]) - median(lfc_adj1[norm_ctrl_flag == "positive_control"]))
+      lfc_adj = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"], na.rm = TRUE) - median(lfc_adj1[norm_ctrl_flag == "positive_control"]))
     ) %>%
     ungroup()
-
+  
   # Save this at the construct level
   gimap_dataset$normalized_log_fc <- lfc_df_adj
 
