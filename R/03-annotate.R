@@ -62,6 +62,8 @@ gimap_annotate <- function(.data = NULL,
     dplyr::filter(stripped_cell_line_name == toupper(cell_line)) %>%
     dplyr::pull(DepMap_ID)
 
+  if (length(my_depmap_id) == 0) stop("The cell line specified, ", cell_line, "was not found in the DepMap data. Run supported_cell_lines() to see the full list")
+
   tpm_file <- file.path(system.file("extdata", package = "gimap"), "CCLE_expression.csv")
 
   if (!file.exists(tpm_file)) tpm_setup()
@@ -244,4 +246,21 @@ crtl_genes <- function() {
   }
 
   return(crtl_genes$gene_symbol)
+}
+
+
+#' List the supported cell lines
+#' @description This function downloads the metadata for DepMap and lists which cell lines are supported.
+#' @export
+#' @examples \dontrun{
+#'
+#' cell_lines <- supported_cell_lines()
+#'
+#' }
+supported_cell_lines <- function() {
+
+ depmap_metadata <- readr::read_csv("https://figshare.com/ndownloader/files/35020903", show_col_types = FALSE)
+
+ return(sort(depmap_metadata$stripped_cell_line_name))
+
 }
