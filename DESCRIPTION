@@ -34,8 +34,9 @@ Imports:
     janitor,
     broom,
     utils,
-    stats, 
-    stringr
+    stats,
+    stringr,
+    fastmap (>= 1.2.0)
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
