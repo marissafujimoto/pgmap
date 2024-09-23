@@ -88,7 +88,7 @@ gimap_normalize <- function(.data = NULL,
     dataset <- gimap_dataset$transformed_data$log2_cpm
     pg_ids <- gimap_dataset$metadata$pg_ids
   }
-  
+
   # Doing some reshaping to get one handy data frame
   lfc_df <- dataset %>%
     as.data.frame() %>%
@@ -100,15 +100,16 @@ gimap_normalize <- function(.data = NULL,
     tidyr::pivot_wider(values_from = "log2_cpm",
                        names_from = c(timepoints, replicates))
 
-  
+
   missing_ids <- setdiff(lfc_df$pg_ids, gimap_dataset$annotation$pgRNA_id)
-  
+
   if ((length(missing_ids) > 0) & (length(missing_ids) < num_ids_wo_annot)){
     message("The following ", length(missing_ids), " IDs were not found in the annotation data: \n", paste0(missing_ids, collapse = ", "))
   } else {
-    #output to a file
+    missing_ids_file <- file.path("missing_ids_file.csv")
+    readr::write_csv(missing_ids, missing_ids_file)
   }
-  
+
   if ((length(missing_ids) > 0) & (rm_ids_wo_annot == TRUE)){
     lfc_df <- lfc_df %>%
       filter(!pg_ids %in% missing_ids)
@@ -116,10 +117,10 @@ gimap_normalize <- function(.data = NULL,
   } else{
     message("The input data for the IDs which were not found in the annotation data will be kept throughout the analysis, but any data from the annotation won't be available for them.")
   }
-  
+
   # Calculate the means for each construct across the groups
   plasmid_df <- apply(dplyr::select(lfc_df, starts_with("plasmid")), 1, mean)
-  
+
   late_vs_plasmid_df <-  lfc_df %>%
     dplyr::mutate_at(dplyr::vars(dplyr::starts_with("late")), ~.x - plasmid_df) %>%
     dplyr::select(pg_ids, dplyr::starts_with("late"))  %>%
@@ -150,7 +151,7 @@ gimap_normalize <- function(.data = NULL,
       lfc_adj = lfc_adj1 / (median(lfc_adj1[norm_ctrl_flag == "negative_control"], na.rm = TRUE) - median(lfc_adj1[norm_ctrl_flag == "positive_control"]))
     ) %>%
     ungroup()
-  
+
   # Save this at the construct level
   gimap_dataset$normalized_log_fc <- lfc_df_adj
 
