@@ -32,7 +32,8 @@ ENV FOLDER=bowtie2-2.4.1-linux-x86_64
 ENV DST=/home/biodocker/bin
 ENV ULOCAL=/usr/local/bin
 
-RUN wget $URL/$ZIP/download -O $DST/$ZIP && \
+RUN mkdir -p $DST && \
+    wget $URL/$ZIP/download -O $DST/$ZIP && \
     unzip $DST/$ZIP -d $DST && \
     rm $DST/$ZIP && \
     mv $DST/$FOLDER/* $DST && \
