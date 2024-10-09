@@ -22,7 +22,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ## Put more python packages we need here 
 ################### Install Seqtk ###################
-# TODO: put seqtk here
+ENV ZIP=seqtk-1.4.tar.gz
+ENV URL=https://github.com/lh3/seqtk/archive/refs/tags/v1.4.tar.gz
+ENV FOLDER=seqtk-1.4
+ENV DST=/home/seqtk
+
+RUN mkdir -p $DST && \
+    wget $URL -O $DST/$ZIP && \
+    tar -xzvf $DST/$ZIP -C $DST && \
+    rm $DST/$ZIP
+
+WORKDIR $DST/$FOLDER
+
+RUN make
 
 ################## Install Bowtie2 ##################
 
