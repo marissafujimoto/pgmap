@@ -85,7 +85,7 @@ RUN     apt-get update \
 &&      rm -rf /var/lib/apt/lists/*
 
 ################# COPY over config files 
-COPY config config/
+COPY config /home/config/
 
 #################### COPY scripts ###################
 COPY scripts /home/scripts/
