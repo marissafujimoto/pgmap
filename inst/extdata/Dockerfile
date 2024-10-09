@@ -87,5 +87,8 @@ RUN     apt-get update \
 ################# COPY over config files 
 COPY config config/
 
+#################### COPY scripts ###################
+COPY scripts /home/scripts/
+
 WORKDIR /data
 
