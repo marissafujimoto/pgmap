@@ -76,5 +76,9 @@ COPY config /home/config/
 #################### COPY scripts ###################
 COPY scripts /home/scripts/
 
+# TODO remove this once paths are not hard coded
+#################### COPY data ######################
+COPY data /home/data/
+
 WORKDIR /data
 
