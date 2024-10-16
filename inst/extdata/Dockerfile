@@ -20,30 +20,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev 
 
-# Install conda and give write permissions to conda folder
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-4.0.5-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && chmod 777 -R /opt/conda/
+## Put more python packages we need here 
+################### Install Seqtk ###################
+ENV ZIP=seqtk-1.4.tar.gz
+ENV URL=https://github.com/lh3/seqtk/archive/refs/tags/v1.4.tar.gz
+ENV FOLDER=seqtk-1.4
+ENV DST=/home/seqtk
 
-RUN mkdir -p /home/biodocker/bin
-RUN mkdir /data /config
+RUN mkdir -p $DST && \
+    wget $URL -O $DST/$ZIP && \
+    tar -xzvf $DST/$ZIP -C $DST && \
+    rm $DST/$ZIP
 
-ENV PATH=$PATH:/opt/conda/bin
-ENV PATH=$PATH:/home/biodocker/bin
-ENV HOME=/home/biodocker
+WORKDIR $DST/$FOLDER
 
-RUN conda config --add channels r
-RUN conda config --add channels bioconda
-
-RUN conda upgrade conda
-
-################## Install fastxtool kit ##################
-
-#RUN wget https://github.com/agordon/fastx_toolkit/releases/download/0.0.14/#fastx_toolkit-0.0.14.tar.bz2
-#RUN tar -xjvf fastx_toolkit-0.0.14.tar.bz2
-#RUN cd fastx_toolkit-0.0.14 && ./configure && make
-
+RUN make
 
 ################## Install Bowtie2 ##################
 
@@ -53,12 +44,12 @@ ENV FOLDER=bowtie2-2.4.1-linux-x86_64
 ENV DST=/home/biodocker/bin
 ENV ULOCAL=/usr/local/bin
 
-RUN wget $URL/$ZIP/download -O $DST/$ZIP && \
+RUN mkdir -p $DST && \
+    wget $URL/$ZIP/download -O $DST/$ZIP && \
     unzip $DST/$ZIP -d $DST && \
     rm $DST/$ZIP && \
     mv $DST/$FOLDER/* $DST && \
     rmdir $DST/$FOLDER
-
 
 ################## Install Samtools ##################
 
@@ -70,7 +61,7 @@ RUN apt-get update && apt-get -y upgrade && \
 
 WORKDIR /usr/src
 
-#Samtools
+# Samtools
 RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2 && \
 	tar jxf samtools-1.9.tar.bz2 && \
 	rm samtools-1.9.tar.bz2 && \
