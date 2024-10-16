@@ -6,8 +6,14 @@
 
 /home/config/idemp/idemp -b /home/config/barcode_ref_file.sample.txt -I1 /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R1_001.fastq.gz -R1 /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R1_001.fastq.gz -R2 /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R1_001.fastq.gz -o /tmp/demux/ && echo "idemp installed"
 
-# TODO pgPEN_index not compatible with bowtie2. Can we generate them?
-# /home/biodocker/bin/bowtie2 -x /home/config/pgPEN_index/pgPEN_index/pgPEN_gRNA1.1.ebwt -q /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R1_001.fastq.gz -S /tmp/gRNA1.sam > /tmp/alignment.log && echo "bowtie2 installed"
+# Generating indices
+# TODO: are these the right files for making indices for the samples here?
+/home/biodocker/bin/bowtie2-build /home/data/ref/pgPEN_R1.fa,/home/data/ref/pgPEN_R2.fa pg_PEN_index
+
+/home/biodocker/bin/bowtie2 -x pg_PEN_index \
+  -1 /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R1_001.fastq.gz \
+  -2 /home/data/tutorial_fastqs/PP_pgPEN_HeLa_S1_R2_001.fastq.gz \
+  -S /tmp/gRNA1.sam > /tmp/alignment.log && echo "bowtie2 installed"
 
 /home/biodocker/bin/bowtie2 --version && echo "bowtie2 Installed"
 
