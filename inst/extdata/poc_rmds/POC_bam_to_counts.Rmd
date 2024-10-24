@@ -31,12 +31,21 @@ counts_df$counts
 og_counts <- readr::read_tsv("expected_pgMAP_tutorial_pgRNA_counts.txt") 
 ```
 
+Combine data 
 
 ```{r}
-plot(counts_df$counts$sample1, og_counts$counts_sample1)
+both <- dplyr::inner_join(counts_df$counts, og_counts)
+```
 
+```{r}
+plot(both$sample1, both$counts_sample1, xlab = "new counts sample 1", "old counts sample 1")
+```
 
-mean(og_counts$counts_sample1)
-mean(counts_df$counts$sample1)
+```{r}
+plot(both$sample2, both$counts_sample2)
+```
+
+```{r}
+plot(both$sample3, both$counts_sample3)
 ```
 
