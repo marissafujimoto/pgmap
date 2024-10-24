@@ -1,0 +1,161 @@
+#' Obtain the counts for a group of samples
+#' @description This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.
+#' @param bam_dir a file path to a directory where the bam files associated with the sample names will be stored. 
+#' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names. 
+#' @importFrom purrr pmap map reduce
+#' @import dplyr 
+#' @importFrom tibble rownames_to_column
+#' @export
+#' @examples \dontrun{
+#'
+#' # This will be the directory that contains all the file path
+#' bam_dir <- file.path(example_data_folder(), "bam") 
+#' 
+#' # These MUST be names that are listed in the bam file name itself.
+#' # There needs to be exactly 2 bam files per sample
+#' sample_names = c("sample1", "sample2", "sample3")
+#' 
+#' counts_df <- sample_count(
+#'   bam_dir = bam_dir 
+#'   sample_names = sample_names
+#')
+#'
+#' # We can write these to CSV files like this
+#' readr::write_csv(counts_df$counts, "counts_pgmap.tsv")
+#' readr::write_csv(counts_df$stats, "stats_pgmap.tsv")
+#' 
+#' }
+calc_counts <- function(bam_dir, sample_names) {
+  
+  # Get the file paths for each sample name
+  sample_files <- sapply(
+    sample_names, function(file_name) {
+      
+      files <- list.files(path = bam_dir, pattern = file_name, full.names = TRUE)
+      
+      if (length(files) < 2) stop(file_name, ": does not have 2 files associated with it.")
+      if (length(files) > 2) stop(file_name, ": has more than 2 files associated with it.")
+      
+      return(files)
+      
+    }, USE.NAMES = TRUE)
+  
+  sample_df <- sample_files %>%
+    t() %>%
+    data.frame() %>%
+    dplyr::rename(forward_file = X1,
+                  reverse_file = X2) %>%
+    tibble::rownames_to_column("sample_name")
+  
+  counts <- purrr::pmap(sample_df, function(sample_name, forward_file, reverse_file) {
+    sample_count(bam_1 = forward_file,
+                 bam_2 = reverse_file,
+                 sample_name = sample_name)
+  })
+  
+  names(counts) <- sample_names
+  
+  stats_df <- purrr::map(counts, "stats") %>%
+    dplyr::bind_rows(.id = "sample")
+  
+  counts_df <- purrr::map(counts, "counts", right_join) %>%
+    purrr::reduce(dplyr::full_join)
+  
+  return(list(counts = counts_df, stats = stats_df))
+}
+
+#' Obtain the counts for a single sample
+#' @description This function takes a forward and reverse bam file and returns the counts
+#' @param bam_1 a file path to one of the bam files for the sample
+#' @param bam_2 a file path to the other one of the bam files for the sample
+#' @param sample_name a single character that indicates the name of the sample "sample1"
+#' @import dplyr
+#' @importFrom Rsamtools ScanBamParam scanBam
+#' @export
+#' @examples \dontrun{
+#'
+#' bam_dir <- file.path(example_data_folder(), "bam") 
+#' 
+#' counts <- sample_count(
+#'   bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam")
+#'   bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam")
+#'   sample_name = "sample1")
+#'
+#' }
+
+sample_count <- function(bam_1, bam_2, sample_name) {
+  
+  message(paste("Parsing reads for", sample_name))
+
+  # define parameters for reading in BAM files, then read them in:
+  # qname = the name of the mapped read (query template name)
+  # rname = the name of the reference sequence that the read aligned to (reference sequence name)
+  param <- ScanBamParam(
+    ## restrict to mapped reads
+    flag = scanBamFlag(isUnmappedQuery = FALSE),
+    ## only read in the necessary fields
+    what = c("qname", "rname")
+  )
+
+  # Read in the BAM files
+  bam_1 <- scanBam(bam_1, param = param) %>%
+    as.data.frame()
+  bam_2 <- scanBam(bam_2, param = param) %>%
+    as.data.frame()
+
+  # Join forward and reverse bams together.
+  paired_df <- dplyr::inner_join(bam_1, bam_2,
+    by = "qname",
+    relationship = "many-to-many",
+    suffix = c("_1", "_2")
+  ) %>%
+    dplyr::mutate(paired = rname_1 == rname_2)
+
+  # if a given set of reads have one or more correct pairings, then keep the
+  # correct pairings and discard all incorrect pairings for those reads.
+  qname2anypaired <- sapply(split(paired_df$paired, f = paired_df$qname), any)
+
+  # Calculate weights
+  weights_df <- paired_df %>%
+    dplyr::left_join(
+      tibble(
+        "qname" = names(qname2anypaired),
+        "any_paired" = qname2anypaired
+      ),
+      by = "qname"
+    ) %>%
+    filter(paired | !any_paired) %>%
+    select(-any_paired) %>%
+    dplyr::group_by(qname) %>%
+    dplyr::count() %>%
+    dplyr::mutate(weight = 1 / n)
+
+  # Join weights to original data
+  paired_df <- paired_df %>%
+    dplyr::left_join(weights_df, by = c("qname")) %>%
+    dplyr::select(qname, rname = rname_1, n, weight, paired)
+
+  # calculating the stats of how many were paired vs unpaired
+  stats <- sum(paired_df$paired) / nrow(paired_df)
+  total <- sum(paired_df$weight)
+  paired <- paired_df %>% dplyr::filter(paired) %>%
+    dplyr::pull(weight) %>% sum()
+
+  # Getting the weight
+  counts_df <- paired_df %>%
+    dplyr::select("id" = rname, weight) %>%
+    dplyr::group_by(id) %>%
+    dplyr::summarize(sample_name = sum(weight)) %>%
+    dplyr::ungroup()
+
+  # rename so sample id is in the column name
+  colnames(counts_df) <- c("id", sample_name)
+
+  stats_df <- data.frame(
+    perc_paired_correctly = stats,
+    total_counts = total,
+    total_paired_counts = paired
+  )
+  return(list(counts = counts_df, stats = stats_df))
+}
+
