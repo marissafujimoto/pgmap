@@ -13,10 +13,10 @@
 #' 
 #' # These MUST be names that are listed in the bam file name itself.
 #' # There needs to be exactly 2 bam files per sample
-#' sample_names = c("sample1", "sample2", "sample3")
+#' sample_names <- c("sample1", "sample2", "sample3")
 #' 
-#' counts_df <- sample_count(
-#'   bam_dir = bam_dir 
+#' counts_df <- calc_counts(
+#'   bam_dir = bam_dir, 
 #'   sample_names = sample_names
 #')
 #'
@@ -40,6 +40,7 @@ calc_counts <- function(bam_dir, sample_names) {
       
     }, USE.NAMES = TRUE)
   
+  # Reformat so samples are rows and files are in columns
   sample_df <- sample_files %>%
     t() %>%
     data.frame() %>%
@@ -47,20 +48,24 @@ calc_counts <- function(bam_dir, sample_names) {
                   reverse_file = X2) %>%
     tibble::rownames_to_column("sample_name")
   
+  # Now use the custom function to get the counts for each sample from the pair of bam files
   counts <- purrr::pmap(sample_df, function(sample_name, forward_file, reverse_file) {
     sample_count(bam_1 = forward_file,
                  bam_2 = reverse_file,
                  sample_name = sample_name)
   })
-  
+  # Bring along sample names
   names(counts) <- sample_names
   
+  # Then condense all samples to one stats data frame
   stats_df <- purrr::map(counts, "stats") %>%
     dplyr::bind_rows(.id = "sample")
   
+  # Then condense all samples to one counts data frame
   counts_df <- purrr::map(counts, "counts", right_join) %>%
     purrr::reduce(dplyr::full_join)
   
+  # Return as a list of two data frames
   return(list(counts = counts_df, stats = stats_df))
 }
 
@@ -85,6 +90,7 @@ calc_counts <- function(bam_dir, sample_names) {
 
 sample_count <- function(bam_1, bam_2, sample_name) {
   
+  # Print out message
   message(paste("Parsing reads for", sample_name))
 
   # define parameters for reading in BAM files, then read them in:
@@ -111,11 +117,12 @@ sample_count <- function(bam_1, bam_2, sample_name) {
   ) %>%
     dplyr::mutate(paired = rname_1 == rname_2)
 
-  # if a given set of reads have one or more correct pairings, then keep the
+  # If a given set of reads have one or more correct pairings, then keep the
   # correct pairings and discard all incorrect pairings for those reads.
   qname2anypaired <- sapply(split(paired_df$paired, f = paired_df$qname), any)
 
   # Calculate weights
+  # This contains code from the original pipeline that I don't really understand but does seem to effect final numbers
   weights_df <- paired_df %>%
     dplyr::left_join(
       tibble(

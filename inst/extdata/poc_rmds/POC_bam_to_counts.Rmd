@@ -1,0 +1,36 @@
+---
+title: "POC_bam_to_counts"
+author: "Candace Savonen"
+date: "2024-10-24"
+output: html_document
+---
+
+
+```{r}
+ # This will be the directory that contains all the file path
+ bam_dir <- file.path(example_data_folder(), "bam") 
+ 
+ # These MUST be names that are listed in the bam file name itself.
+ # There needs to be exactly 2 bam files per sample
+ sample_names = c("sample1", "sample2", "sample3")
+ 
+ counts_df <- calc_counts(
+   bam_dir = bam_dir,
+   sample_names = sample_names
+)
+
+# We can write these to CSV files like this
+readr::write_csv(counts_df$counts, "counts_pgmap.tsv")
+readr::write_csv(counts_df$stats, "stats_pgmap.tsv")
+```
+
+
+```{r}
+og_counts <- readr::read_tsv("expected_pgMAP_tutorial_pgRNA_counts.txt") 
+```
+
+
+```{r}
+
+```
+
