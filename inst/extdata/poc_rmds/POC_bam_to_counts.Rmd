@@ -38,7 +38,7 @@ both <- dplyr::inner_join(counts_df$counts, og_counts)
 ```
 
 ```{r}
-plot(both$sample1, both$counts_sample1, xlab = "new counts sample 1", "old counts sample 1")
+plot(both$sample1, both$counts_sample1, xlab = "new counts sample 1", ylab = "old counts sample 1")
 ```
 
 ```{r}

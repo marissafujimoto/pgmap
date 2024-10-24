@@ -142,14 +142,6 @@ sample_count <- function(bam_1, bam_2, sample_name) {
     dplyr::left_join(weights_df, by = c("qname")) %>%
     dplyr::select(qname, rname = rname_1, n, weight, paired)
 
-  # calculating the stats of how many were paired vs unpaired
-  stats <- sum(paired_df$paired) / nrow(paired_df)
-  total <- sum(paired_df$weight)
-  paired <- paired_df %>% 
-    dplyr::filter(paired) %>%
-    dplyr::pull(weight) %>% 
-    sum()
-
   # Getting the counts
   counts_df <- paired_df %>%
     dplyr::filter(paired) %>% 
@@ -161,11 +153,11 @@ sample_count <- function(bam_1, bam_2, sample_name) {
   # rename so sample id is in the column name
   colnames(counts_df) <- c("id", sample_name)
 
-  stats_df <- data.frame(
-    perc_paired_correctly = stats,
-    total_counts = total,
-    total_paired_counts = paired
-  )
+  # Calculate stats
+  n_paired <- paired_df %>% dplyr::filter(paired) %>% dplyr::summarize(sum(weight)) %>% dplyr::collect() %>% .[[1]]
+  n <- paired_df %>% dplyr::summarize(sum(weight)) %>% dplyr::collect() %>% .[[1]]
+  stats_df <- tibble("n_correctly_paired" = n_paired, "n_total" = n)
+  
   return(list(counts = counts_df, stats = stats_df))
 }
 
