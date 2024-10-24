@@ -82,7 +82,7 @@ calc_counts <- function(bam_dir, sample_names) {
 #' bam_dir <- file.path(example_data_folder(), "bam") 
 #' 
 #' counts <- sample_count(
-#'   bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam")
+#'   bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam"),
 #'   bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam")
 #'   sample_name = "sample1")
 #'
@@ -145,11 +145,14 @@ sample_count <- function(bam_1, bam_2, sample_name) {
   # calculating the stats of how many were paired vs unpaired
   stats <- sum(paired_df$paired) / nrow(paired_df)
   total <- sum(paired_df$weight)
-  paired <- paired_df %>% dplyr::filter(paired) %>%
-    dplyr::pull(weight) %>% sum()
+  paired <- paired_df %>% 
+    dplyr::filter(paired) %>%
+    dplyr::pull(weight) %>% 
+    sum()
 
-  # Getting the weight
+  # Getting the counts
   counts_df <- paired_df %>%
+    dplyr::filter(paired) %>% 
     dplyr::select("id" = rname, weight) %>%
     dplyr::group_by(id) %>%
     dplyr::summarize(sample_name = sum(weight)) %>%
