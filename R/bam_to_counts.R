@@ -84,8 +84,9 @@ calc_counts <- function(bam_dir, sample_names) {
 #' 
 #' counts <- sample_count(
 #'   bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam"),
-#'   bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam")
-#'   sample_name = "sample1")
+#'   bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam"),
+#'   sample_name = "sample1", 
+#'   time = TRUE)
 #'
 #' }
 
