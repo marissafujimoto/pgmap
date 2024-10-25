@@ -39,7 +39,7 @@ example_data <- function(which_data) {
 }
 
 
-#' Get file path to an default credentials RDS
+#' Get file path to example data
 #' @export
 #' @return Returns the file path to folder where the example data is stored
 example_data_folder <- function() {
@@ -51,4 +51,11 @@ example_data_folder <- function() {
   )
   file <- grep("idemp", file, invert = TRUE, value = TRUE)
   return(dirname(file))
+}
+
+#' Get file path to config folder
+#' @export
+#' @return Returns the file path to folder where the example data is stored
+config_folder <- function() {
+  file.path(example_data_folder(), "..", "config")
 }

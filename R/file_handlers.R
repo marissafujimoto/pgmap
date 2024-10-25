@@ -19,11 +19,11 @@
 #'
 #' sample_df <- grab_paired_files(bam_dir, sample_names)
 #' }
-grab_paired_files <- function(bam_dir, sample_names, time = TRUE) {
+grab_paired_files <- function(dir, sample_names, time = TRUE) {
   # Get the file paths for each sample name
   sample_files <- sapply(
     sample_names, function(file_name) {
-      files <- list.files(path = bam_dir, pattern = file_name, full.names = TRUE)
+      files <- list.files(path = dir, pattern = file_name, full.names = TRUE)
 
       if (length(files) < 2) stop(file_name, ": does not have 2 files associated with it.")
       if (length(files) > 2) stop(file_name, ": has more than 2 files associated with it.")

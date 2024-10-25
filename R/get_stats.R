@@ -2,8 +2,8 @@
 #' @description This function takes a forward and reverse bam files for a group of samples and returns alignment stats.
 #' @param bam_dir a file path to a directory where the bam files associated with the sample names will be stored.
 #' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names.
-#' @param output_dir a file path to where you'd like the stats to be saved to. By default its "stats" folder. This folder will be 
-#' created if it doesn't exist. 
+#' @param output_dir a file path to where you'd like the stats to be saved to. By default its "stats" folder. This folder will be
+#' created if it doesn't exist.
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @importFrom furrr future_pmap future_map
 #' @importFrom purrr reduce
@@ -38,7 +38,7 @@ get_stats <- function(bam_dir, sample_names, output_dir = "stats", time = FALSE)
 
   # Make output directory if it doesn't exist
   dir.create(output_dir, showWarnings = TRUE, recursive = TRUE)
-  
+
   # Now use the custom function to get the counts for each sample from the pair of bam files
   stats <- furrr::future_pmap(sample_df, function(sample_name, forward_file, reverse_file) {
     # Get stats and save to files
