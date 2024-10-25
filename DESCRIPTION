@@ -26,10 +26,11 @@ Imports:
     utils,
     stats,
     stringr,
-    Rsamtools, 
     furrr, 
     tibble,
     fastmap (>= 1.2.0)
+Remotes: 
+    Bioconductor/Rsamtools
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
