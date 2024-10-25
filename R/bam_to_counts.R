@@ -128,17 +128,15 @@ sample_count <- function(bam_1, bam_2, sample_name, time = FALSE) {
 
   # If a given set of reads have one or more correct pairings, then keep the
   # correct pairings and discard all incorrect pairings for those reads.
-  qname2anypaired <- sapply(split(paired_df$paired, f = paired_df$qname), any)
-
+  qname2anypaired <- paired_df %>% 
+    dplyr::group_by(qname) %>% 
+    dplyr::summarize(any_paired = as.logical(any(paired))) %>% 
+    dplyr::collect()
+  
   # Calculate weights
   # This contains code from the original pipeline that I don't really understand but does seem to effect final numbers
   weights_df <- paired_df %>%
-    dplyr::left_join(
-      tibble(
-        "qname" = names(qname2anypaired),
-        "any_paired" = qname2anypaired
-      ),
-      by = "qname"
+    dplyr::left_join(qname2anypaired, by = "qname"
     ) %>%
     filter(paired | !any_paired) %>%
     select(-any_paired) %>%
