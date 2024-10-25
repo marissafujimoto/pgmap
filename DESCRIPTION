@@ -30,7 +30,7 @@ Imports:
     tibble,
     fastmap (>= 1.2.0)
 Remotes: 
-    Bioconductor/Rsamtools
+    bioc::3.3/Rsamtools
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
