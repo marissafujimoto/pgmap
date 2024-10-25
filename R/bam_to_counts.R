@@ -74,6 +74,7 @@ calc_counts <- function(bam_dir, sample_names) {
 #' @param bam_1 a file path to one of the bam files for the sample
 #' @param bam_2 a file path to the other one of the bam files for the sample
 #' @param sample_name a single character that indicates the name of the sample "sample1"
+#' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @import dplyr
 #' @importFrom Rsamtools ScanBamParam scanBam
 #' @export
@@ -88,8 +89,9 @@ calc_counts <- function(bam_dir, sample_names) {
 #'
 #' }
 
-sample_count <- function(bam_1, bam_2, sample_name) {
+sample_count <- function(bam_1, bam_2, sample_name, time = FALSE) {
   
+  if (time) timing <- Sys.time()
   # Print out message
   message(paste("Parsing reads for", sample_name))
 
@@ -158,6 +160,7 @@ sample_count <- function(bam_1, bam_2, sample_name) {
   n <- paired_df %>% dplyr::summarize(sum(weight)) %>% dplyr::collect() %>% .[[1]]
   stats_df <- tibble("n_correctly_paired" = n_paired, "n_total" = n)
   
+  if (time) message(paste0("Done(", signif(as.numeric(difftime (Sys.time(), timing, units = "mins")), 2), "m elapsed).\n"))
   return(list(counts = counts_df, stats = stats_df))
 }
 
