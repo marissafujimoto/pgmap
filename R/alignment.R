@@ -27,19 +27,22 @@
 #' # There needs to be exactly 2 bam files per sample
 #' sample_names <- c("sample1", "sample2", "sample3")
 #'
-#' fastq_to_sam(
+#' fastq_to_bam(
 #'   fastq_dir = fastq_dir,
 #'   sample_names = sample_names,
-#'   output_dir = file.path(example_data_folder(), "bam_test"),
-#'   time = TRUE
+#'   output_dir = file.path(example_data_folder(), "sam"),
+#'   time = TRUE, 
+#'   overwrite = TRUE
 #' )
 #' }
-fastq_to_sam <- function(fastq_dir,
+fastq_to_bam <- function(fastq_dir,
                          index = file.path(config_folder(), "pgPEN_index"),
                          sample_names,
-                         output_dir = "bam_test",
+                         sort = TRUE,
+                         output_dir = "sam",
                          save_logs = FALSE,
-                         time = TRUE) {
+                         time = TRUE, 
+                         overwrite = TRUE) {
   if (time) timing <- Sys.time()
 
   # Grab the file names
@@ -55,16 +58,29 @@ fastq_to_sam <- function(fastq_dir,
 
   # Now use the custom function to get the counts for each sample from the pair of bam files
   align <- furrr::future_pmap(sample_df, function(sample_name, fastq, which_file) {
+    
+    message("Aligning:", sample_name, " ", which_file)
+    
+    out_sam_file <- file.path(output_dir, paste0(sample_name, "_", which_file))
+                          
     (cmdout <- bowtie2_samtools(
       bt2Index = index,
-      output = file.path(output_dir, paste0(sample_name, "_", which_file)),
-      outputType = "bam",
+      output = out_sam_file,
+      outputType = "sam",
       seq1 = fastq,
       seq2 = NULL,
-      overwrite = TRUE,
+      overwrite = overwrite,
       bamFile = NULL, 
       "--quiet"
     ))
+    
+    out_sam_file <- paste0(out_sam_file, ".sam")
+    
+    message("Converting to BAM")
+    
+    asBam(file = out_sam_file, 
+          files = gsub(".sam$", ".bam", out_bam_file), 
+          overwrite = overwrite)
 
     if (save_logs) writeLines(cmdout, paste0(sample_name, "align_log.txt"))
 
@@ -74,5 +90,5 @@ fastq_to_sam <- function(fastq_dir,
   # Bring along sample names
   names(counts) <- sample_names
 
-  message("sam files saved to ")
+  message("Bam files saved to ")
 }
