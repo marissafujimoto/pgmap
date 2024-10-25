@@ -4,7 +4,7 @@
 \alias{sample_count}
 \title{Obtain the counts for a single sample}
 \usage{
-sample_count(bam_1, bam_2, sample_name)
+sample_count(bam_1, bam_2, sample_name, time = FALSE)
 }
 \arguments{
 \item{bam_1}{a file path to one of the bam files for the sample}
@@ -12,6 +12,8 @@ sample_count(bam_1, bam_2, sample_name)
 \item{bam_2}{a file path to the other one of the bam files for the sample}
 
 \item{sample_name}{a single character that indicates the name of the sample "sample1"}
+
+\item{time}{TRUE/FALSE you want the duration this takes to run printed out}
 }
 \description{
 This function takes a forward and reverse bam file and returns the counts
@@ -22,9 +24,10 @@ This function takes a forward and reverse bam file and returns the counts
 bam_dir <- file.path(example_data_folder(), "bam") 
 
 counts <- sample_count(
-  bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam")
-  bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam")
-  sample_name = "sample1")
+  bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam"),
+  bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam"),
+  sample_name = "sample1", 
+  time = TRUE)
 
 }
 }

@@ -2,7 +2,9 @@
 #' @description This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.
 #' @param bam_dir a file path to a directory where the bam files associated with the sample names will be stored. 
 #' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names. 
-#' @importFrom purrr pmap map reduce
+#' @param time TRUE/FALSE you want the duration this takes to run printed out
+#' @importFrom furrr future_pmap future_map 
+#' @importFrom purrr reduce
 #' @import dplyr 
 #' @importFrom tibble rownames_to_column
 #' @export
@@ -17,7 +19,8 @@
 #' 
 #' counts_df <- calc_counts(
 #'   bam_dir = bam_dir, 
-#'   sample_names = sample_names
+#'   sample_names = sample_names, 
+#'   time = TRUE
 #')
 #'
 #' # We can write these to CSV files like this
@@ -25,7 +28,9 @@
 #' readr::write_csv(counts_df$stats, "stats_pgmap.tsv")
 #' 
 #' }
-calc_counts <- function(bam_dir, sample_names) {
+calc_counts <- function(bam_dir, sample_names, time = TRUE) {
+  
+  if (time) timing <- Sys.time()
   
   # Get the file paths for each sample name
   sample_files <- sapply(
@@ -49,7 +54,7 @@ calc_counts <- function(bam_dir, sample_names) {
     tibble::rownames_to_column("sample_name")
   
   # Now use the custom function to get the counts for each sample from the pair of bam files
-  counts <- purrr::pmap(sample_df, function(sample_name, forward_file, reverse_file) {
+  counts <- furrr::future_pmap(sample_df, function(sample_name, forward_file, reverse_file) {
     sample_count(bam_1 = forward_file,
                  bam_2 = reverse_file,
                  sample_name = sample_name)
@@ -58,13 +63,14 @@ calc_counts <- function(bam_dir, sample_names) {
   names(counts) <- sample_names
   
   # Then condense all samples to one stats data frame
-  stats_df <- purrr::map(counts, "stats") %>%
+  stats_df <- furrr::future_map(counts, "stats") %>%
     dplyr::bind_rows(.id = "sample")
   
   # Then condense all samples to one counts data frame
-  counts_df <- purrr::map(counts, "counts", right_join) %>%
+  counts_df <- furrr::future_map(counts, "counts", right_join) %>%
     purrr::reduce(dplyr::full_join)
   
+  if (time) message(paste0("Done(", signif(as.numeric(difftime (Sys.time(), timing, units = "mins")), 2), "m elapsed).\n"))
   # Return as a list of two data frames
   return(list(counts = counts_df, stats = stats_df))
 }
