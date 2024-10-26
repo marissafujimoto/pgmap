@@ -22,7 +22,7 @@
 #' stats_df <- get_stats(
 #'   bam_dir = bam_dir,
 #'   sample_names = sample_names,
-#'   output_dir = "output_dir"
+#'   output_dir = file.path(example_data_folder(), "bam_stats")
 #' )
 #'
 #' # We can write these to CSV files like this
