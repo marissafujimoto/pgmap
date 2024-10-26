@@ -52,7 +52,7 @@
 #'   for_index = for_index_file_path,
 #'   rev_index = rev_index_file_path,
 #'   sample_names = sample_names,
-#'   output_dir = file.path(example_data_folder(), "bam"),
+#'   output_dir = file.path(example_data_folder(), "aligned_bam"),
 #'   time = TRUE, 
 #'   overwrite = TRUE
 #' )
@@ -81,9 +81,9 @@ fastq_to_bam <- function(fastq_dir,
   # Now use the custom function to get the counts for each sample from the pair of bam files
   align <- furrr::future_pmap(sample_df, function(sample_name, fastq, which_file) {
     
-    message("Aligning: ", sample_name)
+    message("Aligning: ", fastq)
     
-    out_sam_file <- file.path(output_dir, sample_name, which_file)
+    out_sam_file <- file.path(output_dir, paste0(sample_name,"_", which_file))
                      
     if (which_file == "forward_file") index <- for_index
     if (which_file == "reverse_file") index <- rev_index
