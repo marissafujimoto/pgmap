@@ -4,6 +4,7 @@
 
 library(magrittr)
 
+install.packages("tidyr")
 
 # Find .git root directory
 root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))

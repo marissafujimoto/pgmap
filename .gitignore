@@ -14,5 +14,4 @@ inst/doc
 git_token.txt
 /doc/
 /Meta/
-inst/extdata/CCLE_gene_cn.csv
-inst/extdata/CCLE_expression.csv
+*.zip
