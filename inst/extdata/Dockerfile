@@ -69,20 +69,6 @@ RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9
 	./configure --prefix $(pwd) && \
 	make
 
-################## Install fastp ##################
-
-RUN     apt-get update \
-&&      apt-get install -y wget build-essential zlib1g-dev \
-&&      cd /tmp \
-&&      wget https://github.com/OpenGene/fastp/archive/v0.20.0.tar.gz\
-&&      tar xf v0.20.0.tar.gz \
-&&      cd fastp-0.20.0 \
-&&      make \
-&&      make install \
-&&      cd / \
-&&      rm -rf /tmp/* \
-&&      apt-get autoremove -y wget build-essential zlib1g-dev \
-&&      rm -rf /var/lib/apt/lists/*
 
 ################# COPY over config files 
 COPY config config/

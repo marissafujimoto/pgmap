@@ -1,180 +1,60 @@
-utils::globalVariables(c("timepoints", "value", "timepoint_avg", "target_type",
-"unexpressed_ctrl_flag", "median", "lfc_adj", "median", "gRNA1_seq", "gRNA2_seq",
-"control_gRNA_seq", "crispr_score", "pgRNA_target", "mean_double_control_crispr",
-"pgRNA_target", "targeting_gRNA_seq", "mean_single_target_crispr", "double_crispr_score",
-"single_crispr_score_1", "single_crispr_score_2", "pgRNA_target_double", "mean_single_target_crispr_1",
-"mean_single_target_crispr_2", "mean_double_control_crispr_2", "pgRNA_target_double",
-"expected_crispr", "term", "estimate", "mean_expected_crispr", "intercept", "slope",
-"p_val_ttest", "p_val_wil", "fde_vals_ttest", "fdr_vals_wil", "double_target_gi_score",
-"single_target_gi_score_1", "single_target_gi_score_2", "gene", "DepMap_ID",
-"gene1_symbol", "gene2_symbol", "expressed_flag", "norm_ctrl_flag", "bool_vals",
-"filter_name", "counts", "numzero", "name", "value", "lfc_plasmid_vs_late", "lfc_adj",
-"pg_RNA_target_double", "double_target_gi_score", "count_normalized", "construct",
-"filterFlag", "plasmid_log2_cpm", "log2_cpm"
-))
+utils::globalVariables(c(
+  "X1", "X2", "rname_1", "rname_2", "qname", "paired", "any_paired", "weight",
+  "rname", ".")
+  )
 
 
-#' Returns example data for package
-#' @description This function loads and returns example data for the packagae. Which dataset is returned must be specified
-#' @param which_data options are "count" or "meta"; specifies which example dataset should be returned
+#' Returns file paths to example data for package
+#' @description This function loads and returns file paths to example data for the packagae. Which dataset is returned must be specified
+#' @param which_data options are "bam" or "fastq"; specifies which example dataset should be returned
 #' @export
 #' @examples \dontrun{
 #'
-#' gimap_dataset <- get_example_data("gimap")
+#' bam_files <- example_data("bam")
+#' fastq_files <- example_data("fastq")
+#' reference_files <- example_data("ref")
 #' }
-get_example_data <- function(which_data) {
-  if (which_data == "count") {
+example_data <- function(which_data) {
+  if (which_data == "bam") {
     file <- list.files(
-      pattern = "PP_pgPEN_HeLa_counts.txt",
+      pattern = ".bam",
       recursive = TRUE,
-      system.file("extdata", package = "gimap"),
+      system.file("extdata", package = "pgmap"),
       full.names = TRUE
     )
-    return(readr::read_tsv(file))
-  } else if (which_data == "meta") {
+    return(file)
+  } else if (which_data == "fastq") {
     file <- list.files(
-      pattern = "pgRNA_ID_pgPEN_library_comp.csv",
+      pattern = "fastq.gz",
       recursive = TRUE,
-      system.file("extdata", package = "gimap"),
+      system.file("extdata", package = "pgmap"),
       full.names = TRUE
     )
-    return(readr::read_csv(file, skip = 1))
-  } else if (which_data == "gimap") {
+    return(file)
+  } else if (which_data == "ref") {
     file <- list.files(
-      pattern = "gimap_dataset.RDS",
+      pattern = ".fa",
       recursive = TRUE,
-      system.file("extdata", package = "gimap"),
+      system.file("extdata", package = "pgmap"),
       full.names = TRUE
     )
-    return(readr::read_rds(file))
-  } else if (which_data == "annotation") {
-    file <- list.files(
-      pattern = "pgPEN_annotations.txt",
-      recursive = TRUE,
-      system.file("extdata", package = "gimap"),
-      full.names = TRUE
-    )
-    return(readr::read_tsv(file, show_col_types = FALSE))
+    return(file)
   } else {
-    stop("Specification for `which_data` not understood; Need to use 'gimap', 'count', 'meta', or 'annotation' ")
+    stop("Specification for `which_data` not understood; Need to use 'bam' or 'fastq'")
   }
 }
 
-#' @import ggplot2
-
-## ggplot themes
-## see: https://www.rdocumentation.org/packages/ggplot2/versions/2.1.0/topics/theme_update
-## and https://stackoverflow.com/questions/23173915/can-ggplot-theme-formatting-be-saved-as-an-object
-plot_theme <- function() {
-  theme(
-    axis.text = element_text(colour = "black"),
-    axis.ticks = element_line(color = "black")
-  )
-}
-
-#' @import ggplot2
-plot_options <- function() {
-  list(theme_bw(base_size = 12))
-}
-
-#' @import kableExtra
-print_kbl <- function(tbl) {
-  kbl(tbl) %>%
-    kable_styling(
-      full_width = FALSE,
-      position = "left",
-      bootstrap_options = c("striped", "hover", "responsive")
-    )
-}
-
-save_tbl <- function(tbl, out_dir = NULL, params = NULL) {
-  tbl_str <- deparse(substitute(tbl))
-  tbl_name <- str_split(tbl_str, pattern = "\\.")[[1]][2]
-  write_tsv(tbl, file.path(out_dir, "tables", "tsv", paste0(params$cell_line, "_", tbl_name, ".txt")))
-  write_rds(tbl, file.path(out_dir, "tables", "rds", paste0("d.", params$cell_line, "_", tbl_name)))
-}
-
-#' @import ggplot2
-save_plot <- function(plt, out_dir = NULL, params = list(cell_line = NULL)) {
-  plt_str <- deparse(substitute(plt))
-  if (!dir.exists(file.path(out_dir, "plots", "pdf"))) {
-    dir.create(file.path(out_dir, "plots", "pdf"), recursive = TRUE)
-  }
-  ggsave(
-    plot = plt,
-    filename = file.path(out_dir, "plots", "pdf", paste0(params$cell_line, "_", plt_str, ".pdf"))
-  )
-  if (!dir.exists(file.path(out_dir, "plots", "png"))) {
-    dir.create(file.path(out_dir, "plots", "png"), recursive = TRUE)
-  }
-  ggsave(
-    plot = plt,
-    filename = file.path(out_dir, "plots", "png", paste0(params$cell_line, "_", plt_str, ".png"))
-  )
-}
-
-make_out_dir <- function(out_dir) {
-  if (dir.exists(out_dir)) {
-    ## print a message with the output directory location
-    print(paste("Output directory already exists at:", out_dir, sep = " "))
-  } else {
-    ## make output dirs
-    dir.create(file.path(out_dir, "tables", "rds"), recursive = TRUE)
-    dir.create(file.path(out_dir, "tables", "tsv"), recursive = TRUE)
-    dir.create(file.path(out_dir, "plots", "png"), recursive = TRUE)
-    dir.create(file.path(out_dir, "plots", "pdf"), recursive = TRUE)
-    print(paste("Output directory created at:", out_dir, sep = " "))
-  }
-}
 
 #' Get file path to an default credentials RDS
 #' @export
 #' @return Returns the file path to folder where the example data is stored
 example_data_folder <- function() {
   file <- list.files(
-    pattern = "example_data.md",
+    pattern = "README.md",
     recursive = TRUE,
-    system.file("extdata", package = "gimap"),
+    system.file("extdata", package = "pgmap"),
     full.names = TRUE
   )
-  dirname(file)
-}
-
-# This function sets up the example count data
-save_example_data <- function() {
-  example_data <- get_example_data("count")
-
-  example_pg_metadata <- get_example_data("meta")
-
-  example_counts <- example_data %>%
-    dplyr::select(c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC")) %>%
-    as.matrix()
-
-  example_pg_id <- example_data %>%
-    dplyr::select("id")
-
-  example_pg_metadata <- example_data %>%
-    dplyr::select(c("id", "seq_1", "seq_2"))
-
-  example_sample_metadata <- data.frame(
-    col_names = c("Day00_RepA", "Day05_RepA", "Day22_RepA", "Day22_RepB", "Day22_RepC"),
-    day = as.numeric(c("0", "5", "22", "22", "22")),
-    rep = as.factor(c("RepA", "RepA", "RepA", "RepB", "RepC"))
-  )
-
-  gimap_dataset <- setup_data(
-    counts = example_counts,
-    pg_ids = example_pg_id,
-    pg_metadata = example_pg_metadata,
-    sample_metadata = example_sample_metadata
-  )
-
-  example_folder <- list.files(
-    pattern = "PP_pgPEN_HeLa_counts.txt",
-    recursive = TRUE,
-    system.file("extdata", package = "gimap"),
-    full.names = TRUE
-  )
-
-  saveRDS(gimap_dataset, file.path(dirname(example_folder), "gimap_dataset.RDS"))
+  file <- grep("idemp",file, invert = TRUE, value = TRUE)
+  return(dirname(file))
 }
