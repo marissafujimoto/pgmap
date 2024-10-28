@@ -1,3 +1,9 @@
+utils::globalVariables(c(
+  "X1", "X2", "rname_1", "rname_2", "qname", "paired", "any_paired", "weight",
+  "rname", ".")
+  )
+
+
 #' Returns file paths to example data for package
 #' @description This function loads and returns file paths to example data for the packagae. Which dataset is returned must be specified
 #' @param which_data options are "bam" or "fastq"; specifies which example dataset should be returned

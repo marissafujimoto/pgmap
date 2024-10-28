@@ -20,21 +20,23 @@
 #' sample_df <- grab_paired_files(bam_dir, sample_names)
 #' }
 grab_paired_files <- function(dir, sample_names, time = TRUE) {
+  sample_names_df <- data.frame(sample_name = sample_names, bam_dir)
+
   # Get the file paths for each sample name
-  sample_files <- sapply(
-    sample_names, function(file_name) {
-      files <- list.files(path = dir, pattern = file_name, full.names = TRUE)
+  sample_files <- furrr::future_pmap(sample_names_df, function(sample_name, bam_dir) {
+    files <- list.files(path = bam_dir, pattern = sample_name, full.names = TRUE)
 
-      if (length(files) < 2) stop(file_name, ": does not have 2 files associated with it.")
-      if (length(files) > 2) stop(file_name, ": has more than 2 files associated with it.")
+    if (length(files) < 2) stop(sample_name, ": does not have 2 files associated with it.")
+    if (length(files) > 2) stop(sample_name, ": has more than 2 files associated with it.")
 
-      return(files)
-    },
-    USE.NAMES = TRUE
-  )
+    return(files)
+  })
+
+  names(sample_files) <- sample_names
 
   # Reformat so samples are rows and files are in columns
   sample_df <- sample_files %>%
+    dplyr::bind_rows(.id = "sample_name") %>%
     t() %>%
     data.frame() %>%
     dplyr::rename(

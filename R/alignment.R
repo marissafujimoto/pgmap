@@ -7,7 +7,7 @@
 #' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names.
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @param save_logs TRUE/FALSE you want the logs? They will be saved as the sample name
-#' @param overwrite TRUE/FALSE should existing bam files of the same name be overwritten? 
+#' @param overwrite TRUE/FALSE should existing bam files of the same name be overwritten?
 #' @importFrom furrr future_pmap future_map8p
 #' @importFrom purrr reduce
 #' @import dplyr
@@ -16,7 +16,7 @@
 #' @examples \dontrun{
 #'
 #' #################### Build the indices first #################
-#' 
+#'
 #' # Declare an input file path for FORWARD
 #' for_ref <- file.path(config_folder(), "ref", "paralog_pgRNA1.fa")
 #' # Declare ann output file path for FORWARD
@@ -25,14 +25,14 @@
 #' rev_ref <- file.path(config_folder(), "ref", "paralog_pgRNA2.fa")
 #' # Declare a output file path for REVERSE
 #' rev_index_file_path <- file.path(config_folder(), "pgPEN_index_rev")
-#' 
+#'
 #' # Build the FORWARD reference
 #' bowtie2_build(
 #'   references = for_ref,
 #'   bt2Index = for_index_file_path,
 #'   overwrite = TRUE
 #' )
-#' 
+#'
 #' # Build the REVERSE reference
 #' bowtie2_build(
 #'   references = rev_ref,
@@ -53,7 +53,7 @@
 #'   rev_index = rev_index_file_path,
 #'   sample_names = sample_names,
 #'   output_dir = file.path(example_data_folder(), "aligned_bam"),
-#'   time = TRUE, 
+#'   time = TRUE,
 #'   overwrite = TRUE
 #' )
 #' }
@@ -63,7 +63,7 @@ fastq_to_bam <- function(fastq_dir,
                          sample_names,
                          output_dir = "aligned_bam",
                          save_logs = FALSE,
-                         time = TRUE, 
+                         time = TRUE,
                          overwrite = TRUE) {
   if (time) timing <- Sys.time()
 
@@ -71,23 +71,24 @@ fastq_to_bam <- function(fastq_dir,
   sample_df <- grab_paired_files(
     dir = fastq_dir,
     sample_names = sample_names
-  ) %>% 
-   tidyr::pivot_longer(cols = c(reverse_file, forward_file), 
-                       names_to = "which_file", 
-                       values_to = "fastq")
-  
+  ) %>%
+    tidyr::pivot_longer(
+      cols = c(reverse_file, forward_file),
+      names_to = "which_file",
+      values_to = "fastq"
+    )
+
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
   # Now use the custom function to get the counts for each sample from the pair of bam files
   align <- furrr::future_pmap(sample_df, function(sample_name, fastq, which_file) {
-    
     message("Aligning: ", fastq)
-    
-    out_sam_file <- file.path(output_dir, paste0(sample_name,"_", which_file))
-                     
+
+    out_sam_file <- file.path(output_dir, paste0(sample_name, "_", which_file))
+
     if (which_file == "forward_file") index <- for_index
     if (which_file == "reverse_file") index <- rev_index
-    
+
     (cmdout <- bowtie2_samtools(
       bt2Index = index,
       output = out_sam_file,
@@ -97,9 +98,9 @@ fastq_to_bam <- function(fastq_dir,
       overwrite = overwrite,
       bamFile = NULL
     ))
-    
+
     out_sam_file <- paste0(out_sam_file, ".bam")
-    
+
     if (save_logs) writeLines(cmdout, paste0(sample_name, "align_log.txt"))
 
     return(out_sam_file)

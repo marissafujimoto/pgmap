@@ -1,6 +1,6 @@
 Type: Package
 Package: pgmap
-Title: Obtain counts for a paired guided CRISPR screen
+Title: Obtain Counts for a Paired Guided CRISPR Screen
 Version: 0.1.0
 Authors@R: c(
     person("Candace", "Savonen", ,
@@ -13,29 +13,23 @@ License: GPL-3
 URL: https://github.com/FredHutch/gimap
 BugReports: https://github.com/FredHutch/gimap/issues
 Imports:
-    readr,
+    devtools,
     dplyr,
-    tidyr,
-    knitr,
-    rmarkdown,
-    ggplot2,
-    magrittr,
-    kableExtra,
-    pheatmap,
     purrr,
     utils,
     stats,
     stringr,
     furrr, 
     tibble,
-    fastmap (>= 1.2.0)
-Remotes: 
-    bioc::3.3/Rsamtools
+    fastmap (>= 1.2.0), 
+    BiocManager, 
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
+Remotes:
+    Rhtslib=bioc::3.3/Rhtslib, 
+    Rsamtools=bioc::3.3/Rsamtools,
 Config/testthat/edition: 3
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 LazyData: true
-VignetteBuilder: knitr
