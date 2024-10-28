@@ -32,7 +32,7 @@ Imports:
     BiocManager, 
     Rsamtools,
 Remotes: 
-    bioc::3.3/Rsamtools
+    bioc::3.15/Rsamtools
 Suggests:
     testthat (>= 3.0.0),
     roxygen2,
