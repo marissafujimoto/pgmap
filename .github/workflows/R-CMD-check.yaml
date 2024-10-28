@@ -63,10 +63,10 @@ jobs:
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
 
       - name: Install dependencies
-        - uses: r-lib/actions/setup-r-dependencies@v2
-          with:
-            extra-packages: |
-              any::rcmdcheck
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
 
       - name: Check
         run: |
