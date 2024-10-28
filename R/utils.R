@@ -3,7 +3,6 @@ utils::globalVariables(c(
   "rname", ".")
   )
 
-
 #' Returns file paths to example data for package
 #' @description This function loads and returns file paths to example data for the packagae. Which dataset is returned must be specified
 #' @param which_data options are "bam" or "fastq"; specifies which example dataset should be returned

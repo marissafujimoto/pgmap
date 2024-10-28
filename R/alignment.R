@@ -8,8 +8,9 @@
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @param save_logs TRUE/FALSE you want the logs? They will be saved as the sample name
 #' @param overwrite TRUE/FALSE should existing bam files of the same name be overwritten?
-#' @importFrom furrr future_pmap future_map8p
-#' @importFrom purrr reduce
+#' @importFrom furrr future_pmap future_map
+#' @importFrom tidyr pivot_longer
+#' @importFrom Rbowtie2 bowtie2_samtools bowtie2_build
 #' @import dplyr
 #' @importFrom tibble rownames_to_column
 #' @export
