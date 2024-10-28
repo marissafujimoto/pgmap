@@ -29,6 +29,7 @@ Imports:
     furrr, 
     tibble,
     fastmap (>= 1.2.0), 
+    BiocManager, 
     Rsamtools,
 Remotes: 
     bioc::3.3/Rsamtools
