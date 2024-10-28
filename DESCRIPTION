@@ -27,7 +27,7 @@ Suggests:
     testthat (>= 3.0.0),
     roxygen2,
 Remotes:
-    bioc::3.15/Rsamtools
+    Rsamtools=bioc::3.19/Rsamtools
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
