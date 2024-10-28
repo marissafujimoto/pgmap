@@ -4,7 +4,7 @@
 
 library(magrittr)
 
-install.packages("tidyr")
+install.packages("tidyr", repos = "http://cran.us.r-project.org")
 
 # Find .git root directory
 root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))
