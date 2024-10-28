@@ -20,6 +20,7 @@ Imports:
     stringr,
     furrr, 
     tibble,
+    Rhtslib,
     fastmap (>= 1.2.0), 
     BiocManager, 
     Rsamtools,

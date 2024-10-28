@@ -66,13 +66,11 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
-          BiocManager::install("Rsamtools", ask=FALSE, update=FALSE, force=TRUE)
         shell: Rscript {0}
 
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
-          BiocManager::install('Rsamtools')
           install.packages("devtools", repos = "http://cran.us.r-project.org")
           rcmdcheck::rcmdcheck(args = c("--no-manual"), check_dir = "check")
           stopifnot(length(devtools::check()$errors) == 0L)
