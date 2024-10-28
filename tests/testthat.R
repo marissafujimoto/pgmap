@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(gimap)
+library(pgmap)
 
-test_check("gimap")
+test_check("pgmap")
