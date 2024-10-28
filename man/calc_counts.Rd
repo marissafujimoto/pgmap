@@ -9,9 +9,9 @@ calc_counts(bam_dir, sample_names, time = TRUE)
 \arguments{
 \item{bam_dir}{a file path to a directory where the bam files associated with the sample names will be stored.}
 
-\item{time}{TRUE/FALSE you want the duration this takes to run printed out}
+\item{sample_names}{a character vector that indicates the name of the samples as they are listed in the file names.}
 
-\item{sample_name}{a character vector that indicates the name of the samples as they are listed in the file names.}
+\item{time}{TRUE/FALSE you want the duration this takes to run printed out}
 }
 \description{
 This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.
