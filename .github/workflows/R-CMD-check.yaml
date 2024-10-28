@@ -73,13 +73,13 @@ jobs:
         run: |
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(args = c("--no-manual"), check_dir = "check")
+          install.packages("tidyr", repos = "http://cran.us.r-project.org")
         shell: Rscript {0}
 
       - name: Check testthat
         if: runner.os != 'Windows'
         id: check_check
         run: |
-            install.packages("tidyr", repos = "http://cran.us.r-project.org")
             error_num=$(Rscript --vanilla '.github/workflows/check_testthat.R')
             echo "error_num=$error_num" >> $GITHUB_OUTPUT
 
