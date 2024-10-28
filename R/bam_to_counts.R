@@ -32,25 +32,29 @@ calc_counts <- function(bam_dir, sample_names, time = TRUE) {
   
   if (time) timing <- Sys.time()
   
+  sample_names_df <- data.frame(sample_name = sample_names, bam_dir)
+  
   # Get the file paths for each sample name
-  sample_files <- sapply(
-    sample_names, function(file_name) {
+  sample_files <- furrr::future_pmap(sample_names_df, function(sample_name, bam_dir) {
       
-      files <- list.files(path = bam_dir, pattern = file_name, full.names = TRUE)
+    files <- list.files(path = bam_dir, pattern = sample_name, full.names = TRUE)
       
-      if (length(files) < 2) stop(file_name, ": does not have 2 files associated with it.")
-      if (length(files) > 2) stop(file_name, ": has more than 2 files associated with it.")
+      if (length(files) < 2) stop(sample_name, ": does not have 2 files associated with it.")
+      if (length(files) > 2) stop(sample_name, ": has more than 2 files associated with it.")
       
       return(files)
       
-    }, USE.NAMES = TRUE)
+  })
+  
+  names(sample_files) <- sample_names
   
   # Reformat so samples are rows and files are in columns
   sample_df <- sample_files %>%
-    t() %>%
-    data.frame() %>%
-    dplyr::rename(forward_file = X1,
-                  reverse_file = X2) %>%
+    dplyr::bind_rows(.id = "sample_name") %>% 
+    t() %>% 
+    data.frame() %>% 
+    dplyr::rename(forward_file = X1, 
+                  reverse_file = X2) %>% 
     tibble::rownames_to_column("sample_name")
   
   # Now use the custom function to get the counts for each sample from the pair of bam files
@@ -82,7 +86,7 @@ calc_counts <- function(bam_dir, sample_names, time = TRUE) {
 #' @param sample_name a single character that indicates the name of the sample "sample1"
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @import dplyr
-#' @importFrom Rsamtools ScanBamParam scanBam
+#' @importFrom Rsamtools ScanBamParam scanBam scanBamFlag
 #' @export
 #' @examples \dontrun{
 #'
