@@ -28,7 +28,8 @@ Imports:
     stringr,
     furrr, 
     tibble,
-    fastmap (>= 1.2.0)
+    fastmap (>= 1.2.0), 
+    Rsamtools,
 Remotes: 
     bioc::3.3/Rsamtools
 Suggests:
