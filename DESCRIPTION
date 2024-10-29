@@ -22,9 +22,9 @@ Suggests:
  testthat,
  roxygen2,
 Remotes:
- bioc::3.3/Rhtslib,
- bioc::3.3/Rsamtools,
- bioc::3.3/Rbowtie2,
+ Bioconductor/Rhtslib,
+ Bioconductor/Rsamtools,
+ wzthu/Rbowtie2,
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
