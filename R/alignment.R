@@ -4,7 +4,7 @@
 #' @param for_index A file path to the index that was made with `bowtie2_build()` for the forward reference file for the paired guide constructs
 #' @param rev_index A file path to the index that was made with `bowtie2_build()` for the reverse reference file for the paired guide constructs
 #' @param output_dir A file path that designates where you'd like the aligned files saved. By default this file path is "aligned_bams"
-#' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names.
+#' @param sample_names a character vector that indicates the name of the samples as they are listed in the file names.
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @param save_logs TRUE/FALSE you want the logs? They will be saved as the sample name
 #' @param overwrite TRUE/FALSE should existing bam files of the same name be overwritten?

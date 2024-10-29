@@ -1,6 +1,6 @@
 utils::globalVariables(c(
   "X1", "X2", "rname_1", "rname_2", "qname", "paired", "any_paired", "weight",
-  "rname", ".")
+  "rname", ".", "bam_dir", "forward_file", "reverse_file")
   )
 
 #' Returns file paths to example data for package

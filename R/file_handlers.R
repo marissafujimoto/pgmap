@@ -1,7 +1,7 @@
 #' Obtain the counts for a group of samples
 #' @description This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.
 #' @param bam_dir a file path to a directory where the bam files associated with the sample names will be stored.
-#' @param sample_name a character vector that indicates the name of the samples as they are listed in the file names.
+#' @param sample_names a character vector that indicates the name of the samples as they are listed in the file names.
 #' @param time TRUE/FALSE you want the duration this takes to run printed out
 #' @importFrom furrr future_pmap future_map
 #' @importFrom purrr reduce
@@ -19,7 +19,9 @@
 #'
 #' sample_df <- grab_paired_files(bam_dir, sample_names)
 #' }
-grab_paired_files <- function(dir, sample_names, time = TRUE) {
+grab_paired_files <- function(bam_dir, sample_names, time = TRUE) {
+
+  # Make a data frame
   sample_names_df <- data.frame(sample_name = sample_names, bam_dir)
 
   # Get the file paths for each sample name
