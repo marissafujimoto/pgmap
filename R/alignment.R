@@ -108,7 +108,7 @@ fastq_to_bam <- function(fastq_dir,
   })
 
   # Bring along sample names
-  names(counts) <- sample_names
+  names(align) <- sample_names
 
   message("Bam files saved to:", output_dir)
 }

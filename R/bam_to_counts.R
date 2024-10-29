@@ -32,7 +32,7 @@ calc_counts <- function(bam_dir, sample_names, time = TRUE) {
 
   # Grab the file names
   sample_df <- grab_paired_files(
-    bam_dir = bam_dir,
+    dir = bam_dir,
     sample_names = sample_names
   )
 

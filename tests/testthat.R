@@ -10,3 +10,4 @@ library(testthat)
 library(pgmap)
 
 test_check("pgmap")
+
