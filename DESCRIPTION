@@ -2,12 +2,7 @@ Type: Package
 Package: pgmap
 Title: Obtain Counts for a Paired Guided CRISPR Screen
 Version: 0.1.0
-Authors@R: c(
-    person("Candace", "Savonen", ,
-    c("cansav09@gmail.com","csavonen@fredhutch.org"),
-    role = c("aut", "cre")
-    )
-    )
+Authors@R: c(person("Candace", "Savonen", , c("cansav09@gmail.com","csavonen@fredhutch.org"), role = c("aut", "cre")))
 Description: This package allows counts to be obtained from fastq files from a CRISPR paired guide screen. It is based off of original research from the Alice Berger lab at Fred Hutchinson Cancer Center.
 License: GPL-3
 URL: https://github.com/FredHutch/gimap
@@ -19,17 +14,17 @@ Imports:
  utils,
  stats,
  stringr,
- furrr, 
+ furrr,
  tibble,
- fastmap, 
- BiocManager
-Suggests: 
- testthat, 
- roxygen2
-Remotes: 
+ fastmap,
+ BiocManager,
+Suggests:
+ testthat,
+ roxygen2,
+Remotes:
  bioc::3.3/Rhtslib,
- bioc::3.3/Rsamtools, 
- bioc::3.3/Rbowtie2
+ bioc::3.3/Rsamtools,
+ bioc::3.3/Rbowtie2,
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
