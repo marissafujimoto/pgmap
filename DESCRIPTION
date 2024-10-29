@@ -18,12 +18,12 @@ Imports:
  tibble,
  fastmap,
  BiocManager,
-Suggests:
- testthat,
- roxygen2,
  Rbowtie2, 
  Rsamtools, 
  tidyr, 
+Suggests:
+ testthat,
+ roxygen2,
 Remotes:
  Bioconductor/Rhtslib,
  Bioconductor/Rsamtools,
