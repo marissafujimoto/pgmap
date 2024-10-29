@@ -13,18 +13,23 @@ License: GPL-3
 URL: https://github.com/FredHutch/gimap
 BugReports: https://github.com/FredHutch/gimap/issues
 Imports:
-    devtools,
-    dplyr,
-    purrr,
-    utils,
-    stats,
-    stringr,
-    furrr, 
-    tibble,
-    fastmap (>= 1.2.0), 
-    BiocManager, 
-Suggests: testthat (>= 3.0.0), roxygen2,
-Remotes: Rhtslib=bioc::3.3/Rhtslib, Rsamtools=bioc::3.3/Rsamtools, Rbowtie2=bioc::3.3/Rbowtie2
+	devtools,
+	dplyr,
+	purrr,
+	utils,
+	stats,
+	stringr,
+	furrr, 
+	tibble,
+	fastmap (>= 1.2.0), 
+	BiocManager
+Suggests: 
+	testthat (>= 3.0.0), 
+	roxygen2
+Remotes: 
+	bioc::3.3/Rhtslib,
+	bioc::3.3/Rsamtools, 
+	bioc::3.3/Rbowtie2
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
