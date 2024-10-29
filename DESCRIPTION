@@ -27,7 +27,7 @@ Suggests:
 Remotes:
  Bioconductor/Rhtslib,
  Bioconductor/Rsamtools,
- wzthu/Rbowtie2,
+ wzthu/Rbowtie2@RELEASE_3_16,
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
