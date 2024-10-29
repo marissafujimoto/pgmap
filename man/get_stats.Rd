@@ -9,12 +9,12 @@ get_stats(bam_dir, sample_names, output_dir = "stats", time = FALSE)
 \arguments{
 \item{bam_dir}{a file path to a directory where the bam files associated with the sample names will be stored.}
 
+\item{sample_names}{a character vector that indicates the name of the samples as they are listed in the file names.}
+
 \item{output_dir}{a file path to where you'd like the stats to be saved to. By default its "stats" folder. This folder will be
 created if it doesn't exist.}
 
 \item{time}{TRUE/FALSE you want the duration this takes to run printed out}
-
-\item{sample_name}{a character vector that indicates the name of the samples as they are listed in the file names.}
 }
 \description{
 This function takes a forward and reverse bam files for a group of samples and returns alignment stats.

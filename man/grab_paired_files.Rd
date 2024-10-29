@@ -4,14 +4,14 @@
 \alias{grab_paired_files}
 \title{Obtain the counts for a group of samples}
 \usage{
-grab_paired_files(dir, sample_names, time = TRUE)
+grab_paired_files(bam_dir, sample_names, time = TRUE)
 }
 \arguments{
-\item{time}{TRUE/FALSE you want the duration this takes to run printed out}
-
 \item{bam_dir}{a file path to a directory where the bam files associated with the sample names will be stored.}
 
-\item{sample_name}{a character vector that indicates the name of the samples as they are listed in the file names.}
+\item{sample_names}{a character vector that indicates the name of the samples as they are listed in the file names.}
+
+\item{time}{TRUE/FALSE you want the duration this takes to run printed out}
 }
 \description{
 This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.

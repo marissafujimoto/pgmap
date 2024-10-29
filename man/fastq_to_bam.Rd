@@ -22,6 +22,8 @@ fastq_to_bam(
 
 \item{rev_index}{A file path to the index that was made with `bowtie2_build()` for the reverse reference file for the paired guide constructs}
 
+\item{sample_names}{a character vector that indicates the name of the samples as they are listed in the file names.}
+
 \item{output_dir}{A file path that designates where you'd like the aligned files saved. By default this file path is "aligned_bams"}
 
 \item{save_logs}{TRUE/FALSE you want the logs? They will be saved as the sample name}
@@ -29,8 +31,6 @@ fastq_to_bam(
 \item{time}{TRUE/FALSE you want the duration this takes to run printed out}
 
 \item{overwrite}{TRUE/FALSE should existing bam files of the same name be overwritten?}
-
-\item{sample_name}{a character vector that indicates the name of the samples as they are listed in the file names.}
 }
 \description{
 This function takes a forward and reverse bam files for a group of samples and returns the counts and stats.
