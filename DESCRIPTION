@@ -21,6 +21,9 @@ Imports:
 Suggests:
  testthat,
  roxygen2,
+ Rbowtie2, 
+ Rsamtools, 
+ tidyr, 
 Remotes:
  Bioconductor/Rhtslib,
  Bioconductor/Rsamtools,
