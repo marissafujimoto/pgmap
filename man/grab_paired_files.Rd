@@ -4,10 +4,10 @@
 \alias{grab_paired_files}
 \title{Obtain the counts for a group of samples}
 \usage{
-grab_paired_files(bam_dir, sample_names, time = TRUE)
+grab_paired_files(dir, sample_names, time = TRUE)
 }
 \arguments{
-\item{bam_dir}{a file path to a directory where the bam files associated with the sample names will be stored.}
+\item{dir}{a file path to a directory where the bam files associated with the sample names will be stored.}
 
 \item{sample_names}{a character vector that indicates the name of the samples as they are listed in the file names.}
 
@@ -20,12 +20,12 @@ This function takes a forward and reverse bam files for a group of samples and r
 \dontrun{
 
 # This will be the directory that contains all the file path
-bam_dir <- file.path(example_data_folder(), "bam")
+dir <- file.path(example_data_folder(), "bam")
 
 # These MUST be names that are listed in the bam file name itself.
 # There needs to be exactly 2 bam files per sample
 sample_names <- c("sample1", "sample2", "sample3")
 
-sample_df <- grab_paired_files(bam_dir, sample_names)
+sample_df <- grab_paired_files(dir, sample_names)
 }
 }
