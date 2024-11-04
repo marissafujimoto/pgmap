@@ -32,7 +32,7 @@ get_stats <- function(bam_dir, sample_names, output_dir = "stats", time = FALSE)
 
   # Grab the file names
   sample_df <- grab_paired_files(
-    bam_dir = bam_dir,
+    dir = bam_dir,
     sample_names = sample_names
   )
 
