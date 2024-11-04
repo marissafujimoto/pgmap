@@ -1,8 +1,7 @@
 utils::globalVariables(c(
   "X1", "X2", "rname_1", "rname_2", "qname", "paired", "any_paired", "weight",
-  "rname", ".")
+  "rname", ".", "bam_dir", "forward_file", "reverse_file")
   )
-
 
 #' Returns file paths to example data for package
 #' @description This function loads and returns file paths to example data for the packagae. Which dataset is returned must be specified
@@ -45,7 +44,7 @@ example_data <- function(which_data) {
 }
 
 
-#' Get file path to an default credentials RDS
+#' Get file path to example data
 #' @export
 #' @return Returns the file path to folder where the example data is stored
 example_data_folder <- function() {
@@ -55,6 +54,13 @@ example_data_folder <- function() {
     system.file("extdata", package = "pgmap"),
     full.names = TRUE
   )
-  file <- grep("idemp",file, invert = TRUE, value = TRUE)
+  file <- grep("idemp", file, invert = TRUE, value = TRUE)
   return(dirname(file))
+}
+
+#' Get file path to config folder
+#' @export
+#' @return Returns the file path to folder where the example data is stored
+config_folder <- function() {
+  file.path(example_data_folder(), "..", "config")
 }

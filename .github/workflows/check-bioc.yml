@@ -21,7 +21,6 @@
 ## * OS: operating system
 
 on:
-  push:
   pull_request:
 
 name: R-CMD-check-bioc
@@ -153,6 +152,7 @@ jobs:
         run: |
           message(paste('****', Sys.time(), 'installing BiocManager ****'))
           remotes::install_cran("BiocManager")
+          BiocManager::install("Rsamtools")
         shell: Rscript {0}
 
       - name: Set BiocVersion
@@ -191,6 +191,7 @@ jobs:
         run: |
           ## Install BiocGenerics
           BiocManager::install("BiocGenerics")
+          BiocManager::install("Rsamtools")
         shell: Rscript {0}
 
       - name: Install covr

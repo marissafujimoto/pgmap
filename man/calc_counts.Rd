@@ -20,21 +20,20 @@ This function takes a forward and reverse bam files for a group of samples and r
 \dontrun{
 
 # This will be the directory that contains all the file path
-bam_dir <- file.path(example_data_folder(), "bam") 
+bam_dir <- file.path(example_data_folder(), "bam")
 
 # These MUST be names that are listed in the bam file name itself.
 # There needs to be exactly 2 bam files per sample
 sample_names <- c("sample1", "sample2", "sample3")
 
 counts_df <- calc_counts(
-  bam_dir = bam_dir, 
-  sample_names = sample_names, 
+  bam_dir = bam_dir,
+  sample_names = sample_names,
   time = TRUE
 )
 
 # We can write these to CSV files like this
 readr::write_csv(counts_df$counts, "counts_pgmap.tsv")
 readr::write_csv(counts_df$stats, "stats_pgmap.tsv")
-
 }
 }

@@ -15,3 +15,4 @@ git_token.txt
 /doc/
 /Meta/
 *.zip
+.bowtie2.cerr.txt

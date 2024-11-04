@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{example_data_folder}
 \alias{example_data_folder}
-\title{Get file path to an default credentials RDS}
+\title{Get file path to example data}
 \usage{
 example_data_folder()
 }
@@ -10,5 +10,5 @@ example_data_folder()
 Returns the file path to folder where the example data is stored
 }
 \description{
-Get file path to an default credentials RDS
+Get file path to example data
 }

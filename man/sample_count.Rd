@@ -21,13 +21,13 @@ This function takes a forward and reverse bam file and returns the counts
 \examples{
 \dontrun{
 
-bam_dir <- file.path(example_data_folder(), "bam") 
+bam_dir <- file.path(example_data_folder(), "bam")
 
 counts <- sample_count(
   bam_1 = file.path(bam_dir, "pgMAP_tutorial_gRNA1_trimmed_sample1_aligned.bam"),
   bam_2 = file.path(bam_dir, "pgMAP_tutorial_gRNA2_trimmed_sample1_aligned.bam"),
-  sample_name = "sample1", 
-  time = TRUE)
-
+  sample_name = "sample1",
+  time = TRUE
+)
 }
 }
