@@ -16,3 +16,9 @@ git_token.txt
 /Meta/
 *.zip
 .bowtie2.cerr.txt
+
+### Python ###
+build/
+dist/
+__pycache__/
+*.egg-info/
