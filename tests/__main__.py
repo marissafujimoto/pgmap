@@ -4,8 +4,7 @@ from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
 
 
-# TODO separate into different classes for modules
-class TestIO(unittest.TestCase):
+class TestPgmap(unittest.TestCase):
 
     def test_read_fastq(self):
         count = 0
