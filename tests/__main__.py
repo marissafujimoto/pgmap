@@ -1,7 +1,7 @@
 import unittest
 
 from pgmap.io import fastq_reader
-from pgmap.trimmer import two_read_trim, three_read_trim
+from pgmap.trimming.read_trimmer import two_read_trim, three_read_trim
 
 
 # TODO separate into different classes for modules
