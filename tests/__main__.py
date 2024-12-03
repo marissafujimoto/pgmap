@@ -1,6 +1,6 @@
 import unittest
 
-from pgmap.io import fastq_reader, barcode_reader
+from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
 
 
@@ -11,7 +11,7 @@ class TestIO(unittest.TestCase):
         count = 0
 
         # TODO move these files to a cleaner test data folder
-        for sequence in fastq_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
+        for sequence in fastx_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
             count += 1
 
         self.assertEqual(count, 10000)
@@ -19,7 +19,7 @@ class TestIO(unittest.TestCase):
     def test_read_fastq_gz(self):
         count = 0
 
-        for sequence in fastq_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
+        for sequence in fastx_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
             count += 1
 
         self.assertEqual(count, 10000)
@@ -62,6 +62,13 @@ class TestIO(unittest.TestCase):
         self.assertEqual(barcodes["GATCAG"], "sample4")
         self.assertEqual(barcodes["ACTTGA"], "sample5")
         self.assertEqual(barcodes["GCCAAT"], "sample6")
+
+    def test_read_library(self):
+        gRNA1s, gRNA2s = library_reader.read_paired_guide_library(
+            "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
+
+        self.assertEqual(len(gRNA1s), 5072)
+        self.assertEqual(len(gRNA2s), 5095)
 
 
 if __name__ == "__main__":
