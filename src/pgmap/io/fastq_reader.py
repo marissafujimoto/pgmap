@@ -29,4 +29,6 @@ def read_fastq(fastq_path: str) -> Iterable[str]:
 
 def _generate_sequences(fastq_file: IO) -> Iterable[str]:
     for read in SeqIO.parse(fastq_file, "fastq"):
-        yield read.seq
+        yield str(read.seq)
+
+# TODO add fasta reader for guide references

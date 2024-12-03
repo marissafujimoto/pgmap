@@ -1,0 +1,5 @@
+CTTGTA	sample1
+GGCTAC	sample2
+TAGCTT	sample3
+GATCAG	sample4
+ACTTGA	sample5
