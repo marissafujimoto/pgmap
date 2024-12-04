@@ -2,6 +2,6 @@ import typing
 
 
 class PairedRead(typing.NamedTuple):
-    R1_candidate: str
-    R2_candidate: str
+    gRNA1_candidate: str
+    gRNA2_candidate: str
     barcode_candidate: str

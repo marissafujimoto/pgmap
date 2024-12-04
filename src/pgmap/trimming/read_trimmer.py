@@ -30,8 +30,8 @@ def three_read_trim(R1_path: str, R2_path: str, I1_path: str) -> Iterable[Paired
 
 def trim(fastq_paths: list[str], trim_strategy: TrimStrategy) -> Iterable[PairedRead]:
     for raw in zip(*list(map(read_fastq, fastq_paths))):
-        candidate = PairedRead(R1_candidate=raw[trim_strategy.R1.file_index][trim_strategy.R1.start:trim_strategy.R1.end],
-                               R2_candidate=raw[trim_strategy.R2.file_index][trim_strategy.R2.start:trim_strategy.R2.end],
+        candidate = PairedRead(gRNA1_candidate=raw[trim_strategy.R1.file_index][trim_strategy.R1.start:trim_strategy.R1.end],
+                               gRNA2_candidate=raw[trim_strategy.R2.file_index][trim_strategy.R2.start:trim_strategy.R2.end],
                                barcode_candidate=raw[trim_strategy.barcode.file_index][trim_strategy.barcode.start:trim_strategy.barcode.end])
 
         yield candidate
