@@ -2,6 +2,7 @@ import unittest
 
 from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
+from pgmap.alignment import pairwise_aligner
 
 
 class TestPgmap(unittest.TestCase):
@@ -80,6 +81,27 @@ class TestPgmap(unittest.TestCase):
 
         self.assertEqual(count, 10000)
         self.assertGreater(perfect_alignments / count, .2)
+
+    def test_hamming_score(self):
+        self.assertEqual(pairwise_aligner.hamming_score("ABC", "AXX"), 1)
+        self.assertEqual(pairwise_aligner.hamming_score("ABC", "XXX"), 0)
+        self.assertEqual(pairwise_aligner.hamming_score("ABC", "ABC"), 3)
+
+    def test_edit_distance_score(self):
+        self.assertEqual(
+            pairwise_aligner.edit_distance_score("ABCDEF", "XABCDE"), 4)
+        self.assertEqual(
+            pairwise_aligner.edit_distance_score("ABC", "XXX"), 0)
+        self.assertEqual(
+            pairwise_aligner.edit_distance_score("ABC", "ABC"), 3)
+
+    def test_blast_aligner_score(self):
+        self.assertEqual(
+            pairwise_aligner.blast_aligner_score("ABC", "XAB"), -3)
+        self.assertEqual(
+            pairwise_aligner.blast_aligner_score("ABC", "XXX"), -6)
+        self.assertEqual(
+            pairwise_aligner.blast_aligner_score("ABC", "ABC"), 3)
 
 
 if __name__ == "__main__":
