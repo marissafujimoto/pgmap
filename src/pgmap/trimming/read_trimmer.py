@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from pgmap.io.fastq_reader import read_fastq
+from pgmap.io.fastx_reader import read_fastq
 from pgmap.model.trim_coordinate import TrimCoordinate
 from pgmap.model.trim_strategy import TrimStrategy
 from pgmap.model.paired_read import PairedRead
