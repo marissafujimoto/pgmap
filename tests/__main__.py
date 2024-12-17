@@ -12,7 +12,7 @@ class TestPgmap(unittest.TestCase):
     def test_read_fastq(self):
         count = 0
 
-        for sequence in fastx_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
+        for sequence in fastx_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_R1_001_Sampled10k.fastq"):
             count += 1
 
         self.assertEqual(count, 10000)
