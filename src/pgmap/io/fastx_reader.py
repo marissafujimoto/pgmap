@@ -7,13 +7,13 @@ from typing import IO, Iterable
 
 def read_fastq(fastq_path: str) -> Iterable[str]:
     """
-    Read sequences from a fastq (ignoring quality)
+    Read sequences from a fastq (ignoring quality). Streams from a file and uses O(1) memory.
 
     Args:
-        fastq_path (str): The path to a fastq file. Can optionally be gzipped
+        fastq_path (str): The path to a fastq file. Can optionally be gzipped.
 
     Yields:
-        str: The next sequence in the fastq file
+        str: The next sequence in the fastq file.
     """
     # TODO check file validity?
     yield from _read_fastx(fastq_path, "fastq")
@@ -21,13 +21,13 @@ def read_fastq(fastq_path: str) -> Iterable[str]:
 
 def read_fasta(fasta_path: str) -> Iterable[str]:
     """
-    Read sequences from a fasta
+    Read sequences from a fasta. Streams from a file and uses O(1) memory.
 
     Args:
-        fasta_path (str): The path to a fasta file. Can optionally be gzipped
+        fasta_path (str): The path to a fasta file. Can optionally be gzipped.
 
     Yields:
-        str: The next sequence in the fasta file
+        str: The next sequence in the fasta file.
     """
     # TODO check file validity?
     yield from _read_fastx(fasta_path, "fasta")

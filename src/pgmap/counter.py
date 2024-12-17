@@ -18,18 +18,18 @@ def get_counts(paired_reads: Iterable[PairedRead],
 
     Args:
         paired_reads (Iterable[PairedRead]): An iterable producing the candidate reads to be counted. Can be
-        generator to minimize memory usage
+        generator to minimize memory usage.
         gRNA_mappings (dict[str, set[str]]): The known mappings of each reference library gRNA1 to the set of gRNA2s
-        the gRNA1 is paired with
-        barcodes (set[str]): The sample barcode sequences
+        the gRNA1 is paired with.
+        barcodes (set[str]): The sample barcode sequences.
         gRNA2_error_tolerance (int): The error tolerance for the hamming distance a gRNA2 candidate can be to the
-        reference gRNA2. Defaults to 2
+        reference gRNA2. Defaults to 2.
         barcode_error_tolerance (int): The error tolerance for the edit distance a barcode candidate can be to the
-        reference barcode. Defaults to 2
+        reference barcode. Defaults to 2.
 
     Returns:
         paired_guide_counts (Counter[tuple[str, str, str]]): The counts of each (gRNA1, gRNA2, barcode) detected
-        within the paired reads
+        within the paired reads.
     """
     # TODO should this keep track of metrics for how many paired reads get discarded and at which step? maybe with a verbose logging option?
     # TODO should we key with sample id instead of barcode sequence?
