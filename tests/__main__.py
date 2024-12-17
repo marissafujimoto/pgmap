@@ -168,6 +168,8 @@ class TestPgmap(unittest.TestCase):
         paired_guide_counts = counter.get_counts(
             candidate_reads, gRNA_mappings, barcodes)
 
+        self.assertEqual(paired_guide_counts[("LET", "EAT", "FOOD")], 1)
+        self.assertEqual(paired_guide_counts[("LET", "WOW", "FOOD")], 1)
         self.assertEqual(sum(paired_guide_counts.values()), 2)
 
 
