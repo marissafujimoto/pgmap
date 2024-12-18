@@ -1,5 +1,6 @@
 import unittest
 import argparse
+import csv
 
 from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
@@ -64,7 +65,7 @@ class TestPgmap(unittest.TestCase):
                          sum(1 for _ in fastx_reader.read_fasta("example-data/pgPEN-library/pgPEN_R1.fa")))
 
     def test_read_library_annotation(self):
-        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_annotation(
+        gRNA1s, gRNA2s, gRNA_mappings, id_mapping = library_reader.read_paired_guide_library_annotation(
             PGPEN_ANNOTATION_PATH)
 
         self.assertEqual(len(gRNA1s), 5072)
@@ -73,6 +74,15 @@ class TestPgmap(unittest.TestCase):
         # The sum of the length of all mappings should be equal to the number of reads in the library files
         self.assertEqual(sum(len(mapped_gRNA2s) for _, mapped_gRNA2s in gRNA_mappings.items()),
                          sum(1 for _ in fastx_reader.read_fasta("example-data/pgPEN-library/pgPEN_R1.fa")))
+
+        # The length of id_mapping should be equal to the line length of the file minus 1
+
+        with open(PGPEN_ANNOTATION_PATH, 'r') as file:
+            self.assertEqual(sum(1 for _ in csv.reader(
+                file, delimiter='\t')) - 1, len(id_mapping))
+
+        self.assertEqual(
+            id_mapping[("ATTTCTATCCAAATCACTCA", "GAAAAAATTTGACTGCAGCA")], "AADAC_AADACL2_pg10")
 
     def test_three_read_trim(self):
         barcodes = barcode_reader.read_barcodes(THREE_READ_BARCODES_PATH)

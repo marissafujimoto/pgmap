@@ -12,7 +12,7 @@ THREE_READ_STRATEGY = "three_read"
 
 def get_counts(args: argparse.Namespace):
     barcodes = barcode_reader.read_barcodes(args.barcodes)
-    gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_annotation(
+    gRNA1s, gRNA2s, gRNA_mappings, id_mapping = library_reader.read_paired_guide_library_annotation(
         args.library)
 
     candidate_reads = None

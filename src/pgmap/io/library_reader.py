@@ -45,13 +45,14 @@ def read_paired_guide_library_annotation(annotation_path: str) -> tuple[set[str]
         gRNA1s (set[str]): The set of all gRNA1 sequences.
         gRNA2s (set[str]): The set of all gRNA2 sequences.
         gRNA_mappings (dict[str, set[str]]): A mapping from each gRNA1 to a set of all of it's paired gRNA2s.
+        id_mapping (dict[str, str]): A mapping from each paired (gRNA1, gRNA2) to the annotation id name.
     """
-    # TODO docs
-
     gRNA1s = set()
     gRNA2s = set()
 
     gRNA_mappings = defaultdict(set)
+
+    id_mapping = {}
 
     with open(annotation_path, 'r') as file:
         tsv_reader = csv.reader(file, delimiter='\t')
@@ -65,4 +66,6 @@ def read_paired_guide_library_annotation(annotation_path: str) -> tuple[set[str]
 
             gRNA_mappings[gRNA1].add(gRNA2)
 
-    return gRNA1s, gRNA2s, gRNA_mappings
+            id_mapping[(gRNA1, gRNA2)] = id
+
+    return gRNA1s, gRNA2s, gRNA_mappings, id_mapping
