@@ -3,7 +3,7 @@ import unittest
 from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
 from pgmap.alignment import pairwise_aligner
-from pgmap import counter
+from pgmap.counter import counter
 from pgmap.model.paired_read import PairedRead
 
 
