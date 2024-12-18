@@ -3,7 +3,7 @@ import os
 import sys
 
 from pgmap.counter import counter
-from pgmap.io import barcode_reader, library_reader
+from pgmap.io import barcode_reader, library_reader, counts_writer
 from pgmap.trimming import read_trimmer
 
 TWO_READ_STRATEGY = "two_read"
@@ -25,7 +25,8 @@ def get_counts(args: argparse.Namespace):
     paired_guide_counts = counter.get_counts(
         candidate_reads, gRNA_mappings, barcodes, gRNA2_error_tolerance=args.gRNA2_error, barcode_error_tolerance=args.barcode_error)
 
-    print(paired_guide_counts)  # TODO convert to dataframe style
+    counts_writer.write_counts(
+        args.output, paired_guide_counts, barcodes, id_mapping)
 
 
 def _parse_args(args: list[str]) -> argparse.Namespace:

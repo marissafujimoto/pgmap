@@ -1,6 +1,9 @@
 import unittest
 import argparse
 import csv
+import os
+import uuid
+from collections import Counter
 
 from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
@@ -273,14 +276,63 @@ class TestPgmap(unittest.TestCase):
                                     "--trim_strategy", "two-read",
                                     "--barcode_error", "one"])
 
+    def setUp(self):
+        self.test_output_path = f"test_file_{uuid.uuid4().hex}.tsv"
+
+    def tearDown(self):
+        if os.path.exists(self.test_output_path):
+            os.remove(self.test_output_path)
+
     def test_main_happy_case(self):
         args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                 "--library", PGPEN_ANNOTATION_PATH,
                                 "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--output", self.test_output_path,
                                 "--trim_strategy", "two_read"])
         cli.get_counts(args)
 
-        # TODO open output file and check correctness
+        self.assertTrue(os.path.exists(self.test_output_path))
+
+        barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
+
+        gRNA1s, gRNA2s, gRNA_mappings, id_mapping = library_reader.read_paired_guide_library_annotation(
+            PGPEN_ANNOTATION_PATH)
+
+        candidate_reads = read_trimmer.two_read_trim(
+            TWO_READ_R1_PATH, TWO_READ_I1_PATH)
+
+        paired_guide_counts = counter.get_counts(
+            candidate_reads, gRNA_mappings, barcodes)
+
+        file_counts = self.load_counts_from_output_file(
+            self.test_output_path, barcodes)
+
+        self.assertEqual(file_counts, paired_guide_counts)
+
+    def load_counts_from_output_file(self, output_path: str, barcodes: dict[str, str]) -> Counter[tuple[str, str, str]]:
+        with open(output_path, 'r') as file:
+            tsv_reader = csv.reader(file, delimiter='\t')
+
+            sample_ids = None
+            sample_id_to_barcode = {v: k for k, v in barcodes.items()}
+            counts = Counter()
+
+            for i, row in enumerate(tsv_reader):
+                if i == 0:
+                    sample_ids = row[3:]
+                    continue
+
+                gRNA1 = row[1]
+                gRNA2 = row[2]
+
+                for j in range(3, len(row)):
+                    barcode = sample_id_to_barcode[sample_ids[j - 3]]
+
+                    count = int(row[j])
+
+                    counts[(gRNA1, gRNA2, barcode)] += count
+
+            return counts
 
 
 if __name__ == "__main__":
