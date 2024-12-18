@@ -5,6 +5,7 @@ from pgmap.trimming import read_trimmer
 from pgmap.alignment import pairwise_aligner
 from pgmap.counter import counter
 from pgmap.model.paired_read import PairedRead
+from pgmap.cli import _parse_args
 
 
 class TestPgmap(unittest.TestCase):
@@ -171,6 +172,11 @@ class TestPgmap(unittest.TestCase):
         self.assertEqual(paired_guide_counts[("LET", "EAT", "FOOD")], 1)
         self.assertEqual(paired_guide_counts[("LET", "WOW", "FOOD")], 1)
         self.assertEqual(sum(paired_guide_counts.values()), 2)
+
+    # TODO separate these into own test module?
+    def test_arg_parse(self):
+        args = _parse_args(["--count", "5"])
+        self.assertEqual(args.count, 5)
 
 
 if __name__ == "__main__":
