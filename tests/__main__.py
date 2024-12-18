@@ -1,4 +1,5 @@
 import unittest
+import argparse
 
 from pgmap.io import barcode_reader, fastx_reader, library_reader
 from pgmap.trimming import read_trimmer
@@ -6,6 +7,19 @@ from pgmap.alignment import pairwise_aligner
 from pgmap.counter import counter
 from pgmap.model.paired_read import PairedRead
 from pgmap.cli import _parse_args
+
+THREE_READ_R1_PATH = "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_R1_001_Sampled10k.fastq.gz"
+THREE_READ_I1_PATH = "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"
+THREE_READ_I2_PATH = "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I2_001_Sampled10k.fastq.gz"
+THREE_READ_BARCODES_PATH = "example-data/three-read-strategy/HeLa/screen_barcodes.txt"
+
+TWO_READ_R1_PATH = "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz"
+TWO_READ_I1_PATH = "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz"
+TWO_READ_BARCODES_PATH = "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/barcode_ref_file_revcomp.txt"
+
+PGPEN_ANNOTATION_PATH = "example-data/pgPEN-library/paralog_pgRNA_annotations.txt"
+
+INVALID_FILE_PATH = "file-does-not-exist"
 
 
 class TestPgmap(unittest.TestCase):
@@ -21,7 +35,7 @@ class TestPgmap(unittest.TestCase):
     def test_read_fastq_gz(self):
         count = 0
 
-        for sequence in fastx_reader.read_fastq("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"):
+        for sequence in fastx_reader.read_fastq(THREE_READ_I1_PATH):
             count += 1
 
         self.assertEqual(count, 10000)
@@ -50,17 +64,14 @@ class TestPgmap(unittest.TestCase):
                          sum(1 for _ in fastx_reader.read_fasta("example-data/pgPEN-library/pgPEN_R1.fa")))
 
     def test_three_read_trim(self):
-        barcodes = barcode_reader.read_barcodes(
-            "example-data/three-read-strategy/HeLa/screen_barcodes.txt")
+        barcodes = barcode_reader.read_barcodes(THREE_READ_BARCODES_PATH)
         gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         count = 0
         perfect_alignments = 0
 
-        for paired_read in read_trimmer.three_read_trim("example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_R1_001_Sampled10k.fastq.gz",
-                                                        "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz",
-                                                        "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I2_001_Sampled10k.fastq.gz"):
+        for paired_read in read_trimmer.three_read_trim(THREE_READ_R1_PATH, THREE_READ_I1_PATH, THREE_READ_I2_PATH):
             count += 1
 
             if paired_read.gRNA1_candidate in gRNA1s and paired_read.gRNA2_candidate in gRNA2s and paired_read.barcode_candidate in barcodes:
@@ -70,16 +81,14 @@ class TestPgmap(unittest.TestCase):
         self.assertGreater(perfect_alignments / count, .7)
 
     def test_two_read_trim(self):
-        barcodes = barcode_reader.read_barcodes(
-            "example-data/three-read-strategy/HeLa/screen_barcodes.txt")
+        barcodes = barcode_reader.read_barcodes(THREE_READ_BARCODES_PATH)
         gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         count = 0
         perfect_alignments = 0
 
-        for paired_read in read_trimmer.two_read_trim("example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz",
-                                                      "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz"):
+        for paired_read in read_trimmer.two_read_trim(TWO_READ_R1_PATH, TWO_READ_I1_PATH):
             count += 1
 
             if paired_read.gRNA1_candidate in gRNA1s and paired_read.gRNA2_candidate in gRNA2s and paired_read.barcode_candidate in barcodes:
@@ -110,21 +119,19 @@ class TestPgmap(unittest.TestCase):
             pairwise_aligner.blast_aligner_score("ABC", "ABC"), 3)
 
     def test_counter_no_error_tolerance(self):
-        barcodes = barcode_reader.read_barcodes(
-            "example-data/three-read-strategy/HeLa/screen_barcodes.txt")
+        barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
         gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
-        candidate_reads = read_trimmer.two_read_trim("example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz",
-                                                     "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz")
+        candidate_reads = read_trimmer.two_read_trim(
+            TWO_READ_R1_PATH, TWO_READ_I1_PATH)
 
         paired_guide_counts = counter.get_counts(
             candidate_reads, gRNA_mappings, barcodes, gRNA2_error_tolerance=0, barcode_error_tolerance=0)
 
         perfect_alignments = 0
 
-        for paired_read in read_trimmer.two_read_trim("example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz",
-                                                      "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz"):
+        for paired_read in read_trimmer.two_read_trim(TWO_READ_R1_PATH, TWO_READ_I1_PATH):
             if paired_read.gRNA1_candidate in gRNA1s and paired_read.gRNA2_candidate in gRNA_mappings[paired_read.gRNA1_candidate] and paired_read.barcode_candidate in barcodes:
                 perfect_alignments += 1
 
@@ -132,13 +139,12 @@ class TestPgmap(unittest.TestCase):
         self.assertEqual(sum(paired_guide_counts.values()), perfect_alignments)
 
     def test_counter_default_error_tolerance(self):
-        barcodes = barcode_reader.read_barcodes(
-            "example-data/three-read-strategy/HeLa/screen_barcodes.txt")
+        barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
         gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
-        candidate_reads = read_trimmer.two_read_trim("example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz",
-                                                     "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz")
+        candidate_reads = read_trimmer.two_read_trim(
+            TWO_READ_R1_PATH, TWO_READ_I1_PATH)
 
         paired_guide_counts = counter.get_counts(
             candidate_reads, gRNA_mappings, barcodes)
@@ -146,8 +152,7 @@ class TestPgmap(unittest.TestCase):
         count = 0
         perfect_alignments = 0
 
-        for paired_read in read_trimmer.two_read_trim("example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz",
-                                                      "example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz"):
+        for paired_read in read_trimmer.two_read_trim(TWO_READ_R1_PATH, TWO_READ_I1_PATH):
             count += 1
 
             if paired_read.gRNA1_candidate in gRNA1s and paired_read.gRNA2_candidate in gRNA_mappings[paired_read.gRNA1_candidate] and paired_read.barcode_candidate in barcodes:
@@ -174,9 +179,78 @@ class TestPgmap(unittest.TestCase):
         self.assertEqual(sum(paired_guide_counts.values()), 2)
 
     # TODO separate these into own test module?
-    def test_arg_parse(self):
-        args = _parse_args(["--count", "5"])
-        self.assertEqual(args.count, 5)
+    def test_arg_parse_happy_case(self):
+        args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                            "--library", PGPEN_ANNOTATION_PATH,
+                            "--barcodes", TWO_READ_BARCODES_PATH,
+                            "--trim_strategy", "two_read"])
+        self.assertEqual(args.fastq[0], TWO_READ_R1_PATH)
+        self.assertEqual(args.fastq[1], TWO_READ_I1_PATH)
+        self.assertEqual(args.library, PGPEN_ANNOTATION_PATH)
+        self.assertEqual(args.barcodes, TWO_READ_BARCODES_PATH)
+        self.assertEqual(args.trim_strategy, "two_read")
+        self.assertEqual(args.gRNA2_error, 2)
+        self.assertEqual(args.barcode_error, 2)
+
+    def test_arg_parse_invalid_fastq(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", INVALID_FILE_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two_read"])
+
+    def test_arg_parse_invalid_library(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", INVALID_FILE_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two_read"])
+
+    def test_arg_parse_invalid_barcodes(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", INVALID_FILE_PATH,
+                                "--trim_strategy", "two_read"])
+
+    def test_arg_parse_invalid_trim_strategy(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "burger"])
+
+    def test_arg_parse_negative_gRNA2_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two-read",
+                                "--gRNA2_error", "-1"])
+
+    def test_arg_parse_negative_barcode_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two-read",
+                                "--barcode_error", "-1"])
+
+    def test_arg_parse_invalid_type_gRNA2_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two-read",
+                                "--gRNA2_error", "one"])
+
+    def test_arg_parse_invalid_type_barcode_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two-read",
+                                "--barcode_error", "one"])
 
 
 if __name__ == "__main__":
