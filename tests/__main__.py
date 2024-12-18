@@ -6,7 +6,7 @@ from pgmap.trimming import read_trimmer
 from pgmap.alignment import pairwise_aligner
 from pgmap.counter import counter
 from pgmap.model.paired_read import PairedRead
-from pgmap.cli import _parse_args
+from pgmap import cli
 
 THREE_READ_R1_PATH = "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_R1_001_Sampled10k.fastq.gz"
 THREE_READ_I1_PATH = "example-data/three-read-strategy/HeLa/PP_pgRNA_HeLa_S1_I1_001_Sampled10k.fastq.gz"
@@ -191,10 +191,10 @@ class TestPgmap(unittest.TestCase):
 
     # TODO separate these into own test module?
     def test_arg_parse_happy_case(self):
-        args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                            "--library", PGPEN_ANNOTATION_PATH,
-                            "--barcodes", TWO_READ_BARCODES_PATH,
-                            "--trim_strategy", "two_read"])
+        args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--trim_strategy", "two_read"])
         self.assertEqual(args.fastq[0], TWO_READ_R1_PATH)
         self.assertEqual(args.fastq[1], TWO_READ_I1_PATH)
         self.assertEqual(args.library, PGPEN_ANNOTATION_PATH)
@@ -205,63 +205,72 @@ class TestPgmap(unittest.TestCase):
 
     def test_arg_parse_invalid_fastq(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", INVALID_FILE_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two_read"])
+            args = cli._parse_args(["--fastq", INVALID_FILE_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two_read"])
 
     def test_arg_parse_invalid_library(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", INVALID_FILE_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two_read"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", INVALID_FILE_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two_read"])
 
     def test_arg_parse_invalid_barcodes(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", INVALID_FILE_PATH,
-                                "--trim_strategy", "two_read"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", INVALID_FILE_PATH,
+                                    "--trim_strategy", "two_read"])
 
     def test_arg_parse_invalid_trim_strategy(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "burger"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "burger"])
 
     def test_arg_parse_negative_gRNA2_error(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two-read",
-                                "--gRNA2_error", "-1"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two-read",
+                                    "--gRNA2_error", "-1"])
 
     def test_arg_parse_negative_barcode_error(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two-read",
-                                "--barcode_error", "-1"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two-read",
+                                    "--barcode_error", "-1"])
 
     def test_arg_parse_invalid_type_gRNA2_error(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
-                                "--library", PGPEN_ANNOTATION_PATH,
-                                "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two-read",
-                                "--gRNA2_error", "one"])
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two-read",
+                                    "--gRNA2_error", "one"])
 
     def test_arg_parse_invalid_type_barcode_error(self):
         with self.assertRaises(argparse.ArgumentError):
-            args = _parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim_strategy", "two-read",
+                                    "--barcode_error", "one"])
+
+    def test_main_happy_case(self):
+        args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                 "--library", PGPEN_ANNOTATION_PATH,
                                 "--barcodes", TWO_READ_BARCODES_PATH,
-                                "--trim_strategy", "two-read",
-                                "--barcode_error", "one"])
+                                "--trim_strategy", "two_read"])
+        cli.get_counts(args)
+
+        # TODO open output file and check correctness
 
 
 if __name__ == "__main__":

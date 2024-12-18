@@ -3,9 +3,29 @@ import os
 import sys
 
 from pgmap.counter import counter
+from pgmap.io import barcode_reader, library_reader
+from pgmap.trimming import read_trimmer
 
 TWO_READ_STRATEGY = "two_read"
 THREE_READ_STRATEGY = "three_read"
+
+
+def get_counts(args: argparse.Namespace):
+    barcodes = barcode_reader.read_barcodes(args.barcodes)
+    gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_annotation(
+        args.library)
+
+    candidate_reads = None
+
+    if args.trim_strategy == TWO_READ_STRATEGY:
+        candidate_reads = read_trimmer.two_read_trim(*args.fastq)
+    elif args.trim_strategy == THREE_READ_STRATEGY:
+        candidate_reads = read_trimmer.two_read_trim(*args.fastq)
+
+    paired_guide_counts = counter.get_counts(
+        candidate_reads, gRNA_mappings, barcodes, gRNA2_error_tolerance=args.gRNA2_error, barcode_error_tolerance=args.barcode_error)
+
+    print(paired_guide_counts)  # TODO convert to dataframe style
 
 
 def _parse_args(args: list[str]) -> argparse.Namespace:
@@ -50,4 +70,4 @@ def _check_file_exists(path: str) -> str:
 
 
 if __name__ == "__main__":
-    args = _parse_args(sys.argv[1:])
+    get_counts(_parse_args(sys.argv[1:]))
