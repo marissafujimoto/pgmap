@@ -2,6 +2,11 @@ import argparse
 import os
 import sys
 
+from pgmap.counter import counter
+
+TWO_READ_STRATEGY = "two_read"
+THREE_READ_STRATEGY = "three_read"
+
 
 def _parse_args(args: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -18,7 +23,7 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
     parser.add_argument("-o", "--output", required=False,
                         help="Output file path to populate with the counts for each paired guide and sample. If not provided the counts will be output in STDOUT.")
     # TODO support arbitrary trim strategies
-    parser.add_argument("--trim_strategy", required=False, choices=("two_read", "three_read"),
+    parser.add_argument("--trim_strategy", required=False, choices=(TWO_READ_STRATEGY, THREE_READ_STRATEGY),
                         help="The trim strategy used to extract guides and barcodes. The two read strategy should have fastqs R1 and I1. The three read strategy should have fastqs R1, I1, and I2")  # TODO extract consts
     parser.add_argument("--gRNA2_error", required=False, default=2, type=_check_nonnegative,
                         help="The number of substituted base pairs to allow in gRNA2.")

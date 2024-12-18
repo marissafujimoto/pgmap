@@ -52,20 +52,31 @@ class TestPgmap(unittest.TestCase):
         self.assertEqual(barcodes["ACTTGA"], "sample5")
         self.assertEqual(barcodes["GCCAAT"], "sample6")
 
-    def test_read_library(self):
-        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library(
+    def test_read_library_fastas(self):
+        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_fastas(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         self.assertEqual(len(gRNA1s), 5072)
         self.assertEqual(len(gRNA2s), 5095)
 
-        # The sum of the lenght of all mappings should be equal to the number of reads in the library files
+        # The sum of the length of all mappings should be equal to the number of reads in the library files
+        self.assertEqual(sum(len(mapped_gRNA2s) for _, mapped_gRNA2s in gRNA_mappings.items()),
+                         sum(1 for _ in fastx_reader.read_fasta("example-data/pgPEN-library/pgPEN_R1.fa")))
+
+    def test_read_library_annotation(self):
+        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_annotation(
+            PGPEN_ANNOTATION_PATH)
+
+        self.assertEqual(len(gRNA1s), 5072)
+        self.assertEqual(len(gRNA2s), 5095)
+
+        # The sum of the length of all mappings should be equal to the number of reads in the library files
         self.assertEqual(sum(len(mapped_gRNA2s) for _, mapped_gRNA2s in gRNA_mappings.items()),
                          sum(1 for _ in fastx_reader.read_fasta("example-data/pgPEN-library/pgPEN_R1.fa")))
 
     def test_three_read_trim(self):
         barcodes = barcode_reader.read_barcodes(THREE_READ_BARCODES_PATH)
-        gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library(
+        gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library_fastas(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         count = 0
@@ -82,7 +93,7 @@ class TestPgmap(unittest.TestCase):
 
     def test_two_read_trim(self):
         barcodes = barcode_reader.read_barcodes(THREE_READ_BARCODES_PATH)
-        gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library(
+        gRNA1s, gRNA2s, _ = library_reader.read_paired_guide_library_fastas(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         count = 0
@@ -120,7 +131,7 @@ class TestPgmap(unittest.TestCase):
 
     def test_counter_no_error_tolerance(self):
         barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
-        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library(
+        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_fastas(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         candidate_reads = read_trimmer.two_read_trim(
@@ -140,7 +151,7 @@ class TestPgmap(unittest.TestCase):
 
     def test_counter_default_error_tolerance(self):
         barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
-        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library(
+        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_fastas(
             "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
 
         candidate_reads = read_trimmer.two_read_trim(
