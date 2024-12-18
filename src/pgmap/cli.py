@@ -6,8 +6,8 @@ from pgmap.counter import counter
 from pgmap.io import barcode_reader, library_reader, counts_writer
 from pgmap.trimming import read_trimmer
 
-TWO_READ_STRATEGY = "two_read"
-THREE_READ_STRATEGY = "three_read"
+TWO_READ_STRATEGY = "two-read"
+THREE_READ_STRATEGY = "three-read"
 
 
 def get_counts(args: argparse.Namespace):
@@ -44,11 +44,11 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
     parser.add_argument("-o", "--output", required=False,
                         help="Output file path to populate with the counts for each paired guide and sample. If not provided the counts will be output in STDOUT.")
     # TODO support arbitrary trim strategies
-    parser.add_argument("--trim_strategy", required=True, choices=(TWO_READ_STRATEGY, THREE_READ_STRATEGY),
+    parser.add_argument("--trim-strategy", required=True, choices=(TWO_READ_STRATEGY, THREE_READ_STRATEGY),
                         help="The trim strategy used to extract guides and barcodes. The two read strategy should have fastqs R1 and I1. The three read strategy should have fastqs R1, I1, and I2")  # TODO extract consts
-    parser.add_argument("--gRNA2_error", required=False, default=2, type=_check_nonnegative,
+    parser.add_argument("--gRNA2-error", required=False, default=2, type=_check_nonnegative,
                         help="The number of substituted base pairs to allow in gRNA2.")
-    parser.add_argument("--barcode_error", required=False, default=2, type=_check_nonnegative,
+    parser.add_argument("--barcode-error", required=False, default=2, type=_check_nonnegative,
                         help="The number of insertions, deletions, and subsititions of base pairs to allow in the barcodes.")
     return parser.parse_args(args)
 
