@@ -35,6 +35,17 @@ def read_paired_guide_library_fastas(R1_path: str, R2_path: str) -> tuple[set[st
 
 
 def read_paired_guide_library_annotation(annotation_path: str) -> tuple[set[str], set[str], dict[str, set[str]]]:
+    """
+    Reads a paired guide library from an annotation file. The file should be a tsv with a header of id, gRNA1, gRNA2.
+
+    Args:
+        annotation_path (str): The path to the library annotation file.
+
+    Returns:
+        gRNA1s (set[str]): The set of all gRNA1 sequences.
+        gRNA2s (set[str]): The set of all gRNA2 sequences.
+        gRNA_mappings (dict[str, set[str]]): A mapping from each gRNA1 to a set of all of it's paired gRNA2s.
+    """
     # TODO docs
 
     gRNA1s = set()
