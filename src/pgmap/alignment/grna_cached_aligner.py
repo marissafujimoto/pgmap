@@ -4,7 +4,10 @@ from typing import Iterable
 def construct_grna_error_alignment_cache(gRNAs: list[str], gRNA_error_tolerance: int) -> dict[str, tuple[str, int]]:
     # TODO docs
 
-    # TODO throw error if tolerance > 1 for now
+    if gRNA_error_tolerance > 1 or gRNA_error_tolerance < 0:
+        raise ValueError(f"gRNA error tolerance must be 0 or 1 but was {
+                         gRNA_error_tolerance}")
+
     alignment_cache = {}
 
     if gRNA_error_tolerance:

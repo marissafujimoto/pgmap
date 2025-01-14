@@ -167,6 +167,20 @@ class TestPgmap(unittest.TestCase):
                                            "AGA": ("AAA", 1),
                                            "AAG": ("AAA", 1)})
 
+    def test_grna_cached_aligner_negative_error_tolerance(self):
+        gRNAs = ["AAA"]
+
+        with self.assertRaises(ValueError):
+            grna_cached_aligner.construct_grna_error_alignment_cache(
+                gRNAs, -1)
+
+    def test_grna_cached_aligner_error_tolerance_greater_than_1(self):
+        gRNAs = ["AAA"]
+
+        with self.assertRaises(ValueError):
+            grna_cached_aligner.construct_grna_error_alignment_cache(
+                gRNAs, 2)
+
     def test_counter_no_error_tolerance(self):
         barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
         gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_fastas(
@@ -270,6 +284,14 @@ class TestPgmap(unittest.TestCase):
                                     "--barcodes", TWO_READ_BARCODES_PATH,
                                     "--trim-strategy", "burger"])
 
+    def test_arg_parse_negative_gRNA1_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim-strategy", "two-read",
+                                    "--gRNA1-error", "-1"])
+
     def test_arg_parse_negative_gRNA2_error(self):
         with self.assertRaises(argparse.ArgumentError):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
@@ -285,6 +307,30 @@ class TestPgmap(unittest.TestCase):
                                     "--barcodes", TWO_READ_BARCODES_PATH,
                                     "--trim-strategy", "two-read",
                                     "--barcode-error", "-1"])
+
+    def test_arg_parse_gRNA1_error_greater_than_1(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim-strategy", "two-read",
+                                    "--gRNA1-error", "2"])
+
+    def test_arg_parse_gRNA1_error_greater_than_1(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim-strategy", "two-read",
+                                    "--gRNA2-error", "2"])
+
+    def test_arg_parse_invalid_type_gRNA1_error(self):
+        with self.assertRaises(argparse.ArgumentError):
+            args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                    "--library", PGPEN_ANNOTATION_PATH,
+                                    "--barcodes", TWO_READ_BARCODES_PATH,
+                                    "--trim-strategy", "two-read",
+                                    "--gRNA1-error", "one"])
 
     def test_arg_parse_invalid_type_gRNA2_error(self):
         with self.assertRaises(argparse.ArgumentError):
