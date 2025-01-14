@@ -2,14 +2,15 @@ from collections import Counter
 from typing import Counter, Iterable
 
 from pgmap.model.paired_read import PairedRead
-from pgmap.alignment import pairwise_aligner
+from pgmap.alignment import pairwise_aligner, grna_cached_aligner
 
 
 def get_counts(paired_reads: Iterable[PairedRead],
                gRNA_mappings: dict[str, set[str]],
                barcodes: set[str],
-               gRNA2_error_tolerance: int = 2,
-               barcode_error_tolerance: int = 2) -> Counter[tuple[str, str, str]]:
+               gRNA1_error_tolerance: int = 1,
+               gRNA2_error_tolerance: int = 1,
+               barcode_error_tolerance: int = 1) -> Counter[tuple[str, str, str]]:
     """
     Count paired guides for each sample barcode with tolerance for errors. gRNA1 matchs only through
     perfect alignment. gRNA2 aligns if there is a match of a known (gRNA1, gRNA2) pairing having hamming distance
@@ -38,14 +39,19 @@ def get_counts(paired_reads: Iterable[PairedRead],
 
     paired_guide_counts = Counter()
 
-    for paired_read in paired_reads:
-        gRNA1 = paired_read.gRNA1_candidate
+    gRNA1_cached_aligner = grna_cached_aligner.construct_grna_error_alignment_cache(
+        gRNA_mappings.keys(), gRNA1_error_tolerance)
 
-        if gRNA1 not in gRNA_mappings:
+    for paired_read in paired_reads:
+        paired_read.gRNA1_candidate
+
+        if paired_read.gRNA1_candidate not in gRNA1_cached_aligner:
             continue
 
+        gRNA1, _ = gRNA1_cached_aligner[paired_read.gRNA1_candidate]
+
         gRNA2_score, gRNA2 = max((pairwise_aligner.hamming_score(paired_read.gRNA2_candidate, reference), reference)
-                                 for reference in gRNA_mappings[paired_read.gRNA1_candidate])
+                                 for reference in gRNA_mappings[gRNA1])
 
         if (len(gRNA2) - gRNA2_score) > gRNA2_error_tolerance:
             continue

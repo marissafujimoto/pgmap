@@ -23,7 +23,7 @@ def get_counts(args: argparse.Namespace):
         candidate_reads = read_trimmer.two_read_trim(*args.fastq)
 
     paired_guide_counts = counter.get_counts(
-        candidate_reads, gRNA_mappings, barcodes, gRNA2_error_tolerance=args.gRNA2_error, barcode_error_tolerance=args.barcode_error)
+        candidate_reads, gRNA_mappings, barcodes, gRNA1_error_tolerance=args.gRNA1_error, gRNA2_error_tolerance=args.gRNA2_error, barcode_error_tolerance=args.barcode_error)
 
     counts_writer.write_counts(
         args.output, paired_guide_counts, barcodes, id_mapping)
@@ -46,9 +46,11 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
     # TODO support arbitrary trim strategies
     parser.add_argument("--trim-strategy", required=True, choices=(TWO_READ_STRATEGY, THREE_READ_STRATEGY),
                         help="The trim strategy used to extract guides and barcodes. The two read strategy should have fastqs R1 and I1. The three read strategy should have fastqs R1, I1, and I2")  # TODO extract consts
-    parser.add_argument("--gRNA2-error", required=False, default=2, type=_check_nonnegative,
+    parser.add_argument("--gRNA1-error", required=False, default=1, type=_check_nonnegative,
+                        help="The number of substituted base pairs to allow in gRNA1.")
+    parser.add_argument("--gRNA2-error", required=False, default=1, type=_check_nonnegative,
                         help="The number of substituted base pairs to allow in gRNA2.")
-    parser.add_argument("--barcode-error", required=False, default=2, type=_check_nonnegative,
+    parser.add_argument("--barcode-error", required=False, default=1, type=_check_nonnegative,
                         help="The number of insertions, deletions, and subsititions of base pairs to allow in the barcodes.")
     return parser.parse_args(args)
 
