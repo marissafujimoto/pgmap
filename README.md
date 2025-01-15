@@ -8,10 +8,31 @@ It is based off of the original code and research from the Berger Lab stored in 
 
 In order to run this pipeline you will need R and to install the `pgmap` package and its dependencies. In R you can run this to install the package:
 
-TODO: installation instructions
 
-## Getting Started Tutorial
+At this time, pgmap is not yet published to PyPI. But can be used following these steps:
 
-Now you can [go to our tutorial to get started!](https://fredhutch.github.io/pgmap/articles/getting_started.html)
+First you can clone this repo:
+```
+git clone https://github.com/FredHutch/pgmap
+```
 
-Follow the steps there that will walk you through the example data. Then you can tailor that tutorial to use your own data.
+
+To install required dependencies:
+```
+pip install -r requirements.txt
+```
+
+Now you can install the package
+```
+python3 -m pip install .
+```
+
+## Getting Started
+
+You'll need to declare four files (we have example data to work with):
+
+- Two sequencing reads files:
+  - I1 fastq file
+  - R1 fastq file
+- barcodes path which says which barcodes go to which cells
+- pgPEN annotations path (this is included in the package)
