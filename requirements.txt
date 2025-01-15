@@ -1,0 +1,4 @@
+biopython==1.85
+editdistance==0.8.1
+python-Levenshtein==0.26.1
+setuptools==75.1.0
