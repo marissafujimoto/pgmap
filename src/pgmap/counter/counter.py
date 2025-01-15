@@ -1,5 +1,6 @@
 from collections import Counter
 from typing import Counter, Iterable
+import itertools
 
 from pgmap.model.paired_read import PairedRead
 from pgmap.alignment import pairwise_aligner, grna_cached_aligner
@@ -42,6 +43,9 @@ def get_counts(paired_reads: Iterable[PairedRead],
     gRNA1_cached_aligner = grna_cached_aligner.construct_grna_error_alignment_cache(
         gRNA_mappings.keys(), gRNA1_error_tolerance)
 
+    gRNA2_cached_aligner = grna_cached_aligner.construct_grna_error_alignment_cache(
+        set(itertools.chain.from_iterable(gRNA_mappings.values())), gRNA2_error_tolerance)
+
     for paired_read in paired_reads:
         paired_read.gRNA1_candidate
 
@@ -50,10 +54,12 @@ def get_counts(paired_reads: Iterable[PairedRead],
 
         gRNA1, _ = gRNA1_cached_aligner[paired_read.gRNA1_candidate]
 
-        gRNA2_score, gRNA2 = max((pairwise_aligner.hamming_score(paired_read.gRNA2_candidate, reference), reference)
-                                 for reference in gRNA_mappings[gRNA1])
+        if paired_read.gRNA2_candidate not in gRNA2_cached_aligner:
+            continue
 
-        if (len(gRNA2) - gRNA2_score) > gRNA2_error_tolerance:
+        gRNA2, _ = gRNA2_cached_aligner[paired_read.gRNA2_candidate]
+
+        if gRNA2 not in gRNA_mappings[gRNA1]:
             continue
 
         barcode_score, barcode = max((pairwise_aligner.edit_distance_score(
