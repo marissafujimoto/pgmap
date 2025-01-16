@@ -1,4 +1,4 @@
-import editdistance
+from Levenshtein import distance, hamming
 from Bio import Align
 
 _blast_aligner = Align.PairwiseAligner()
@@ -19,7 +19,7 @@ def hamming_score(candidate: str, reference: str) -> int:
     Returns:
         int: The hamming score between the candidate and reference.
     """
-    return sum(map(str.__eq__, candidate, reference))
+    return len(candidate) - hamming(candidate, reference)
 
 
 def edit_distance_score(candidate: str, reference: str) -> int:
@@ -34,7 +34,7 @@ def edit_distance_score(candidate: str, reference: str) -> int:
     Returns:
         int: The edit distance score between the candidate and reference.
     """
-    return len(reference) - editdistance.eval(candidate, reference)
+    return len(reference) - distance(candidate, reference)
 
 
 def blast_aligner_score(candidate: str, reference: str) -> int:

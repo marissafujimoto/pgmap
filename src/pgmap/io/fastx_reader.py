@@ -1,8 +1,8 @@
-from Bio import SeqIO
 from mimetypes import guess_type
 
 import gzip
 from typing import IO, Iterable
+from contextlib import contextmanager
 
 
 def read_fastq(fastq_path: str) -> Iterable[str]:
@@ -16,7 +16,10 @@ def read_fastq(fastq_path: str) -> Iterable[str]:
         str: The next sequence in the fastq file.
     """
     # TODO check file validity?
-    yield from _read_fastx(fastq_path, "fastq")
+    with _gzip_agnostic_open(fastq_path) as fastq_file:
+        for i, line in enumerate(fastq_file):
+            if i % 4 == 1:
+                yield line.strip()
 
 
 def read_fasta(fasta_path: str) -> Iterable[str]:
@@ -30,20 +33,19 @@ def read_fasta(fasta_path: str) -> Iterable[str]:
         str: The next sequence in the fasta file.
     """
     # TODO check file validity?
-    yield from _read_fastx(fasta_path, "fasta")
+    with _gzip_agnostic_open(fasta_path) as fasta_file:
+        for i, line in enumerate(fasta_file):
+            if i % 2 == 1:
+                yield line.strip()
 
 
-def _read_fastx(fastx_path: str, fastx_format_name: str) -> Iterable[str]:
-    encoding = guess_type(fastx_path)[1]
+@contextmanager
+def _gzip_agnostic_open(path: str) -> Iterable[IO]:
+    encoding = guess_type(path)[1]
 
     if encoding == "gzip":
-        with gzip.open(fastx_path, "rt") as fastx_file:
-            yield from _generate_sequences(fastx_file, fastx_format_name)
+        with gzip.open(path, "rt") as file:
+            yield file
     else:
-        with open(fastx_path) as fastx_file:
-            yield from _generate_sequences(fastx_file, fastx_format_name)
-
-
-def _generate_sequences(fastq_file: IO, fastx_format_name: str) -> Iterable[str]:
-    for read in SeqIO.parse(fastq_file, fastx_format_name):
-        yield str(read.seq)
+        with open(path) as file:
+            yield file
