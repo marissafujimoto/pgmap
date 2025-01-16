@@ -16,7 +16,6 @@ First you can clone this repo:
 git clone https://github.com/FredHutch/pgmap
 ```
 
-
 To install required dependencies:
 ```
 pip install -r requirements.txt
