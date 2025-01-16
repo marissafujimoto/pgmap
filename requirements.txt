@@ -1,0 +1,3 @@
+biopython==1.85
+python-Levenshtein==0.26.1
+setuptools==75.1.0
