@@ -167,6 +167,50 @@ class TestPgmap(unittest.TestCase):
                                            "AGA": ("AAA", 1),
                                            "AAG": ("AAA", 1)})
 
+    def test_grna_cached_aligner_error_tolerance_2(self):
+        gRNAs = ["AAA"]
+
+        alignment_cache = grna_cached_aligner.construct_grna_error_alignment_cache(
+            gRNAs, 2)
+
+        self.assertEqual(alignment_cache, {"AAA": ("AAA", 0),
+                                           "AAC": ("AAA", 1),
+                                           "AAG": ("AAA", 1),
+                                           "AAT": ("AAA", 1),
+                                           "ACA": ("AAA", 1),
+                                           "ACC": ("AAA", 2),
+                                           "ACG": ("AAA", 2),
+                                           "ACT": ("AAA", 2),
+                                           "AGA": ("AAA", 1),
+                                           "AGC": ("AAA", 2),
+                                           "AGG": ("AAA", 2),
+                                           "AGT": ("AAA", 2),
+                                           "ATA": ("AAA", 1),
+                                           "ATC": ("AAA", 2),
+                                           "ATG": ("AAA", 2),
+                                           "ATT": ("AAA", 2),
+                                           "CAA": ("AAA", 1),
+                                           "CAC": ("AAA", 2),
+                                           "CAG": ("AAA", 2),
+                                           "CAT": ("AAA", 2),
+                                           "CCA": ("AAA", 2),
+                                           "CGA": ("AAA", 2),
+                                           "CTA": ("AAA", 2),
+                                           "GAA": ("AAA", 1),
+                                           "GAC": ("AAA", 2),
+                                           "GAG": ("AAA", 2),
+                                           "GAT": ("AAA", 2),
+                                           "GCA": ("AAA", 2),
+                                           "GGA": ("AAA", 2),
+                                           "GTA": ("AAA", 2),
+                                           "TAA": ("AAA", 1),
+                                           "TAC": ("AAA", 2),
+                                           "TAG": ("AAA", 2),
+                                           "TAT": ("AAA", 2),
+                                           "TCA": ("AAA", 2),
+                                           "TGA": ("AAA", 2),
+                                           "TTA": ("AAA", 2)})
+
     def test_grna_cached_aligner_negative_error_tolerance(self):
         gRNAs = ["AAA"]
 
@@ -179,7 +223,7 @@ class TestPgmap(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             grna_cached_aligner.construct_grna_error_alignment_cache(
-                gRNAs, 2)
+                gRNAs, 3)
 
     def test_counter_no_error_tolerance(self):
         barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
@@ -308,21 +352,21 @@ class TestPgmap(unittest.TestCase):
                                     "--trim-strategy", "two-read",
                                     "--barcode-error", "-1"])
 
-    def test_arg_parse_gRNA1_error_greater_than_1(self):
+    def test_arg_parse_gRNA1_error_greater_than_2(self):
         with self.assertRaises(argparse.ArgumentError):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                     "--library", PGPEN_ANNOTATION_PATH,
                                     "--barcodes", TWO_READ_BARCODES_PATH,
                                     "--trim-strategy", "two-read",
-                                    "--gRNA1-error", "2"])
+                                    "--gRNA1-error", "3"])
 
-    def test_arg_parse_gRNA1_error_greater_than_1(self):
+    def test_arg_parse_gRNA2_error_greater_than_2(self):
         with self.assertRaises(argparse.ArgumentError):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                     "--library", PGPEN_ANNOTATION_PATH,
                                     "--barcodes", TWO_READ_BARCODES_PATH,
                                     "--trim-strategy", "two-read",
-                                    "--gRNA2-error", "2"])
+                                    "--gRNA2-error", "3"])
 
     def test_arg_parse_invalid_type_gRNA1_error(self):
         with self.assertRaises(argparse.ArgumentError):

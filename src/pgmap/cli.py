@@ -47,9 +47,9 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--trim-strategy", required=True, choices=(TWO_READ_STRATEGY, THREE_READ_STRATEGY),
                         help="The trim strategy used to extract guides and barcodes. The two read strategy should have fastqs R1 and I1. The three read strategy should have fastqs R1, I1, and I2")  # TODO extract consts
     parser.add_argument("--gRNA1-error", required=False, default=1, type=_check_gRNA1_error,
-                        help="The number of substituted base pairs to allow in gRNA1. Must be less than 2.")
+                        help="The number of substituted base pairs to allow in gRNA1. Must be less than 3.")
     parser.add_argument("--gRNA2-error", required=False, default=1, type=_check_gRNA2_error,
-                        help="The number of substituted base pairs to allow in gRNA2. Must be less than 2.")
+                        help="The number of substituted base pairs to allow in gRNA2. Must be less than 3.")
     parser.add_argument("--barcode-error", required=False, default=1, type=_check_barcode_error,
                         help="The number of insertions, deletions, and subsititions of base pairs to allow in the barcodes.")
     return parser.parse_args(args)
@@ -61,8 +61,8 @@ def _check_gRNA1_error(value: str) -> int:
     if int_value < 0:
         raise ValueError(f"gRNA1-error must be nonnegative but was {value}")
 
-    if int_value > 1:
-        raise ValueError(f"gRNA1-error must be less than 2 but was {value}")
+    if int_value > 2:
+        raise ValueError(f"gRNA1-error must be less than 3 but was {value}")
 
     return int_value
 
@@ -73,8 +73,8 @@ def _check_gRNA2_error(value: str) -> int:
     if int_value < 0:
         raise ValueError(f"gRNA2-error must be nonnegative but was {value}")
 
-    if int_value > 1:
-        raise ValueError(f"gRNA2-error must be less than 2 but was {value}")
+    if int_value > 2:
+        raise ValueError(f"gRNA2-error must be less than 3 but was {value}")
 
     return int_value
 
