@@ -271,6 +271,32 @@ class TestPgmap(unittest.TestCase):
         self.assertLess(
             sum(paired_guide_counts.values()), count)
 
+    def test_counter_max_error_tolerance(self):
+        barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
+        gRNA1s, gRNA2s, gRNA_mappings = library_reader.read_paired_guide_library_fastas(
+            "example-data/pgPEN-library/pgPEN_R1.fa", "example-data/pgPEN-library/pgPEN_R2.fa")
+
+        candidate_reads = read_trimmer.two_read_trim(
+            TWO_READ_R1_PATH, TWO_READ_I1_PATH)
+
+        paired_guide_counts = counter.get_counts(
+            candidate_reads, gRNA_mappings, barcodes, gRNA1_error_tolerance=2, gRNA2_error_tolerance=2)
+
+        count = 0
+        perfect_alignments = 0
+
+        for paired_read in read_trimmer.two_read_trim(TWO_READ_R1_PATH, TWO_READ_I1_PATH):
+            count += 1
+
+            if paired_read.gRNA1_candidate in gRNA1s and paired_read.gRNA2_candidate in gRNA_mappings[paired_read.gRNA1_candidate] and paired_read.barcode_candidate in barcodes:
+                perfect_alignments += 1
+
+        # Max error tolerance counts should be greater than perfect alignment but less than all counts
+        self.assertGreater(
+            sum(paired_guide_counts.values()), perfect_alignments)
+        self.assertLess(
+            sum(paired_guide_counts.values()), count)
+
     def test_counter_hardcoded_test_data(self):
         barcodes = {"AAAA", "CCCC", "TTTT"}
         gRNA_mappings = {"ACT": {"CAG", "GGC", "TTG"}}
