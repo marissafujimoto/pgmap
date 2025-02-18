@@ -10,6 +10,10 @@ TWO_READ_STRATEGY = "two-read"
 THREE_READ_STRATEGY = "three-read"
 
 
+def main():
+    get_counts(_parse_args(sys.argv[1:]))
+
+
 def get_counts(args: argparse.Namespace):
     barcodes = barcode_reader.read_barcodes(args.barcodes)
     gRNA1s, gRNA2s, gRNA_mappings, id_mapping = library_reader.read_paired_guide_library_annotation(
@@ -97,4 +101,4 @@ def _check_file_exists(path: str) -> str:
 
 
 if __name__ == "__main__":
-    get_counts(_parse_args(sys.argv[1:]))
+    main()
