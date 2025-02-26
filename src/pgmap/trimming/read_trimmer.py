@@ -2,7 +2,7 @@ from typing import Iterable
 
 from pgmap.io.fastx_reader import read_fastq
 from pgmap.model.trim_coordinate import TrimCoordinate
-from pgmap.model.trim_strategy import TrimStrategy
+from pgmap.model.trim_strategy import TrimStrategy, DEFAULT_TWO_READ_TRIM_STRATEGY, DEFAULT_THREE_READ_TRIM_STRATEGY
 from pgmap.model.paired_read import PairedRead
 
 
@@ -18,14 +18,7 @@ def two_read_trim(R1_path: str, I1_path: str, ) -> Iterable[PairedRead]:
         candidates (PairedRead): Trimmed paired reads.
     """
     # TODO include some kind of citation or link to the two read sequencing strategy?
-    gRNA1_trim_coord = TrimCoordinate(file_index=0, start=0, end=20)
-    gRNA2_trim_coord = TrimCoordinate(file_index=1, start=1, end=21)
-    barcode_trim_coord = TrimCoordinate(file_index=1, start=160, end=166)
-
-    trim_strategy = TrimStrategy(
-        gRNA1=gRNA1_trim_coord, gRNA2=gRNA2_trim_coord, barcode=barcode_trim_coord)
-
-    yield from trim([R1_path, I1_path], trim_strategy)
+    yield from trim([R1_path, I1_path], DEFAULT_TWO_READ_TRIM_STRATEGY)
 
 
 def three_read_trim(R1_path: str, R2_path: str, I1_path: str) -> Iterable[PairedRead]:
@@ -47,7 +40,7 @@ def three_read_trim(R1_path: str, R2_path: str, I1_path: str) -> Iterable[Paired
     trim_strategy = TrimStrategy(
         gRNA1=gRNA1_trim_coord, gRNA2=gRNA2_trim_coord, barcode=barcode_trim_coord)
 
-    yield from trim([R1_path, R2_path, I1_path], trim_strategy)
+    yield from trim([R1_path, R2_path, I1_path], DEFAULT_THREE_READ_TRIM_STRATEGY)
 
 
 def trim(fastq_paths: list[str], trim_strategy: TrimStrategy) -> Iterable[PairedRead]:

@@ -6,7 +6,7 @@ from pgmap.counter import counter
 from pgmap.io import barcode_reader, library_reader, counts_writer
 from pgmap.trimming import read_trimmer
 from pgmap.model.trim_coordinate import TrimCoordinate
-from pgmap.model.trim_strategy import TrimStrategy
+from pgmap.model.trim_strategy import TrimStrategy, DEFAULT_TWO_READ_TRIM_STRATEGY, DEFAULT_THREE_READ_TRIM_STRATEGY
 
 TWO_READ_STRATEGY = "two-read"
 THREE_READ_STRATEGY = "three-read"
@@ -106,17 +106,9 @@ def _check_file_exists(path: str) -> str:
 
 def _check_trim_strategy(serialized_trim_strategy: str) -> TrimStrategy:
     if serialized_trim_strategy == TWO_READ_STRATEGY:
-        gRNA1_trim_coord = TrimCoordinate(file_index=0, start=0, end=20)
-        gRNA2_trim_coord = TrimCoordinate(file_index=1, start=1, end=21)
-        barcode_trim_coord = TrimCoordinate(file_index=1, start=160, end=166)
-
-        return TrimStrategy(gRNA1=gRNA1_trim_coord, gRNA2=gRNA2_trim_coord, barcode=barcode_trim_coord)
+        return DEFAULT_TWO_READ_TRIM_STRATEGY
     elif serialized_trim_strategy == THREE_READ_STRATEGY:
-        gRNA1_trim_coord = TrimCoordinate(file_index=0, start=0, end=20)
-        gRNA2_trim_coord = TrimCoordinate(file_index=1, start=1, end=21)
-        barcode_trim_coord = TrimCoordinate(file_index=2, start=0, end=6)
-
-        return TrimStrategy(gRNA1=gRNA1_trim_coord, gRNA2=gRNA2_trim_coord, barcode=barcode_trim_coord)
+        return DEFAULT_THREE_READ_TRIM_STRATEGY
     else:
         serialized_trim_coordinates = serialized_trim_strategy.strip().split()
 
