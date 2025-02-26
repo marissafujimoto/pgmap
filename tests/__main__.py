@@ -430,7 +430,7 @@ class TestPgmap(unittest.TestCase):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                     "--library", PGPEN_ANNOTATION_PATH,
                                     "--barcodes", TWO_READ_BARCODES_PATH,
-                                    "--trim-strategy", "0:0:20 1:1:21 1:160:166 0:0:20 1:1:21 1:160:166"])
+                                    "--trim-strategy", "0:0:20,1:1:21,1:160:166,0:0:20,1:1:21,1:160:166"])
 
     def test_arg_parse_invalid_length_zero_trim_strategy_error(self):
         with self.assertRaises(argparse.ArgumentError):
@@ -444,14 +444,14 @@ class TestPgmap(unittest.TestCase):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                     "--library", PGPEN_ANNOTATION_PATH,
                                     "--barcodes", TWO_READ_BARCODES_PATH,
-                                    "--trim-strategy", "0:0:20:2 1:1:21 1:160:166"])
+                                    "--trim-strategy", "0:0:20:2,1:1:21,1:160:166"])
 
     def test_arg_parse_invalid_type_in_trim_coordinate_error(self):
         with self.assertRaises(argparse.ArgumentError):
             args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
                                     "--library", PGPEN_ANNOTATION_PATH,
                                     "--barcodes", TWO_READ_BARCODES_PATH,
-                                    "--trim-strategy", "one:0:20 1:1:21 1:160:166"])
+                                    "--trim-strategy", "one:0:20,1:1:21,1:160:166"])
 
     def setUp(self):
         self.test_output_path = f"test_file_{uuid.uuid4().hex}.tsv"
@@ -491,7 +491,7 @@ class TestPgmap(unittest.TestCase):
                                 "--library", PGPEN_ANNOTATION_PATH,
                                 "--barcodes", TWO_READ_BARCODES_PATH,
                                 "--output", self.test_output_path,
-                                "--trim-strategy", "0:0:20 1:1:21 1:160:165",  # trim barcode one off two-read
+                                "--trim-strategy", "0:0:20,1:1:21,1:160:165",  # trim barcode one off two-read
                                 "--barcode-error", "1"])
         cli.get_counts(args)
 
@@ -530,6 +530,37 @@ class TestPgmap(unittest.TestCase):
         # finally check that they are not exactly equal
         self.assertNotEqual(sum(file_counts.values()),
                             sum(paired_guide_counts.values()))
+
+    def test_main_custom_trim_strategy_equivalence(self):
+        args = cli._parse_args(["--fastq", TWO_READ_R1_PATH, TWO_READ_I1_PATH,
+                                "--library", PGPEN_ANNOTATION_PATH,
+                                "--barcodes", TWO_READ_BARCODES_PATH,
+                                "--output", self.test_output_path,
+                                # same as two read default trim strategy
+                                "--trim-strategy", "0:0:20,1:1:21,1:160:166"])
+        cli.get_counts(args)
+
+        self.assertTrue(os.path.exists(self.test_output_path))
+
+        barcodes = barcode_reader.read_barcodes(TWO_READ_BARCODES_PATH)
+
+        gRNA1s, gRNA2s, gRNA_mappings, id_mapping = library_reader.read_paired_guide_library_annotation(
+            PGPEN_ANNOTATION_PATH)
+
+        candidate_reads = read_trimmer.two_read_trim(
+            TWO_READ_R1_PATH, TWO_READ_I1_PATH)
+
+        paired_guide_counts = counter.get_counts(
+            candidate_reads, gRNA_mappings, barcodes)
+
+        file_counts = self.load_counts_from_output_file(
+            self.test_output_path, barcodes)
+
+        lte_count = 0
+        total_count = len(paired_guide_counts)
+
+        for k in paired_guide_counts:
+            self.assertEqual(file_counts[k], paired_guide_counts[k])
 
     def load_counts_from_output_file(self, output_path: str, barcodes: dict[str, str]) -> Counter[tuple[str, str, str]]:
         with open(output_path, 'r') as file:

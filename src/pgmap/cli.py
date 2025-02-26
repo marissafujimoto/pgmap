@@ -48,10 +48,11 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
                         help="Output file path to populate with the counts for each paired guide and sample. If not provided the counts will be output in STDOUT.")
     parser.add_argument("--trim-strategy", required=True, type=_check_trim_strategy,
                         help="The trim strategy used to extract guides and barcodes. " +
-                             "A custom trim strategy should be formatted as as space separate list of trim coordinates for gRNA1, gRNA2, and the barcode. " +
+                             "A custom trim strategy should be formatted as as comma separate list of trim coordinates for gRNA1, gRNA2, and the barcode. " +
                              "Each trim coordinate should contain three zero indexed integers giving the file index relative to the order provided in --fastq, " +
                              "the inclusive start index of the trim, and the exclusive end index of the trim. " +
-                             "For convenience the options \"two-read\" and \"three-read\" map to default values \"0:0:20 1:1:21 1:160:166\" and \"0:0:20 1:1:21 2:0:6\" respectively. " +
+                             "The indices within the trim coordinate should be separated by colon. " +
+                             "For convenience the options \"two-read\" and \"three-read\" map to default values \"0:0:20,1:1:21,1:160:166\" and \"0:0:20,1:1:21,2:0:6\" respectively. " +
                              "The two read strategy should have fastqs R1 and I1. " +
                              "The three read strategy should have fastqs R1, I1, and I2.")
     parser.add_argument("--gRNA1-error", required=False, default=1, type=_check_gRNA1_error,
@@ -110,7 +111,7 @@ def _check_trim_strategy(serialized_trim_strategy: str) -> TrimStrategy:
     elif serialized_trim_strategy == THREE_READ_STRATEGY:
         return DEFAULT_THREE_READ_TRIM_STRATEGY
     else:
-        serialized_trim_coordinates = serialized_trim_strategy.strip().split()
+        serialized_trim_coordinates = serialized_trim_strategy.strip().split(',')
 
         if len(serialized_trim_coordinates) != 3:
             raise ValueError(
