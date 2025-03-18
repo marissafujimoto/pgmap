@@ -77,7 +77,11 @@ You'll need to declare four files (we have example data to work with):
 Test data available in `example-data`.
 
 ```
-pgmap --fastq example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz --library example-data/pgPEN-library/paralog_pgRNA_annotations.txt --barcodes example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/barcode_ref_file_revcomp.txt --trim-strategy two-read
+pgmap --fastq example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz \
+example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz \
+--library example-data/pgPEN-library/paralog_pgRNA_annotations.txt \
+--barcodes example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/barcode_ref_file_revcomp.txt \
+--trim-strategy two-read
 ```
 
 ## pgPEN Library
@@ -104,7 +108,10 @@ Here is a full example of the effects of trimming with the default `two-read` tr
 
 | R1.fastq | I1.fastq | gRNA1 | gRNA2 | barcode |
 | - | - | - | - | - |
-| **GAGGGAGGGCGAGCTTACGG**TTTTAG | A**CCTCTGGAAGGACACTTCTG**GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCGTTATCAACTTGAAAAAGTGGCACCGAGTCGGTGCTTTTTTAAGCTTGGCGTAACTAGATCTTGGGTTTGGAGCGAGATTGATAAAGTGCCGACGGTC**CCGGTG**AT | **GAGGGAGGGCGAGCTTACGG** | **CCTCTGGAAGGACACTTCTG** | **CCGGTG** |
+| **GAGGGAGGGCGAGCTTACGG**TTTTAG | A**CCTCTGGAAGGACACTTCTG**GTTTTAGAGCTAGAAATAGCA
+AGTTAAAATAAGGCTAGTCCGTTATCAACTTGAAAAAGTGGC
+ACCGAGTCGGTGCTTTTTTAAGCTTGGCGTAACTAGATCTTG
+GGTTTGGAGCGAGATTGATAAAGTGCCGACGGTC**CCGGTG**AT | **GAGGGAGGGCGAGCTTACGG** | **CCTCTGGAAGGACACTTCTG** | **CCGGTG** |
 
 ## Output Format
 
