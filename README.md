@@ -80,6 +80,10 @@ Test data available in `example-data`.
 pgmap --fastq example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_R1_001_Sampled10k.fastq.gz example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_001_Sampled10k.fastq.gz --library example-data/pgPEN-library/paralog_pgRNA_annotations.txt --barcodes example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/barcode_ref_file_revcomp.txt --trim-strategy two-read
 ```
 
+## pgPEN Library
+
+`pgmap` is a general purpose tool for counting reads of paired guide screens, however it was originally developed for the [pgPEN library](https://www.addgene.org/pooled-library/berger-human-pgpen/) described in the paper [Discovery of synthetic lethal and tumor suppressor paralog pairs in the human genome](https://pubmed.ncbi.nlm.nih.gov/34469736/) by Parrish Et Al.
+
 ## Library Annotations
 
 pgmap searches for guides against a library of known paired guides given as the `--libary` argument. This should be a tab separated file with columns labeled "id" "seq_1" and "seq_2". "seq_1" and "seq_2" correspond to the DNA guide sequences (not RNA) that pgmap should map to for each paired guide. "id" should be a unique label for each paired guide, with the suggestion to use include the names of the target genes for each guide. The library annotation for pgPEN is provided in `example-data/pgPEN-library/paralog_pgRNA_annotations.txt`.
