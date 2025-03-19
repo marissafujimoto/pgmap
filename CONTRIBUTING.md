@@ -22,4 +22,4 @@ This document describes how to contribute to this python package.
 
 ## Testing
 
-For new code please you should write tests which cover both happy case and edge cases with the built in `unittest` library. Examples of this are included in the `tests` folder.
+For new code you should write tests which cover both happy case and edge cases with python's built in `unittest` library. Examples of this are included in the `tests` folder.
