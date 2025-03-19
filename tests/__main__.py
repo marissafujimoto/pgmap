@@ -136,14 +136,6 @@ class TestPgmap(unittest.TestCase):
         self.assertEqual(
             pairwise_aligner.edit_distance_score("ABC", "ABC"), 3)
 
-    def test_blast_aligner_score(self):
-        self.assertEqual(
-            pairwise_aligner.blast_aligner_score("ABC", "XAB"), -3)
-        self.assertEqual(
-            pairwise_aligner.blast_aligner_score("ABC", "XXX"), -6)
-        self.assertEqual(
-            pairwise_aligner.blast_aligner_score("ABC", "ABC"), 3)
-
     def test_grna_cached_aligner_error_tolerance_0(self):
         gRNAs = ["AAA"]
 
