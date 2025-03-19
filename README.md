@@ -121,3 +121,17 @@ Corresponding trim output:
 ## Output Format
 
 `pgmap` outputs in a tab separated table with the columns for "id", "seq_1", "seq_2" corresponding to the library annotation file and an additional column for counts for each paired guide and sample name defined in the barcodes file.
+
+As an example here is the head of the output from the [usage example](#usage-example) (Note that the counts are zero for these selected guides as the example fastqs are subsetted reads used for functional validation).
+
+| id | seq_1 | seq_2 | sample1 | sample2 | sample3 | sample4 | sample5 |
+| - | - | - | - | - | - | - | - |
+| AADAC_AADACL2_pg1	| AAGTCTGAAGCACTAAGAAG | AAAGAAAGTCAGAAACCCGA | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg10 | ATTTCTATCCAAATCACTCA | GAAAAAATTTGACTGCAGCA | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg11 | ATTTCTATCCAAATCACTCA | GTGATGTATTCATCTGAAAG | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg12 | ATTTCTATCCAAATCACTCA | TGGGGGCAATTTAGCAACAG | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg13 | GGTATTTCTGGAGATAGTGC | AAAGAAAGTCAGAAACCCGA | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg14 | GGTATTTCTGGAGATAGTGC | GAAAAAATTTGACTGCAGCA | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg15 | GGTATTTCTGGAGATAGTGC | GTGATGTATTCATCTGAAAG | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg16 | GGTATTTCTGGAGATAGTGC | TGGGGGCAATTTAGCAACAG | 0 | 0 | 0 | 0 | 0 |
+| AADAC_AADACL2_pg2 | AAGTCTGAAGCACTAAGAAG | GAAAAAATTTGACTGCAGCA | 0 | 0 | 0 | 0 | 0 |
