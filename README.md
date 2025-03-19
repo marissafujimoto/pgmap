@@ -86,15 +86,15 @@ example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_0
 
 ## pgPEN Library
 
-`pgmap` is a general purpose tool for counting reads of paired guide screens, however it was originally developed for the [pgPEN library](https://www.addgene.org/pooled-library/berger-human-pgpen/) described in the paper [Discovery of synthetic lethal and tumor suppressor paralog pairs in the human genome](https://pubmed.ncbi.nlm.nih.gov/34469736/) by Parrish Et Al.
+`pgmap` is a general purpose tool for counting reads of paired guide screens, however it was originally developed for the [pgPEN library](https://www.addgene.org/pooled-library/berger-human-pgpen/) described in the paper [Discovery of synthetic lethal and tumor suppressor paralog pairs in the human genome](https://pubmed.ncbi.nlm.nih.gov/34469736/) by Parrish _et al_.
 
 ## Library Annotations
 
-pgmap searches for guides against a library of known paired guides given as the `--libary` argument. This should be a tab separated file with columns labeled "id" "seq_1" and "seq_2". "seq_1" and "seq_2" correspond to the DNA guide sequences (not RNA) that pgmap should map to for each paired guide. "id" should be a unique label for each paired guide, with the suggestion to use include the names of the target genes for each guide. The library annotation for pgPEN is provided in `example-data/pgPEN-library/paralog_pgRNA_annotations.txt`.
+pgmap searches for guides against a library of known paired guides given as the `--library` argument. This should be a tab separated file with columns labeled "id" "seq_1" and "seq_2". "seq_1" and "seq_2" correspond to the DNA guide sequences (not RNA) that pgmap should map to for each paired guide. "id" should be a unique label for each paired guide, with the suggestion to use include the names of the target genes for each guide. The library annotation for pgPEN is provided in `example-data/pgPEN-library/paralog_pgRNA_annotations.txt`.
 
 ## Barcodes
 
-Barcodes should be given in a two column tab separated text file with sample names as the first column and the sample barcode sequences in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt".
+Barcodes should be given in a two column tab separated text file with sample names as the first column and the sample barcode sequences in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt`.
 
 ## Custom Trim Strategies
 
