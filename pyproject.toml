@@ -8,6 +8,10 @@ version = "1.0.0"
 authors = [
   { name="Marissa Fujimoto" },
   { name="Candace Savonen" },
+  { name="Siobhan O'Brien" },
+  { name="Pheobe Parrish" },
+  { name="Daniel Groso" },
+  { name="Alice Berger" },
 ]
 description = "A command line tool to map gRNA sequencing reads from dual-targeting CRISPR screens."
 readme = "README.md"
