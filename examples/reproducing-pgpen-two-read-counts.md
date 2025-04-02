@@ -16,7 +16,7 @@ The sequencing strategy defines how sequences are read from an amplicon. In the 
 
 ### Diagram of Amplicon
 
-![Diagram of pgPEN Library Amplicon: Two Read Sequencing Strategy](assets/two-read-amplicon.png)
+![Diagram of pgPEN Library Amplicon: Two Read Sequencing Strategy](assets/two-read-amplicon.svg)
 
 Here we provide a diagram of the amplicon used for pgPEN and a two read strategy.
 
@@ -84,4 +84,3 @@ This should quickly output the counts per paired guide and sample in the format 
 ### Notes on Performance
 
 Remember that this example is using a small subsampling of real data and that in practice the runtime of `pgmap` will be much longer. Expect anywhere from ten minutes to a few hours at the extreme higher end to get counts from a large sequencing run. The time taken to run pgmap is roughly proportional to the number of reads in the fastq inputs. Meanwhile the memory used will be proportional to the size of the library in terms of the number of guides and the level of error tolerance desired. `pgmap` was designed to be used in situations where the number of unique guides is on the order of tens of thousands. The expected memory scales linearly with the amount of guides and exponentially with the level of error tolerance desired (max of 2). `pgmap` is single threaded and does not benefit from multithreaded compute resources.
- 
