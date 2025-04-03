@@ -1,6 +1,6 @@
 # CONTRIBUTING
 
-This document describes how to contribute to this R package.
+This document describes how to contribute to this python package.
 
 ## GitHub Workflow
 
@@ -11,22 +11,15 @@ This document describes how to contribute to this R package.
 
 ## Automatic checks
 
-- `R-CMD-checks` - these checks make sure that the R package files are built properly. It will also rebuild the vignette underneath 4 different operating systems:
-  - windows
-  - macOS
-  - ubuntu release
-  - ubuntu dev
-- `docker-build.yml` - handles the docker image associated with this pipeline. Any changes to the docker image will be tested by this GitHub Action by rebuilding it.
-- `style-code.yml` - this will style your code and commit any changes to the pull request
+- `test-package.yml` - this will run tests and report the results.
 
+## Setting Up Your Development Environment
+
+- Follow the instructions to install from source in the [README](README.md).
+- Use the editor of your choice to make changes.
+- Build your changes and test with `pip install . && python -m tests`.
+- If adding new dependencies, specify them in `requirements.txt` and `pip install -r requirements.txt` to update your environment. Considering using an environment manager like [conda](https://docs.conda.io/projects/conda/) to manage your environments.
 
 ## Testing
 
-Whenever appropriate, new functions should be added to:
-  - the `vignette/getting-started.Rmd` if they are a part of the essential workflow.
-  - a unit test using testthat. You can create a new test using `usethis::use_test("name")`. then open up that file in the `tests/testthat` folder and write a test there. See this chapter for how to write tests https://r-pkgs.org/testing-basics.html
-
-
-## Docker image
-
-For reproducibility purposes, this repository has a Docker image. And software requirements should be added to this Docker image as development occurs.
+For new code you should write tests which cover both happy case and edge cases with python's built in `unittest` library. Examples of this are included in the `tests` folder.
