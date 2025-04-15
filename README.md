@@ -84,6 +84,8 @@ example-data/two-read-strategy/240123_VH01189_224_AAFGFNYM5/Undetermined_S0_I1_0
 --trim-strategy two-read
 ```
 
+For an in-depth example walking through choosing the trim strategy and error tolerances see the guide [here](examples/reproducing-pgpen-two-read-counts.md).
+
 ## pgPEN Library
 
 `pgmap` is a general purpose tool for counting reads of paired guide screens, however it was originally developed for the [pgPEN library](https://www.addgene.org/pooled-library/berger-human-pgpen/) described in the paper [Discovery of synthetic lethal and tumor suppressor paralog pairs in the human genome](https://pubmed.ncbi.nlm.nih.gov/34469736/) by Parrish _et al_.
