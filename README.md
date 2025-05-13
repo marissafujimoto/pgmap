@@ -96,7 +96,7 @@ pgmap searches for guides against a library of known paired guides given as the 
 
 ## Barcodes
 
-Barcodes should be given in a two column tab separated text file with sample names as the first column and the sample barcode sequences in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt`.
+Barcodes should be given in a two column tab separated text file with the sample barcode sequences in the first column and the sample names in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt`.
 
 ## Custom Trim Strategies
 
