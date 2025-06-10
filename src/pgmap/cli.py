@@ -37,7 +37,7 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
         prog="pgmap", description="A tool to count paired guides from CRISPR double knockout screens.", exit_on_error=False)
     # TODO in general these file formats should be documented more
     parser.add_argument("-f", "--fastq", nargs='+', required=True, type=_check_file_exists,
-                        help="Fastq files to count from, separated by space. Can optionally be gzipped.")
+                        help="Fastq files to count from, separated by space. Can optionally be gzipped. The order of these files corresponds to their index for the trim strategy.")
     parser.add_argument("-l", "--library", required=True, type=_check_file_exists,
                         help="File containing annotated pgRNA information including the pgRNA id and both guide sequences.")
     # TODO support no barcodes?
@@ -53,8 +53,8 @@ def _parse_args(args: list[str]) -> argparse.Namespace:
                              "the inclusive start index of the trim, and the exclusive end index of the trim. " +
                              "The indices within the trim coordinate should be separated by colon. " +
                              "For convenience the options \"two-read\" and \"three-read\" map to default values \"0:0:20,1:1:21,1:160:166\" and \"0:0:20,1:1:21,2:0:6\" respectively. " +
-                             "The two read strategy should have fastqs R1 and I1. " +
-                             "The three read strategy should have fastqs R1, I1, and I2.")
+                             "The two read strategy should have fastqs R1 and I1 in that order. " +
+                             "The three read strategy should have fastqs R1, I1, and I2 in that order.")
     parser.add_argument("--gRNA1-error", required=False, default=1, type=_check_gRNA1_error,
                         help="The number of substituted base pairs to allow in gRNA1. Must be less than 3. Defaults to 1.")
     parser.add_argument("--gRNA2-error", required=False, default=1, type=_check_gRNA2_error,
