@@ -96,7 +96,7 @@ pgmap searches for guides against a library of known paired guides given as the 
 
 ## Barcodes
 
-Barcodes should be given in a two column tab separated text file with the sample barcode sequences in the first column and the sample names in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt`.
+Barcodes should be given in a two column tab separated text file with the sample barcode sequences in the first column and the sample names in the second column. An example is provided under `example-data/three-read-strategy/HeLa/screen_barcodes.txt`. Note that the orientation of the expected barcode sequences should match the direction of the sequencing read covering the barcode. Using the reverse compliment of the barcode sequences will not result in pgMAP raising an error, but the count output would be close to zero for all samples. For a diagram of the two-read strategy used in pgPEN screens see [here](examples/reproducing-pgpen-two-read-counts.md).
 
 ## Custom Trim Strategies
 
